@@ -1,6 +1,6 @@
 # Sources, compatibility evidence, and distribution
 
-Verified authoring baseline: **2026-10-07**. This skill targets Skeleton **v3**, Svelte **5.57.2**, and SvelteKit **3.0.1**. It is a portable technical reference, not an upstream support statement or deployment/accessibility certification.
+Verified authoring baseline: **2026-10-07**. This skill targets Skeleton **v3**, Svelte **5.57.2**, and SvelteKit **3.0.1**. It is a portable technical reference, not an upstream support statement or certification of deployment or accessibility.
 
 ## Choose the authority before copying code
 
@@ -44,7 +44,7 @@ No network or documentation service is required for the bundled patterns or for 
 
 ## Exact compatibility baseline and observed smoke
 
-Skeleton's packages are **independently numbered**: core **`3.2.2`** pairs here with Svelte components **`1.5.3`**, not component version `3`. The component package's own metadata lists core `3.2.2` as a development dependency; its consumer peer is Svelte `^5.20.0`, while core's peer is Tailwind `^4.0.0`. Those records help establish the chosen pair, not Kit 3 runtime certification.
+Skeleton's packages are **independently numbered**: this baseline pairs core **`3.2.2`** with Svelte components **`1.5.3`**. Skeleton v3 does not imply component version `3`. The component package's metadata lists core `3.2.2` as a development dependency, not a consumer peer requirement. Its consumer peer is Svelte `^5.20.0`; core's peer is Tailwind `^4.0.0`. These records help establish the chosen pair and its peer requirements. They do not certify Kit 3 runtime compatibility.
 
 The isolated authoring fixture used this exact toolchain:
 
@@ -58,7 +58,7 @@ The isolated authoring fixture used this exact toolchain:
 | `tailwindcss` / `@tailwindcss/vite` | `4.3.3` / `4.3.3` |
 | `@sveltejs/adapter-auto` / `@tailwindcss/forms` | `8.0.0` / `0.5.11` |
 
-Kit `3.0.1` requires Node `>=22.17` and peers on Svelte `^5.57.1`, Vite `^8.0.12`, and Svelte Vite plugin `^7.0.0`. Its TypeScript `^6.0.0` peer is **optional**: JavaScript-only projects need not add TypeScript. When TypeScript tooling is present, the baseline uses the published stable `6.0.3`; the peer range is not an instruction to install the unpublished exact `6.0.0`. Also satisfy every selected tool's engine range. See [setup](setup.md#version-contract) for pinned setup and registry links.
+Kit `3.0.1` requires Node `>=22.17` and has peer requirements for Svelte `^5.57.1`, Vite `^8.0.12`, and Svelte Vite plugin `^7.0.0`. Its TypeScript `^6.0.0` peer is **optional**: JavaScript-only projects need not add TypeScript. When TypeScript tooling is present, the baseline uses the published stable `6.0.3`; the peer range is not an instruction to install the unpublished exact `6.0.0`. Also satisfy every selected tool's engine range. See [setup](setup.md#version-contract) for pinned setup and registry links.
 
 **Observed authoring checks on 2026-10-07:**
 
@@ -67,12 +67,12 @@ Kit `3.0.1` requires Node `>=22.17` and peers on Svelte `^5.57.1`, Vite `^8.0.12
 - `npm run check` checked **264 files with 0 errors and 0 warnings**.
 - `npm run build` completed both server and client production builds. Adapter auto reported **no deployment target**.
 - An SSR page rendered all six Skeleton recipes plus the Svelte/native examples.
-- Real-browser smoke of the extracted examples exercised parent `bind:value` and derived length; native required validation and local Preview status; Tabs click/ArrowLeft activation; Accordion click/Space collapse; Switch Space activation and native `FormData`; Tooltip keyboard Tab exposure, `aria-describedby`, and Escape; Modal accessible title, initial focus, Shift+Tab containment, Escape/focus restoration, and local confirmation state; and Toaster creation/rendering.
-- Styling smoke confirmed resolved Cerberus tokens, computed dark-mode color pairings, reduced-motion response, and no horizontal overflow at a 390px viewport; desktop/mobile screenshots were inspected.
-- Production preview with JavaScript disabled rendered SSR markup and exercised native greeting whitespace validation plus successful `Hello, Grace!`. With JavaScript enabled, the enhanced action produced field `aria-invalid` on a server error and successful `Hello, Ada!`.
-- The final hydrated browser error list was empty. Initial development dependency optimization had aborted module requests; a reload resolved that initial condition before the interactions above were exercised.
+- A real-browser smoke test of the extracted examples exercised parent `bind:value` and derived length, native required validation, and local Preview status. It exercised Tabs activation by click and ArrowLeft, Accordion collapse by click and Space, and Switch activation by Space and inclusion in native `FormData`. Tooltip checks covered exposure by keyboard Tab, `aria-describedby`, and Escape. Modal checks covered the accessible title, initial focus, Shift+Tab containment, Escape and focus restoration, and local confirmation state. The smoke test also exercised Toaster creation and rendering.
+- A styling smoke test confirmed resolved Cerberus tokens, computed dark-mode color pairings, reduced-motion response, and no horizontal overflow at a 390px viewport. Desktop and mobile screenshots were inspected.
+- With JavaScript disabled, production preview rendered SSR markup and exercised native greeting whitespace validation and a successful `Hello, Grace!` response. With JavaScript enabled, the enhanced action produced field `aria-invalid` on a server error and a successful `Hello, Ada!` response.
+- The final hydrated browser error list was empty. Initial development dependency optimization had aborted module requests. A reload resolved that initial condition before the interactions above were exercised.
 
-These observations apply to the authoring fixture and documented examples at the pinned baseline, not every exported component, every application, every browser, or all versions satisfying the peer ranges. They do not certify a full contrast audit, screen-reader/assistive-technology behavior, production adapters, hosting, or deployment. File selection/upload and other interactions not listed above are not claimed as tested. The published archived minimums and peer ranges are separate evidence from the checks actually exercised.
+These observations apply to the authoring fixture and documented examples at the pinned baseline. They do not cover every exported component, application, browser, or version satisfying the peer ranges. They do not certify a full contrast audit, screen-reader or assistive-technology behavior, production adapters, hosting, or deployment. File selection/upload and other interactions not listed above are not claimed as tested. The published archived minimums and peer ranges are separate evidence from the checks actually exercised.
 
 ## Maintenance and future re-verification
 
@@ -89,4 +89,4 @@ When updating this skill or integrating different versions:
 
 Distribute the **entire `skeleton-svelte/` directory**, containing `SKILL.md` and its `references/` directory. Copy that intact directory into a skill location supported by the consumer's agent/host, following that host's documented discovery instructions. Keep the directory name `skeleton-svelte` aligned with the frontmatter `name`; preserve relative links and reference filenames. Do not distribute only `SKILL.md`, flatten the references, or rely on the authoring workspace's absolute paths.
 
-There is no universal agent-specific CLI or skill path prescribed here. Reload/refresh discovery only as the consumer host requires, and let the description/task router select this skill for relevant Skeleton v3 work; installing it does not require all UI tasks to use it. Installing the skill copies documentation, **not** application dependencies or a verified toolchain. Its bundled references remain useful offline; online sources are optional corroboration, while package installation requires the consumer's normal registry/cache access.
+This reference prescribes no universal agent-specific CLI or skill path. Reload or refresh discovery only as the consumer host requires, and let the description and task router select this skill for relevant Skeleton v3 work. Installing it does not require all UI tasks to use it. Installing the skill copies documentation, **not** application dependencies or a verified toolchain. Its bundled references remain useful offline; online sources are optional corroboration, while package installation requires the consumer's normal registry or cache access.

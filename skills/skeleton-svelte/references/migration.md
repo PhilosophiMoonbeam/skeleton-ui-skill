@@ -15,16 +15,16 @@ Sources: [core CSS exports](https://registry.npmjs.org/@skeletonlabs/skeleton/3.
 
 ## Separate framework upgrades from Skeleton migration
 
-Work on a migration branch with existing changes preserved. The archived guide is a major rewrite, not a prop-compatible update, and explicitly leaves component props and many utility migrations to manual work.
+Work on a migration branch and preserve existing changes. The archived guide describes a major rewrite, not a prop-compatible update, and explicitly leaves component props and many utility migrations to manual work.
 
-1. Inventory legacy imports, root-level providers, Tailwind/PostCSS configuration, theme registration, custom CSS classes, and each affected component callsite.
+1. Inventory legacy imports, root-level providers, Tailwind and PostCSS configuration, theme registration, custom CSS classes, and each affected component callsite.
 2. Migrate Svelte to `5.57.2` using the [Svelte 5 migration guide](https://svelte.dev/docs/svelte/v5-migration-guide). Existing legacy Svelte syntax can still work; don't conflate that with retaining removed Skeleton APIs.
-3. Migrate Kit to `3.0.1` using the [Kit 3 migration guide](https://svelte.dev/docs/kit/migrating-to-sveltekit-3), not only the archived Skeleton guide's Kit 2 instructions. Move `svelte.config.*` options into `sveltekit({...})` in Vite, remove the obsolete config, migrate changed module imports, and update the adapter/toolchain. Preserve supported application settings.
+3. Migrate Kit to `3.0.1` using the [Kit 3 migration guide](https://svelte.dev/docs/kit/migrating-to-sveltekit-3), not only the archived Skeleton guide's Kit 2 instructions. Move `svelte.config.*` options into `sveltekit({...})` in Vite, remove the obsolete configuration, migrate changed module imports, and update the adapter and toolchain. Preserve supported application settings.
 4. Migrate root `tsconfig.json` from `./.svelte-kit/tsconfig.json` to `$app/tsconfig`, with explicit `include: ["src", "test", "*"]` and `exclude: ["src/service-worker"]`. Merge existing compiler options, additional source paths, and exclusions rather than overwriting them. The old generated config is obsolete; use the [complete setup reference](setup.md#typescript-configuration) and [exact Kit 3 migration section](https://svelte.dev/docs/kit/migrating-to-sveltekit-3#$app-tsconfig).
 5. Migrate Tailwind to 4 and remove the v2 integration described below.
-6. Install the [exact setup pins](setup.md), implement CSS/theme/scanning integration, then migrate every legacy component/store caller.
+6. Install the [exact setup pins](setup.md), integrate CSS, themes, and source scanning, then migrate every legacy component and store caller.
 
-The archived guide describes `npx skeleton migrate skeleton-3`. Do not blindly run this unpinned historical CLI against a modern project: the guide says it changes dependencies, imports, names, and classes but **does not update component props or most v2 utilities**. A manual migration avoids letting a current CLI silently choose newer packages. If using automation, inspect its exact version, help, and resulting diff, then restore the target pins; no CLI invocation substitutes for the manual steps here.
+The archived guide describes `npx skeleton migrate skeleton-3`. Do not blindly run this unpinned historical CLI against a modern project: the guide says it changes dependencies, imports, names, and classes but **does not update component props or most v2 utilities**. Migrate manually to avoid letting a current CLI silently choose newer packages. If using automation, inspect its exact version, help, and resulting diff, then restore the target pins; no CLI invocation substitutes for the manual steps here.
 
 ## Remove Tailwind 3 and v2 plugin assumptions
 
@@ -32,23 +32,23 @@ Follow the [archived prerequisites](https://v3.skeleton.dev/docs/get-started/mig
 
 - Remove the Skeleton plugin from `tailwind.config.*` and its import from `@skeletonlabs/tw-plugin`; remove that dependency when no callers remain. The [legacy plugin metadata](https://registry.npmjs.org/@skeletonlabs/tw-plugin/0.4.0) identifies this separate package.
 - Remove `vite-plugin-tailwind-purgecss` from Vite and dependencies if installed.
-- Rename an old `app.postcss`/`app.pcss` global stylesheet to `app.css` and update every import. Replace old Tailwind layer directives with the Tailwind 4 import and the v3 CSS imports in [setup](setup.md#global-css-and-dependency-scanning).
-- Add the Tailwind Vite plugin before `sveltekit(...)`. Remove the old Tailwind PostCSS processing path. Delete a PostCSS config/dependencies only if they are now unused; preserve unrelated CSS transforms.
+- Rename an old `app.postcss` or `app.pcss` global stylesheet to `app.css` and update every import. Replace old Tailwind layer directives with the Tailwind 4 import and the v3 CSS imports in [setup](setup.md#global-css-and-dependency-scanning).
+- Add the Tailwind Vite plugin before `sveltekit(...)`. Remove the old Tailwind PostCSS processing path. Delete a PostCSS configuration or its dependencies only if they are now unused; preserve unrelated CSS transforms.
 - Move relevant Tailwind configuration to CSS. Tailwind 4 does not automatically detect a JavaScript config; if temporarily retaining necessary non-Skeleton configuration, explicitly load it with `@config` and check the upgrade guide's unsupported options. Do not preserve the old Skeleton plugin this way.
 - Replace each legacy `variant-*` class with the documented v3 `preset-*` equivalent rather than mechanically guessing suffixes. Register the optional presets stylesheet when using these classes.
 - Replace v2 custom themes with v3 CSS-format themes. The archived migration guide offers a theme-import tool, but verify generated CSS against the pinned v3 variables rather than assuming today's generator emits that version. Import the resulting theme and activate its matching name on `<html>`, not only `<body>`.
-- Revisit `@apply` against removed/changed utilities. Prefer documented CSS variables and Tailwind 4 directives over resurrecting removed classes.
+- Review `@apply` uses against removed or changed utilities. Prefer documented CSS variables and Tailwind 4 directives over restoring removed classes.
 
 ## Remove legacy store wiring and migrate every caller
 
-The v2 [modal](https://v2.skeleton.dev/utilities/modals) and [toast](https://v2.skeleton.dev/utilities/toasts) guides require `initializeStores()` in the root layout and helpers such as `getModalStore()`/`getToastStore()`. Those are not exported by the [pinned v3 component index](https://unpkg.com/@skeletonlabs/skeleton-svelte@1.5.3/dist/index.d.ts), and v3 core is CSS-only.
+The v2 [modal](https://v2.skeleton.dev/utilities/modals) and [toast](https://v2.skeleton.dev/utilities/toasts) guides require `initializeStores()` in the root layout and helpers such as `getModalStore()` and `getToastStore()`. The [pinned v3 component index](https://unpkg.com/@skeletonlabs/skeleton-svelte@1.5.3/dist/index.d.ts) does not export those functions, and v3 core is CSS-only.
 
 Search both imports and usage sites, including wrappers and shared helpers:
 
 - Remove `initializeStores()` and the legacy Skeleton helper imports **after replacing their callers**; do not just silence import errors.
-- Replace old `modalStore.trigger(...)`, `drawerStore.open(...)`, and their global queue hosts with the appropriate v3 integration or application-owned dialog state. The root v3 package exports `Modal` and `Popover`, not a v2-compatible queue store or a `Drawer` export. The [archived popover integration](https://v3.skeleton.dev/docs/integrations/popover/svelte) covers modal/popover/tooltip/combobox APIs.
+- Replace old `modalStore.trigger(...)`, `drawerStore.open(...)`, and their global queue hosts with the appropriate v3 integration or application-owned dialog state. The root v3 package exports `Modal` and `Popover`, not a v2-compatible queue store or a `Drawer` export. The [archived popover integration](https://v3.skeleton.dev/docs/integrations/popover/svelte) covers modal, popover, tooltip, and combobox APIs.
 - Replace v2 `Toast`/`getToastStore()` wiring with the v3 `Toaster`/`createToaster` API documented on the [archived toast page](https://v3.skeleton.dev/docs/components/toast/svelte). Do not rename a store variable and assume its method signatures survived.
-- Replace `AppShell` with semantic HTML/Tailwind layouts. Replace a v2 component `Table` with the documented styled HTML table rather than looking for a root `Table` export.
+- Replace `AppShell` with semantic HTML and Tailwind layouts. Replace a v2 component `Table` with the documented styled HTML table rather than looking for a root `Table` export.
 - Remove leftover obsolete imports, hosts, type aliases, dependencies, and wrapper functions once all callers have migrated. Do not add compatibility shims to this skill's examples.
 
 Skeleton's removal of its persisted-store utility does **not** mean Svelte's `svelte/store` is unsupported; do not remove unrelated application stores. The [archived unsupported-features list](https://v3.skeleton.dev/docs/get-started/migrate-from-v2#replace-unsupported-features) is the authority for those Skeleton utilities.
@@ -73,21 +73,21 @@ For example, the archived guide changes a bound scalar `RangeSlider` value into 
 
 The root [v3 exports](https://unpkg.com/@skeletonlabs/skeleton-svelte@1.5.3/dist/index.d.ts) are the offline catalog. They include `Avatar`, `Accordion`, `Tabs`, `Navigation`, `Modal`, `Toaster`, and `createToaster`; they do **not** export `Portal`, `useListCollection`, `Dialog`, `Select`, `Checkbox`, `Clipboard`, or `PinInput`. Do not infer v3 support from a current component catalog or install Skeleton 5 just to make a copied example compile.
 
-There is an important exception: **v3 itself has some compound APIs**. Its root Accordion supports `Accordion.Item`, and its separate `@skeletonlabs/skeleton-svelte/composed` export contains experimental Accordion and Avatar APIs. The [composed export index](https://unpkg.com/@skeletonlabs/skeleton-svelte@1.5.3/dist/composed/index.d.ts) exposes only those two families, and the [archived composed Avatar page](https://v3.skeleton.dev/docs/components-composed/avatar/svelte) explicitly warns that this alpha API is not intended for production.
+**v3 itself has some compound APIs**. Its root Accordion supports `Accordion.Item`, and its separate `@skeletonlabs/skeleton-svelte/composed` export contains experimental Accordion and Avatar APIs. The [composed export index](https://unpkg.com/@skeletonlabs/skeleton-svelte@1.5.3/dist/composed/index.d.ts) exposes only those two families, and the [archived composed Avatar page](https://v3.skeleton.dev/docs/components-composed/avatar/svelte) explicitly warns that this alpha API is not intended for production.
 
-Consequently, `Avatar.Image`/`Avatar.Fallback` does not by itself prove a snippet is v5: check the **import subpath**. Root v3 `Avatar` is a single component, whereas `/composed` has a different API. Never blend root props/snippets with composed or current-doc child components. Prefer the supported root API unless the user explicitly requests the v3 alpha path.
+Consequently, `Avatar.Image` or `Avatar.Fallback` does not by itself prove a snippet is v5: check the **import subpath**. Root v3 `Avatar` is a single component, whereas `/composed` has a different API. Never blend root props or snippets with composed or current-doc child components. Prefer the supported root API unless the user explicitly requests the v3 alpha path.
 
 Treat current `skeleton.dev` documentation and version-ambiguous Context7 results as discovery leads, not v3 authority. A result containing `Portal`, `useListCollection`, or an unavailable export should trigger an installed-types comparison. Do not claim every component in later documentation belongs to v3, or that all dotted component names are later-version-only.
 
 ## Offline inspection fallback
 
-When web research is unavailable or version-mixed:
+When web research is unavailable or mixes versions:
 
 1. Read the resolved versions from the workspace lockfile and installed packages' `package.json`. Distinguish a manifest range from the version actually installed.
-2. Locate `@skeletonlabs/skeleton-svelte` through the app's real dependency directory/symlink. Read `dist/index.d.ts` for root exports and `dist/composed/index.d.ts` only if that subpath is being used. The package's `exports` map identifies the public entrypoints; do not infer public imports from arbitrary internal files.
-3. Follow the declaration's relative path to the component `.svelte.d.ts` and its `types.d.ts`/`types.js` target. Read required props, snippet signatures, callback payloads, and whether the exported value actually has child components. Inspect the paired `.svelte` source for details declarations cannot explain.
+2. Locate `@skeletonlabs/skeleton-svelte` through the app's actual dependency directory or symlink. Read `dist/index.d.ts` for root exports and `dist/composed/index.d.ts` only if that subpath is being used. The package's `exports` map identifies the public entrypoints; do not infer public imports from arbitrary internal files.
+3. Follow the declaration's relative path to the component `.svelte.d.ts` and its `types.d.ts` or `types.js` target. Read required props, snippet signatures, callback payloads, and whether the exported value has child components. Inspect the paired `.svelte` source for details declarations cannot explain.
 4. Read core `dist/index.css`, `dist/optional/presets.css`, and the chosen `dist/themes/*.css` to identify real classes and CSS variables; keep theme activation separate from import registration.
-5. Use these references' known v3 patterns. If no matching public export exists, choose a documented styled HTML element, an application-owned implementation, or an explicitly approved dependency; do not invent a missing component/prop.
+5. Use these references' known v3 patterns. If no matching public export exists, choose a documented styled HTML element, an application-owned implementation, or an explicitly approved dependency; do not invent a missing component or prop.
 
 For online confirmation, use version-qualified metadata, for example `npm view @skeletonlabs/skeleton-svelte@1.5.3 peerDependencies exports --json`, or read its [exact registry document](https://registry.npmjs.org/@skeletonlabs/skeleton-svelte/1.5.3). Do not replace an offline inspection with an unpinned package install.
 
@@ -103,4 +103,4 @@ For online confirmation, use version-qualified metadata, for example `npm view @
 | Kit fails before rendering | Apply Kit 3 config/module/adapter migration and toolchain pins in [setup](setup.md); do not blame the Skeleton API. |
 | Styling vanishes only in monorepo builds | Resolve `@source` relative to the actual stylesheet and check Tailwind's scan base path. |
 
-After migration, the integrating agent should run existing checks/build and verify real component interactions, overlays, keyboard/focus behavior, and themed styling. Report only exercised checks. API/type consistency and published peers are evidence, not a substitute for that runtime verification.
+After migration, the integrating agent should run existing checks and the build, then verify real component interactions, overlays, keyboard behavior, focus behavior, and themed styling. Report only exercised checks. API consistency, type consistency, and published peers are evidence, not a substitute for runtime verification.

@@ -34,7 +34,7 @@ makes application validation, persistence, or accessibility automatic.
 The frozen pair is **`@skeletonlabs/skeleton@3.2.2`** (CSS) and
 **`@skeletonlabs/skeleton-svelte@1.5.3`** (Svelte components). Their version
 numbers are independent; Skeleton v3 does not mean component-package `@3`.
-The framework target is **Svelte `5.57.2` / SvelteKit `3.0.1`**.
+The framework target is **Svelte `5.57.2` and SvelteKit `3.0.1`**.
 
 - **Existing app:** inspect resolved versions first. Preserve the user's working
   toolchain, adapter, conventions, and unrelated changes. This skill is not an
@@ -49,8 +49,8 @@ The framework target is **Svelte `5.57.2` / SvelteKit `3.0.1`**.
 
 ## Read only the references needed for the task
 
-Each resource is directly available from this entrypoint; no catalog needs to be
-loaded in full for a single control.
+Read each resource directly from this entrypoint; you do not need to load the
+full catalog for a single control.
 
 | Task / question | Read | What to extract |
 | --- | --- | --- |
@@ -82,9 +82,9 @@ for a theme preference, combine **styling + SvelteKit**. Migration requires
    its public export/subpath before importing it; missing behavior is not a
    reason to invent a Skeleton component.
 3. **Read the contract.** Consult the task-specific reference, then the selected
-   component's exact declarations/source for required props, value shape,
+   component's exact declarations and source for required props, value shape,
    callback payload, snippets, rendered tags, and binding support. Use only
-   public entrypoints. Resolve docs/types conflicts before implementing.
+   public entrypoints. Resolve conflicts between docs and types before implementing.
 4. **Implement in the existing application.** Own controlled state in a
    component instance; update it from the actual callback payload. Use Svelte
    runes, typed snippets, and event properties for new runes components.
@@ -96,9 +96,9 @@ for a theme preference, combine **styling + SvelteKit**. Migration requires
    responsive layout, SSR/hydration, and console errors as relevant. Follow the
    accessibility checklist; compile success cannot establish these behaviors.
 6. **Hand off truthfully.** State changed behavior, resolved versions, exact
-   commands/results and actual browser coverage. Name unperformed checks and
-   deployment/accessibility limits. Do not present local previews or selected
-   files as persisted operations, or a build/SSR smoke as deployment proof.
+   commands and results, and actual browser coverage. Name unperformed checks
+   and limits on deployment and accessibility. Do not present local previews or
+   selected files as persisted operations, or a build or SSR smoke test as deployment proof.
 
 ## Nonnegotiable traps
 

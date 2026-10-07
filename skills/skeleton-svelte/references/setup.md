@@ -15,9 +15,9 @@ Use this exact package set. **Skeleton's core and Svelte component packages do n
 | `typescript` | `6.0.3` | [Registry](https://registry.npmjs.org/typescript/6.0.3): published stable release satisfying Kit's optional `^6.0.0` peer |
 | `tailwindcss`, `@tailwindcss/vite` | `4.3.3` each | [Plugin registry](https://registry.npmjs.org/@tailwindcss/vite/4.3.3): supports Vite `^8` and depends on Tailwind `4.3.3` |
 
-Use Node **22.17 or newer**, also satisfying the selected Vite/plugin engines; Node 24 is a straightforward choice. Kit's Node floor is higher than Vite 8's Node 20 floor, so Node 20 is not enough. TypeScript is optional for JavaScript-only Kit projects; when present, use TypeScript 6 rather than leaving a scaffold's TypeScript 5 or installing current TypeScript 7.
+Use Node **22.17 or newer**, and satisfy the selected Vite and plugin engine requirements. Node 24 is a straightforward choice. Kit's minimum Node version is higher than Vite 8's Node 20 minimum, so Node 20 is insufficient. TypeScript is optional for JavaScript-only Kit projects; when present, use TypeScript 6 rather than retaining a scaffold's TypeScript 5 or installing current TypeScript 7.
 
-The [archived v3 installation guide](https://v3.skeleton.dev/docs/get-started/installation/sveltekit) documents minimums of **Kit 2, Svelte 5, Tailwind 4**, not a Kit 3 certification. The pins above meet published peer contracts; peer compatibility alone does not prove runtime behavior. Check the exact project with its typecheck/build and an interactive smoke test. Do not report those checks as passed merely because installation succeeded.
+The [archived v3 installation guide](https://v3.skeleton.dev/docs/get-started/installation/sveltekit) documents minimums of **Kit 2, Svelte 5, Tailwind 4**, not Kit 3 certification. The pins above meet published peer contracts; peer compatibility alone does not prove runtime behavior. Run the exact project's typecheck and build, then perform an interactive smoke test. Do not report those checks as passed merely because installation succeeded.
 
 ## Greenfield project
 
@@ -28,9 +28,9 @@ npx sv create my-skeleton-app
 cd my-skeleton-app
 ```
 
-Choose TypeScript if desired. Choose the intended package manager in the prompts. Tailwind can be configured manually below; do not assume the current generator selects this reference's dependency versions. Inspect the generated manifest before proceeding.
+Choose TypeScript if desired. Select the intended package manager in the prompts. Configure Tailwind manually as shown below if needed; do not assume the current generator selects this reference's dependency versions. Inspect the generated manifest before proceeding.
 
-Honor `packageManager`, the existing lockfile, and workspace conventions. The examples below use npm; for pnpm use `pnpm add -D -E`, for Yarn use `yarn add -D -E`, and for Bun use `bun add -d --exact` with the same version-qualified arguments. Do not create a second lockfile. Run installation in the application workspace, not an unrelated monorepo root.
+Honor `packageManager`, the existing lockfile, and workspace conventions. The examples below use npm. For pnpm, use `pnpm add -D -E`; for Yarn, use `yarn add -D -E`; for Bun, use `bun add -d --exact`. Use the same version-qualified arguments. Do not create a second lockfile. Run installation in the application workspace, not an unrelated monorepo root.
 
 For a TypeScript project, replace generated versions with these exact dependencies:
 
@@ -54,7 +54,7 @@ Install the exact version set from the greenfield section using the repository's
 
 ## TypeScript configuration
 
-For Kit 3, the application's root **`tsconfig.json`** must extend `$app/tsconfig`, not `./.svelte-kit/tsconfig.json`. The old generated `.svelte-kit/tsconfig.json` is obsolete; do not try to restore it by rerunning sync. Kit's new base config does not supply `include` or `exclude`, so set them explicitly. A complete minimal root `tsconfig.json` is:
+For Kit 3, the application's root **`tsconfig.json`** must extend `$app/tsconfig`, not `./.svelte-kit/tsconfig.json`. The old generated `.svelte-kit/tsconfig.json` is obsolete; do not try to restore it by rerunning sync. Kit's new base configuration does not supply `include` or `exclude`, so set them explicitly. Use this complete minimal root `tsconfig.json`:
 
 ```json
 {
@@ -64,13 +64,13 @@ For Kit 3, the application's root **`tsconfig.json`** must extend `$app/tsconfig
 }
 ```
 
-For an existing project, merge these fields into its configuration rather than replacing the file: preserve application `compilerOptions` and other supported settings, retain additional source/test paths in `include`, and retain existing exclusions alongside `src/service-worker`. `$app/tsconfig` supplies essential `isolatedModules` and `verbatimModuleSyntax` options; do not disable them when merging. If the project has a TypeScript service worker, give it a separate `src/service-worker/tsconfig.json` extending `$app/tsconfig/service-worker`, as described in the same migration guide.
+For an existing project, merge these fields into its configuration rather than replacing the file: preserve application `compilerOptions` and other supported settings, retain additional source and test paths in `include`, and retain existing exclusions alongside `src/service-worker`. `$app/tsconfig` supplies essential `isolatedModules` and `verbatimModuleSyntax` options; do not disable them when merging. If the project has a TypeScript service worker, give it a separate `src/service-worker/tsconfig.json` extending `$app/tsconfig/service-worker`, as described in the same migration guide.
 
 Source: [Kit 3 `$app/tsconfig` migration](https://svelte.dev/docs/kit/migrating-to-sveltekit-3#$app-tsconfig).
 
 ## Vite integration
 
-Kit 3 no longer supports `svelte.config.js`. Move its `kit` options to the object passed to `sveltekit()`; put `preprocess`, `compilerOptions`, and other supported Svelte options alongside them. Preserve the deployment adapter, then remove the obsolete configuration file. Review removed/renamed Kit options instead of copying them blindly. Merge the Tailwind Vite plugin **before** `sveltekit()`. A minimal greenfield `vite.config.ts` using adapter auto is:
+Kit 3 no longer supports `svelte.config.js`. Move its `kit` options to the object passed to `sveltekit()`; put `preprocess`, `compilerOptions`, and other supported Svelte options alongside them. Preserve the deployment adapter, then remove the obsolete configuration file. Review removed or renamed Kit options instead of copying them blindly. Merge the Tailwind Vite plugin **before** `sveltekit()`. A minimal greenfield `vite.config.ts` using adapter auto is:
 
 ```ts
 import adapter from '@sveltejs/adapter-auto';
@@ -83,7 +83,7 @@ export default defineConfig({
 });
 ```
 
-If existing components require `vitePreprocess()`, keep its import from `@sveltejs/vite-plugin-svelte` and pass `preprocess: vitePreprocess()` to `sveltekit(...)`. Kit 3 also replaces `$lib` with explicit `#lib` package imports and `$app/environment` with `$app/env`; migrate affected callsites, not just the config.
+If existing components require `vitePreprocess()`, keep its import from `@sveltejs/vite-plugin-svelte` and pass `preprocess: vitePreprocess()` to `sveltekit(...)`. Kit 3 also replaces `$lib` with explicit `#lib` package imports and `$app/environment` with `$app/env`; migrate affected callsites, not just the configuration.
 
 Sources: [Kit 3 configuration migration](https://svelte.dev/docs/kit/migrating-to-sveltekit-3#Configuration), [Tailwind Vite installation](https://tailwindcss.com/docs/installation/using-vite), [archived Skeleton migration plugin order](https://v3.skeleton.dev/docs/get-started/migrate-from-v2#migrate-to-the-tailwind-vite-plugin). Do not add Skeleton's old Tailwind plugin. Avoid processing Tailwind a second time via PostCSS; preserve unrelated PostCSS work if the project still needs it.
 
@@ -116,7 +116,7 @@ Insert this directive immediately after the Tailwind import in the global styles
 
 See [styling](styling.md) for complete form and theme patterns.
 
-Tailwind normally ignores `node_modules`; Skeleton's component classes need the explicit source. **`@source` is relative to the stylesheet, not to `vite.config.*` or the shell's working directory.** Verify the directory actually exists in this installation.
+Tailwind normally ignores `node_modules`; Skeleton's component classes need the explicit source. **`@source` is relative to the stylesheet, not to `vite.config.*` or the shell's working directory.** Verify that the directory exists in this installation.
 
 For example, if the stylesheet is `apps/web/src/app.css` and the dependency is hoisted to the repository's `node_modules`, replace the source line with:
 
@@ -147,7 +147,7 @@ Import the stylesheet once in `src/routes/+layout.svelte`. A minimal Svelte 5 la
 {@render children()}
 ```
 
-Source: [Svelte 5 children/snippet migration](https://svelte.dev/docs/svelte/v5-migration-guide#Snippets-instead-of-slots). Merge the import/rendering with existing layout data, providers, and markup; do not discard them. A JavaScript layout can omit the type import and annotation. Do not introduce `initializeStores()` from Skeleton 2.
+Source: [Svelte 5 children/snippet migration](https://svelte.dev/docs/svelte/v5-migration-guide#Snippets-instead-of-slots). Merge the import and rendering with existing layout data, providers, and markup; do not discard them. A JavaScript layout can omit the type import and annotation. Do not introduce `initializeStores()` from Skeleton 2.
 
 In `src/app.html`, **add only `data-theme="cerberus"` to the existing `<html>` element**. Preserve language attributes and the rest of the template. For a template already using English, the opening tag becomes:
 
@@ -172,4 +172,4 @@ Theme registration (the CSS import) and theme activation (`data-theme`) are sepa
 | Export/prop error for a component | Inspect installed `dist/index.d.ts` and the component declarations; the docs may describe v2, v4/v5, or the v3 experimental `/composed` subpath. See [migration](migration.md). |
 | HTML/hydration template error | Restore Kit's template placeholders and body wrapper; adding a theme never requires replacing `app.html`. |
 
-Before handing off, inspect resolved versions with the chosen package manager, run the project's existing typecheck/build, and smoke a rendered styled page plus one interactive component. Record exact commands and results; a successful compile does not establish focus/keyboard behavior or deployment compatibility. For offline API inspection, use the [migration reference](migration.md#offline-inspection-fallback).
+Before handing off, inspect resolved versions with the chosen package manager, run the project's existing typecheck and build, and smoke-test a rendered styled page and one interactive component. Record exact commands and results; a successful compile does not establish focus behavior, keyboard behavior, or deployment compatibility. For offline API inspection, use the [migration reference](migration.md#offline-inspection-fallback).

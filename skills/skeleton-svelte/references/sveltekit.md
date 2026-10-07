@@ -1,10 +1,10 @@
 # Svelte 5.57.2 and SvelteKit 3.0.1 integration
 
-Use this reference for application behavior around Skeleton v3, not as a reason to migrate an unrelated application. Skeleton's archived installation guide targets Kit 2 or later; its framework examples do not describe Kit 3's breaking changes. Prefer the exact installed declarations and the Kit 3 migration guide when the two differ.
+Use this reference for application behavior around Skeleton v3, not to justify migrating an unrelated application. Skeleton's archived installation guide targets Kit 2 or later; its framework examples do not describe Kit 3's breaking changes. Prefer the exact installed declarations and the Kit 3 migration guide when they differ.
 
 ## Verify the project before changing it
 
-Inspect the package manifest, lockfile, installed package versions, route/layout structure, Vite configuration, global CSS, theme ownership, and existing form/state conventions. Use the project's package manager; do not regenerate configuration or replace working conventions merely to match an example. New runes components can coexist with existing legacy Svelte components, but do not mix `export let` or `$:` declarations into a runes component.
+Inspect the package manifest, lockfile, installed package versions, route and layout structure, Vite configuration, global CSS, theme ownership, and existing form and state conventions. Use the project's package manager; do not regenerate configuration or replace working conventions merely to match an example. New runes components can coexist with existing legacy Svelte components, but do not mix `export let` or `$:` declarations into a runes component.
 
 The frozen target is `svelte@5.57.2`, `@sveltejs/kit@3.0.1`, `@skeletonlabs/skeleton@3.2.2`, and `@skeletonlabs/skeleton-svelte@1.5.3`. Skeleton's component package has independent versioning: do not request a nonexistent component-package `@3` just because the design system is v3. Its 1.5.3 peer is Svelte `^5.20.0`. Kit 3.0.1 requires Node `>=22.17`, Svelte `^5.57.1`, Vite `^8.0.12`, and `@sveltejs/vite-plugin-svelte` `^7.0.0`. Its TypeScript peer is optional: use TypeScript `^6.0.0` when TypeScript tooling is present; JavaScript-only projects do not have to install it. Check the adapter's own compatibility too; satisfying these peers alone is not proof of a working application.
 
@@ -39,11 +39,11 @@ Runes are compiler syntax, not functions to import. Use them in `.svelte` files 
 | `$props()` | Typed incoming values, callbacks and snippets | Mutating a parent's non-bindable object; copying a prop once and expecting navigation updates |
 | `$bindable(fallback)` | Explicit opt-in for a wrapper's two-way prop | Assuming every library prop supports `bind:`; binding `undefined` when a fallback is declared |
 
-`let draft = $state(data.value)` intentionally takes an initial value; it does not track future `data` changes. For a live display, use `$derived(data.value)`. For an editable draft, choose an explicit reset/reinitialization policy instead of silently overwriting the user's edits in an effect.
+`let draft = $state(data.value)` takes an initial value; it does not track future `data` changes. For a live display, use `$derived(data.value)`. For an editable draft, choose an explicit reset or reinitialization policy instead of silently overwriting the user's edits in an effect.
 
 DOM events use properties such as `onclick`, `oninput`, and `onsubmit`. Use the event argument (`event.currentTarget`) rather than a global `event`. Event modifiers are not attached to these properties: call `event.preventDefault()` only when the behavior actually requires it. Components commonly expose typed callback props, but their exact names and payloads are library contracts, not DOM events. Do not mechanically replace a v3 component callback with an invented `onValueChange`.
 
-New components receive snippets through props and render them with `{@render children()}`; named `{#snippet ...}` blocks can be passed as named props. Type them as `Snippet` or `Snippet<[ArgumentType]>` from `svelte`. Slots/`let:` belong to legacy APIs; use the installed component's documented slot/snippet contract rather than converting library internals or assuming newer compound components exist in v3.
+New components receive snippets through props and render them with `{@render children()}`; named `{#snippet ...}` blocks can be passed as named props. Type them as `Snippet` or `Snippet<[ArgumentType]>` from `svelte`. Slots and `let:` belong to legacy APIs; use the installed component's documented slot or snippet contract rather than converting library internals or assuming newer compound components exist in v3.
 
 A standalone native wrapper demonstrating typed props, `$bindable`, a snippet, derived state and a hydration-safe ID follows. Save as `NameField.svelte`; a parent can use `<NameField bind:value={name}>Help text</NameField>` with `let name = $state('')`.
 
@@ -90,7 +90,7 @@ Standalone route-state display (`RouteLocation.svelte`):
 
 Never put the current user's account, authentication, theme preference, form draft, toast queue or open-dialog state in a mutable module singleton that runs on the server. This applies equally to stores, `.svelte.ts` rune modules and `<script module>`. A long-lived server process can serve many users concurrently. Module-level immutable configuration or a deliberately shared database connection is different from per-user state.
 
-Authenticate from the request's cookies/session, attach request-scoped values to `event.locals` in server hooks, and return only public-safe data from `load`. Keep UI state in component instances; for tree-wide state, create it per layout instance and pass it through context. Do not write to global stores from `load`. Durable user data belongs in the authenticated persistence layer, not server RAM. Layouts/pages may survive navigation, so derive changing data from props rather than expecting remounting.
+Authenticate from the request's cookies or session, attach request-scoped values to `event.locals` in server hooks, and return only data safe for public exposure from `load`. Keep UI state in component instances; for tree-wide state, create it per layout instance and pass it through context. Do not write to global stores from `load`. Durable user data belongs in the authenticated persistence layer, not server RAM. Layouts and pages may survive navigation, so derive changing data from props rather than expecting them to remount.
 
 During SSR, read `$app/state` in component rendering, not a server utility or `load`; those have their own request event. Avoid child-to-parent context writes during SSR that change already-rendered markup.
 
@@ -100,7 +100,7 @@ Sources: [request isolation and context](https://svelte.dev/docs/kit/state-manag
 
 Component initialization and universal `load` can execute on the server. Do not access `window`, `document`, `localStorage`, `matchMedia`, or browser-only library code at module evaluation or unguarded initialization. `onMount` and `$effect` run only in the browser. A `browser` guard does not fix a static import whose package accesses `window` while evaluating: dynamically import that package inside browser-only code instead.
 
-Use a synchronous `onMount` callback so its returned cleanup is registered. If it starts async initialization, launch the async work inside it, handle rejection, and guard against completion after destruction. Unsubscribe observers/listeners and release library instances on unmount; effect cleanup also runs before each rerun. `onDestroy` can run on the server, so it is not itself a browser guard.
+Use a synchronous `onMount` callback so its returned cleanup is registered. If it starts async initialization, launch the async work inside it, handle rejection, and guard against completion after destruction. Unsubscribe observers and listeners and release library instances on unmount; effect cleanup also runs before each rerun. `onDestroy` can run on the server, so it is not itself a browser guard.
 
 Standalone `ReducedMotion.svelte`, with stable SSR markup until mounting:
 
@@ -129,7 +129,7 @@ Sources: [lifecycle](https://svelte.dev/docs/svelte/lifecycle-hooks), [effects](
 
 `+page.ts`/`+layout.ts` export universal `load`: they normally run on the server for initial SSR, during browser hydration, and in the browser for later navigation. `+page.server.ts`/`+layout.server.ts` run only on the server. Use the provided `fetch` in `load` for request-aware fetching and hydration reuse; don't duplicate that request in `onMount` without a separate requirement.
 
-Keep credentials, database queries and private environment access in server modules. In Kit 3 use `$app/env/private`; variables are defined/configured through the project's `src/env` convention. Public environment values are deliberately browser-visible. Do not import private code into a component or universal loader, even indirectly. `.server.ts` files and server directories protect the boundary, but **anything returned from server `load` or an action is sent to the browser**. Never return tokens, password hashes or internal exception details.
+Keep credentials, database queries and private environment access in server modules. In Kit 3, use `$app/env/private`; variables are defined and configured through the project's `src/env` convention. Public environment values are deliberately browser-visible. Do not import private code into a component or universal loader, even indirectly. `.server.ts` files and server directories protect the boundary, but **anything returned from server `load` or an action is sent to the browser**. Never return tokens, password hashes or internal exception details.
 
 Server `load` results must be serializable by Kit's `devalue` transport. Conservative results use plain objects, arrays, strings, numbers, booleans and null; Kit also supports types such as `Date`, `Map`, `Set` and `BigInt`. Do not return database clients, functions, DOM nodes or arbitrary class instances without a deliberately implemented transport. Use generated `PageServerLoad`, `PageLoad`, `PageProps` and `Actions` types from `./$types` rather than duplicating their shapes.
 
@@ -163,9 +163,9 @@ Sources: [archived Skeleton installation](https://v3.skeleton.dev/docs/get-start
 
 ## Native form actions with progressive enhancement
 
-Use real `<form method="POST">`, named inputs and a submit button. Actions live in `+page.server.ts`, not `+server.ts`. `use:enhance` from `$app/forms` enhances POST forms targeting page actions, not arbitrary JSON endpoints or GET search forms. Browser validation helps users but never replaces server validation. Preserve Enter-to-submit, labels, submitter behavior and native navigation. Remove `use:enhance` and its import to get the same server action without client enhancement; do not replace this with an `onclick` fetch.
+Use a real `<form method="POST">`, named inputs and a submit button. Actions live in `+page.server.ts`, not `+server.ts`. `use:enhance` from `$app/forms` enhances POST forms targeting page actions, not arbitrary JSON endpoints or GET search forms. Browser validation helps users but never replaces server validation. Preserve Enter-to-submit, labels, submitter behavior and native navigation. Remove `use:enhance` and its import to use the same server action without client enhancement; do not replace it with an `onclick` fetch.
 
-The following pair is a complete text-formatting page, with no database or invented authentication API. It validates and returns a greeting; it intentionally does not claim to save anything.
+The following pair implements a complete text-formatting page with no database or invented authentication API. It validates input and returns a greeting; it does not claim to save anything.
 
 `src/routes/greeting/+page.server.ts`:
 

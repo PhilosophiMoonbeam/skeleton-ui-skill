@@ -1,10 +1,10 @@
 # Accessibility and browser verification
 
-Skeleton's classes supply styling, not the semantics, validation policy, or focus management for an arbitrary element. Use the archived v3 native utilities with semantic HTML, then verify actual behavior. The [v3 Forms page](https://v3.skeleton.dev/docs/tailwind/forms) explicitly calls for browser/platform validation; the [v3 Tables page](https://v3.skeleton.dev/docs/tailwind/tables) recommends real links/buttons inside cells rather than interactive rows.
+Skeleton's classes style elements; they do not supply semantics, validation policy, or focus management for arbitrary elements. Use the archived v3 native utilities with semantic HTML, then verify actual behavior. The [v3 Forms page](https://v3.skeleton.dev/docs/tailwind/forms) explicitly calls for browser and platform validation; the [v3 Tables page](https://v3.skeleton.dev/docs/tailwind/tables) recommends real links or buttons inside cells rather than interactive rows.
 
 ## Preserve native semantics and names
 
-- Use `<button type="button">` for an action, `<button type="submit">` for submission, and `<a href="…">` for navigation. `btn` does not make a `div` keyboard-operable. Native buttons already support Space/Enter; do not add duplicate key handlers.
+- Use `<button type="button">` for an action, `<button type="submit">` for submission, and `<a href="…">` for navigation. `btn` does not make a `div` keyboard-operable. Native buttons already support Space and Enter; do not add duplicate key handlers.
 - Keep meaningful heading levels and landmarks (`main`, navigation, sections with headings). Visual `h1`–`h6` classes do not change semantic levels.
 - Provide visible labels. An explicit `<label for="email">` needs an exactly matching, unique input `id`. Wrapping one control in a label is also valid. A placeholder or hover-only title is not a substitute.
 - Retain useful native attributes: correct `type`, `name`, `autocomplete`, `required`, and input constraints. Use `fieldset`/`legend` for related radio/checkbox groups.
@@ -16,11 +16,11 @@ Sources: [WAI Labeling Controls](https://www.w3.org/WAI/tutorials/forms/labels/)
 
 ## Validation, errors, and status
 
-Validate on the server for persisted operations; client constraints improve interaction but are not a trust boundary. Keep submitted values when returning errors. Associate field help/error text through `aria-describedby`; set `aria-invalid="true"` when validation has actually found an error, not on every untouched required field.
+Validate on the server for persisted operations; client constraints improve interaction but are not a trust boundary. Keep submitted values when returning errors. Associate field help and error text through `aria-describedby`; set `aria-invalid="true"` only when validation finds an error, not on every untouched required field.
 
 Describe errors in text, identify the affected field, and explain how to correct it. A red border alone is insufficient. For multiple errors, offer a summary with links to invalid controls. After submission, focus the summary or first invalid field as appropriate; do not fight native browser validation focus.
 
-For a dynamically updated nonurgent result, use a persistent `role="status"` region and update its text. Use `role="alert"` sparingly for important dynamically added errors; do not announce every keystroke. Keep success/error messages visible long enough to read. A transient toast must not be the only place to recover from a failed submission. Static content on initial page load and dynamically updated content have different announcement behavior: test with assistive technology, not just an accessibility tree snapshot.
+For a dynamically updated nonurgent result, use a persistent `role="status"` region and update its text. Use `role="alert"` sparingly for important dynamically added errors; do not announce every keystroke. Keep success and error messages visible long enough to read. A transient toast must not be the only place to recover from a failed submission. Static content on initial page load and dynamically updated content have different announcement behavior: test with assistive technology, not just an accessibility tree snapshot.
 
 Sources: [WAI Form Notifications](https://www.w3.org/WAI/tutorials/forms/notifications/), [WCAG Status Messages](https://www.w3.org/WAI/WCAG22/Understanding/status-messages.html).
 
@@ -68,19 +68,19 @@ This complete `ProfilePreview.svelte` component updates a **local preview**, not
 </section>
 ```
 
-Use unique IDs if multiple instances share a page. This example deliberately retains native validation rather than inventing custom error state. For application validation failures, add visible field errors and `aria-invalid` only once the actual validation result exists.
+Use unique IDs if multiple instances share a page. This example retains native validation rather than creating custom error state. For application validation failures, add visible field errors and `aria-invalid` only after validation returns a result.
 
 Sources: [v3 Forms](https://v3.skeleton.dev/docs/tailwind/forms), [v3 Presets](https://v3.skeleton.dev/docs/design/presets), [Svelte `$state`](https://svelte.dev/docs/svelte/$state), [Svelte event attributes](https://svelte.dev/docs/svelte/basic-markup#Events), [WAI Notifications](https://www.w3.org/WAI/tutorials/forms/notifications/).
 
 ## Modal and tooltip interaction contracts
 
-Do not import v2 modal stores or assume current compound-component APIs exist in v3. Native classes do not implement a modal. Use a real native modal dialog or an accessible headless implementation compatible with the installed framework, and preserve the library's trigger/content wiring rather than rebuilding only its visual surface.
+Do not import v2 modal stores or assume current compound-component APIs exist in v3. Native classes do not implement a modal. Use a native modal dialog or an accessible headless implementation compatible with the installed framework. Preserve the library's trigger and content wiring rather than rebuilding only its appearance.
 
 For a modal dialog, verify all of these:
 
 - Opening moves focus inside to an appropriate element. For complex content, the title or introductory static text may be a better initial focus target than the first action; destructive flows generally favor the least destructive action.
 - Tab and Shift+Tab remain within the open modal. Background content is inert to keyboard and pointer interaction, not merely dimmed.
-- Escape closes it; an obvious keyboard-operable close/cancel button is available.
+- Escape closes it; provide an obvious keyboard-operable close or cancel button.
 - Closing normally restores focus to the invoking control, or to a logical successor if that control was removed.
 - The dialog has an accessible name through its visible title (`aria-labelledby`) or an explicit label. Use `aria-modal="true"` only when the implementation actually enforces modality. Avoid flattening complex dialog content into one huge `aria-describedby` announcement.
 
@@ -92,7 +92,7 @@ Sources: [APG Modal Dialog](https://www.w3.org/WAI/ARIA/apg/patterns/dialog-moda
 
 Theme contrast tokens are a starting point, not evidence that every composite design passes. Measure the rendered foreground/background in each theme and scheme. Text normally needs at least **4.5:1**; qualifying large text needs **3:1**. Meaningful authored control/state indicators need **3:1** against adjacent colors. Check focus rings, placeholders, outlined borders when needed to identify a control, icons, and text over glass/gradients/images. Opacity can break otherwise suitable token pairings. Do not encode state solely through hue; accompany color with text or another meaningful cue.
 
-Respect `prefers-reduced-motion` for nonessential motion, including custom CSS and Svelte transitions. A CSS media rule cannot cancel every JavaScript-driven animation; condition the transition/animation mechanism itself when needed. Preserve feedback using a static indicator or lower-motion alternative rather than hiding the result.
+Respect `prefers-reduced-motion` for nonessential motion, including custom CSS and Svelte transitions. A CSS media rule cannot cancel every JavaScript-driven animation; condition the transition or animation mechanism itself when needed. Preserve feedback with a static indicator or lower-motion alternative rather than hiding the result.
 
 Example global override for an application-owned decorative animation class:
 
@@ -113,12 +113,12 @@ Sources: [WCAG Contrast Minimum](https://www.w3.org/WAI/WCAG22/Understanding/con
 
 Perform these checks in the actual supported browsers after implementation; this reference does not claim they have already been run.
 
-1. **Keyboard only:** Tab/Shift+Tab through the whole flow. Focus is visible and ordered; buttons activate with Enter/Space; links with Enter. Menus, tabs, and other widgets retain the chosen library's keyboard contract. No unintended traps; a modal intentionally contains focus until dismissal.
+1. **Keyboard only:** Use Tab and Shift+Tab through the whole flow. Confirm visible, ordered focus, button activation with Enter and Space, and link activation with Enter. Verify that menus, tabs, and other widgets retain the chosen library's keyboard contract. Check for unintended traps; a modal intentionally contains focus until dismissal.
 2. **Modal/tooltip:** Exercise opening, Escape, close/cancel, focus restoration, background inertness, tooltip focus exposure, hover persistence, and accessible names. Try a removed trigger and long dialog content.
-3. **Form:** Activate labels, submit blank/invalid/valid values, check error association and focus, retained values, keyboard select/radio behavior, autocomplete, and native mobile input behavior. Verify server failures separately from browser constraints.
+3. **Form:** Activate labels and submit blank, invalid, and valid values. Check error association and focus, retained values, keyboard behavior for selects and radio controls, autocomplete, and native mobile input behavior. Verify server failures separately from browser constraints.
 4. **Screen reader/accessibility tree:** Inspect names, roles, heading levels, label association and table headers; use a real screen reader to hear error/status changes. Ensure icons and toasts are neither unnamed nor needlessly announced twice.
-5. **Responsive/visual:** Check narrow and wide viewports, zoom/text enlargement, long labels, high contrast, and reduced motion. Inspect both light/dark schemes for every registered active theme and check contrast in default, focus, selected, invalid and disabled states.
-6. **SSR/hydration:** Hard reload with slow JavaScript and an opposite persisted mode. Check first-paint flash, matching server/client markup, console hydration warnings, navigation behavior, and browser-only storage access. Check essential native form/navigation behavior without JavaScript; enhanced widgets may require JavaScript but must not falsely appear functional before hydration.
+5. **Responsive/visual:** Check narrow and wide viewports, zoom and text enlargement, long labels, high contrast, and reduced motion. Inspect both light and dark schemes for every registered active theme and check contrast in default, focus, selected, invalid and disabled states.
+6. **SSR/hydration:** Hard reload with slow JavaScript and an opposite persisted mode. Check first-paint flash, matching server and client markup, console hydration warnings, navigation behavior, and browser-only storage access. Check essential native form and navigation behavior without JavaScript; enhanced widgets may require JavaScript but must not falsely appear functional before hydration.
 7. **Tailwind/theme pipeline:** Confirm the correct `data-theme`, mode selector and computed `color-scheme`; global CSS loading; forms plugin; presets import; component source path; and complete literal class names. Use [styling.md](styling.md)'s debugging sequence rather than replacing broken tokens with random hardcoded colors.
 
 Sources: [v3 Forms browser support](https://v3.skeleton.dev/docs/tailwind/forms), [APG Dialog](https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/), [WAI Notifications](https://www.w3.org/WAI/tutorials/forms/notifications/), [v3 Dark Mode](https://v3.skeleton.dev/docs/guides/mode), [Svelte lifecycle](https://svelte.dev/docs/svelte/lifecycle-hooks).

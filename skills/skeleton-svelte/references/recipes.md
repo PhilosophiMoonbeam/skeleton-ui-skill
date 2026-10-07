@@ -1,10 +1,10 @@
 # Runnable Skeleton v3 / Svelte 5 recipes
 
-These examples target core **3.2.2**, component package **1.5.3**, Svelte **5.57.2**, and SvelteKit **3.0.1**. Each `svelte` fence is a **complete standalone component**, with its filename identified above the fence. They need the application's global Skeleton/Tailwind CSS, theme, component `@source`, optional presets, and (for native form styling) `@tailwindcss/forms`; no icon package is required. Mount any example in a page or copy its complete contents to `+page.svelte`.
+These examples target core **3.2.2**, component package **1.5.3**, Svelte **5.57.2**, and SvelteKit **3.0.1**. Each `svelte` fence contains a **complete standalone component**, with its filename identified above the fence. The examples require the application's global Skeleton and Tailwind CSS, theme, component `@source`, optional presets, and (for native form styling) `@tailwindcss/forms`; no icon package is required. Mount any example in a page or copy its complete contents to `+page.svelte`.
 
 ## State, callbacks, and snippets
 
-The stable root components use ordinary props plus callback props. Their published Svelte declarations expose no bindable state props. A controlled prop must be updated from its callback; otherwise the UI keeps the supplied state. `defaultValue`, `defaultChecked`, or `defaultOpen` are alternatives where the inherited primitive supports them and application-owned state is unnecessary.
+The stable root components use ordinary props and callback props. Their published Svelte declarations expose no bindable state props. Update a controlled prop from its callback; otherwise the UI retains the supplied state. Use `defaultValue`, `defaultChecked`, or `defaultOpen` instead where the inherited primitive supports them and application-owned state is unnecessary.
 
 | Component | Controlled prop | Callback payload | Content composition |
 | --- | --- | --- | --- |
@@ -47,13 +47,13 @@ Sources: [published Skeleton types](https://unpkg.com/@skeletonlabs/skeleton-sve
 </section>
 ```
 
-Interaction contract: click Activity to show its panel. Focus a tab and use Left/Right arrows; the default automatic activation changes the selected tab with focus. Home/End move to first/last. For manual activation, use supported `activationMode="manual"`; then Enter/Space activates the focused tab. Keep `.Control` as the interactive element; do not nest buttons or links inside it or replace generated keyboard handlers.
+Interaction contract: click Activity to show its panel. Focus a tab and use the Left and Right arrows; default automatic activation selects the tab as focus moves. Home and End move to the first and last tabs. For manual activation, use the supported `activationMode="manual"`; Enter or Space then activates the focused tab. Keep `.Control` as the interactive element; do not nest buttons or links inside it or replace generated keyboard handlers.
 
 Sources: [archived Tabs example](https://v3.skeleton.dev/docs/components/tabs/svelte), [1.5.3 Tabs types](https://unpkg.com/@skeletonlabs/skeleton-svelte@1.5.3/dist/components/Tabs/types.d.ts), [Zag 1.18.3 contract](https://unpkg.com/@zag-js/tabs@1.18.3/dist/index.d.ts), [ARIA Tabs pattern](https://www.w3.org/WAI/ARIA/apg/patterns/tabs/).
 
 ## Accordion: collapsible FAQ
 
-**File: `AccordionExample.svelte` — complete component.** Set `headingLevel` to fit the document outline; the item creates that heading and a real trigger button itself.
+**File: `AccordionExample.svelte` — complete component.** Set `headingLevel` to fit the document outline; the item creates the heading and a real trigger button.
 
 ```svelte
 <script lang="ts">
@@ -77,7 +77,7 @@ Sources: [archived Tabs example](https://v3.skeleton.dev/docs/components/tabs/sv
 </section>
 ```
 
-Enter/Space toggles a focused header; arrow/Home/End navigation is supplied by the primitive. `collapsible` allows an empty array; add `multiple` to let both panels stay open. Do not wrap `control()` in another button or add a competing click handler.
+Enter or Space toggles a focused header; the primitive supplies arrow, Home, and End navigation. `collapsible` allows an empty array; add `multiple` to let both panels stay open. Do not wrap `control()` in another button or add a competing click handler.
 
 Sources: [archived Accordion](https://v3.skeleton.dev/docs/components/accordion/svelte), [1.5.3 item types](https://unpkg.com/@skeletonlabs/skeleton-svelte@1.5.3/dist/components/Accordion/types.d.ts), [ARIA Accordion pattern](https://www.w3.org/WAI/ARIA/apg/patterns/accordion/).
 
@@ -152,13 +152,13 @@ Sources: [archived Switch](https://v3.skeleton.dev/docs/components/switch/svelte
 
 Hover or focus the trigger to reveal help; Escape dismisses it. Do not add `<Portal>`: no such export exists, and Tooltip renders its positioner in place. An ancestor's overflow can clip Tooltip; inspect the actual surrounding layout rather than assuming a wrapper API exists.
 
-For click-triggered, interactive floating content, v3 also exports `Popover` with `trigger()`/`content()`, `open` plus `onOpenChange(e.open)`, and internal portalling. Do not assume adding title/description IDs is sufficient to name its generated dialog: the pinned Zag popover checks for those elements on machine entry, while Skeleton conditionally mounts content only when open. For a reliably named interactive surface, use the Modal recipe below or an appropriate separately installed headless primitive whose title/description composition is explicitly supported. Do not put interactive controls in Tooltip to bypass that limitation.
+For click-triggered, interactive floating content, v3 also exports `Popover` with `trigger()` and `content()`, `open` plus `onOpenChange(e.open)`, and internal portalling. Do not assume title and description IDs alone name its generated dialog: the pinned Zag popover checks for those elements on machine entry, while Skeleton mounts content only when open. For a reliably named interactive surface, use the Modal recipe below or an appropriate separately installed headless primitive that explicitly supports title and description composition. Do not put interactive controls in Tooltip to bypass that limitation.
 
 Sources: [archived floating integration](https://v3.skeleton.dev/docs/integrations/popover/svelte), [Tooltip source](https://unpkg.com/@skeletonlabs/skeleton-svelte@1.5.3/dist/components/Tooltip/Tooltip.svelte), [Popover source](https://unpkg.com/@skeletonlabs/skeleton-svelte@1.5.3/dist/components/Popover/Popover.svelte), [pinned Zag popover implementation](https://unpkg.com/@zag-js/popover@1.18.3/dist/index.js).
 
 ## Dialog strategy: Modal, including drawer styling
 
-**File: `ConfirmModal.svelte` — complete component.** Use the exported `Modal`, not an invented `Dialog` import. A controlled state drives both built-in and application dismissals. Title/description IDs are supplied because a plain heading snippet does not automatically become the primitive's title element.
+**File: `ConfirmModal.svelte` — complete component.** Use the exported `Modal`, not an invented `Dialog` import. Controlled state drives both built-in and application dismissals. Title and description IDs are supplied because a plain heading snippet does not automatically become the primitive's title element.
 
 ```svelte
 <script lang="ts">
@@ -195,7 +195,7 @@ Sources: [archived floating integration](https://v3.skeleton.dev/docs/integratio
 <p role="status">{archived ? 'Project archived in this example.' : 'Project is active.'}</p>
 ```
 
-The inherited dialog defaults trap focus, prevent background interaction/scrolling, close on Escape/outside interaction, and restore focus. Preserve them unless the interaction specification explicitly requires otherwise. Open with keyboard, cycle Tab/Shift+Tab inside, dismiss with Escape, and confirm focus returns to the trigger. For a real mutation, await the actual result and show success only after it succeeds.
+The inherited dialog defaults trap focus, prevent background interaction and scrolling, close on Escape or outside interaction, and restore focus. Preserve them unless the interaction specification explicitly requires otherwise. Open with the keyboard, cycle Tab and Shift+Tab inside, dismiss with Escape, and confirm focus returns to the trigger. For a real mutation, await the result and show success only after it succeeds.
 
 The v3 docs implement **drawers using Modal**: set `positionerJustify="justify-start"`, clear `positionerAlign`/`positionerPadding`, give `contentBase` a sidebar width and full-screen height, and use `transitionsPositionerIn/Out` with an `x` offset matching the sidebar width. Retain dialog naming, close controls, and focus behavior. No separate `Drawer` export is needed. For interfaces this wrapper cannot express, the archive also documents separately installed headless Svelte integrations; do not assume their current APIs are part of Skeleton.
 
@@ -203,7 +203,7 @@ Sources: [archived Modal/drawer examples](https://v3.skeleton.dev/docs/integrati
 
 ## Toast strategy: create a store and mount a renderer
 
-**File: `ToastExample.svelte` — complete component.** This intentionally scopes the store to this component instance; it is a local notification demonstration, not a server-shared mutable singleton.
+**File: `ToastExample.svelte` — complete component.** The store is intentionally scoped to this component instance; this is a local notification demonstration, not a server-shared mutable singleton.
 
 ```svelte
 <script lang="ts">

@@ -32,7 +32,7 @@ Core v3 tokens include:
 | Purpose | Properties |
 | --- | --- |
 | Palette | `--color-{primary,secondary,tertiary,success,warning,error,surface}-{50,100,200,300,400,500,600,700,800,900,950}` |
-| Foreground for each shade | `--color-primary-contrast-500` and equivalent colors/shades; theme also defines `--color-primary-contrast-light` / `--color-primary-contrast-dark` |
+| Foreground for each shade | `--color-primary-contrast-500` and equivalent colors and shades; the theme also defines `--color-primary-contrast-light` and `--color-primary-contrast-dark` |
 | Body background | `--body-background-color`, `--body-background-color-dark` |
 | Text | `--base-font-family`, `--base-font-color`, `--base-font-color-dark`, `--heading-font-family`, `--heading-font-weight`, `--heading-font-color`, `--heading-font-color-dark`, `--anchor-font-color`, `--anchor-font-color-dark` |
 | Scale and shape | `--text-scaling`, `--spacing`, `--radius-base`, `--radius-container`, `--default-border-width`, `--default-ring-width` |
@@ -53,7 +53,7 @@ Sources: [v3 Themes](https://v3.skeleton.dev/docs/design/themes), [v3 installati
 
 ## Colors, pairings, and presets
 
-Use semantic palettes instead of hardcoded colors: `primary` for a brand action, `surface` for neutral containers, and `success`/`warning`/`error` for status accompanied by text. Standard utilities include `bg-primary-500`, `text-surface-950`, `border-secondary-600`, and `ring-primary-500`.
+Use semantic palettes instead of hardcoded colors: `primary` for a brand action, `surface` for neutral containers, and `success`, `warning`, or `error` for status accompanied by text. Standard utilities include `bg-primary-500`, `text-surface-950`, `border-secondary-600`, and `ring-primary-500`.
 
 A single shade does **not** automatically invert in dark mode. Pairings use `{property}-{color}-{lightShade}-{darkShade}`; for example `bg-surface-100-900` selects 100 in a light color scheme and 900 in a dark color scheme. Supported pairs are `50-950`, `100-900`, `200-800`, `300-700`, `400-600`, and their reverses. Pairing values use CSS `light-dark()`, so check the computed `color-scheme`, not just the presence of a `.dark` class.
 
@@ -78,11 +78,11 @@ Sources: [v3 Colors](https://v3.skeleton.dev/docs/design/colors), [v3 Presets](h
 
 ## Typography, spacing, and responsive layout
 
-Typography is opt-in: use `h1`–`h6`, `anchor`, `blockquote`, `code`, `pre`, and `kbd` classes on the appropriate semantic elements. A visual class is not a semantic heading level: `<h2 class="h3">` remains a level-two heading. Choose levels from document structure; choose visual size separately. Theme `--text-scaling` affects Tailwind text sizes; font-family tokens choose actual fonts, which must also be loaded if not system fonts.
+Typography is opt-in: use `h1`–`h6`, `anchor`, `blockquote`, `code`, `pre`, and `kbd` classes on appropriate semantic elements. A visual class is not a semantic heading level: `<h2 class="h3">` remains a level-two heading. Choose levels from document structure and visual size separately. Theme `--text-scaling` affects Tailwind text sizes; font-family tokens select fonts, which must also be loaded unless they are system fonts.
 
 Use the theme's spacing scale with `p-4`, `gap-4`, `space-y-4`, and related Tailwind utilities. Changing `--spacing` affects many dimensions, not only padding: review widths, heights, gaps, and hit targets after altering it. Use a small spacing vocabulary consistently rather than arbitrary pixel offsets.
 
-Recommended layout strategy: start with one column, `w-full`, and readable maximum widths; add `md:grid-cols-2` or `lg:grid-cols-3` only when content benefits. Use `min-w-0` for grid/flex children that must shrink, allow labels to wrap, and use horizontal overflow for wide data tables rather than squeezing cells or changing their semantics. Do not reorder content visually away from its keyboard/reading order. Check narrow widths and zoom in real browsers.
+Start with one column, `w-full`, and readable maximum widths; add `md:grid-cols-2` or `lg:grid-cols-3` only when content benefits. Use `min-w-0` for grid and flex children that must shrink, allow labels to wrap, and use horizontal overflow for wide data tables rather than squeezing cells or changing their semantics. Keep visual order consistent with keyboard and reading order. Check narrow widths and zoom in real browsers.
 
 Sources: [v3 Typography](https://v3.skeleton.dev/docs/design/typography), [v3 Spacing](https://v3.skeleton.dev/docs/design/spacing), [v3 layout guidance](https://v3.skeleton.dev/docs/guides/layouts).
 
@@ -135,21 +135,21 @@ Alternatively, choose the attribute strategy instead:
 @custom-variant dark (&:where([data-mode=dark], [data-mode=dark] *));
 ```
 
-Then set `data-mode="dark"` on `<html>`. Choose **one** strategy; changing `data-mode` does nothing to a `.dark`-configured variant. `data-theme` chooses a theme, not light/dark mode. `scheme-light` and `scheme-dark` can locally force pairing colors; they are not equivalent to changing the global `dark:` selector.
+Then set `data-mode="dark"` on `<html>`. Choose **one** strategy; changing `data-mode` does nothing to a `.dark`-configured variant. `data-theme` chooses a theme, not light or dark mode. `scheme-light` and `scheme-dark` can locally force pairing colors; they are not equivalent to changing the global `dark:` selector.
 
-For an SSR app, decide initial mode deliberately. CSS media mode avoids requiring browser JavaScript to determine the initial color scheme. A persisted explicit choice can be rendered server-side from a cookie, or applied by a small pre-paint browser script consistent with the selected CSS strategy. The server cannot read `localStorage` or `matchMedia`. Reading preferences only in `onMount` is browser-safe but occurs after mount, so can visibly flash the default theme/mode. A head script must respect the application's CSP and handle unavailable storage. Do not copy the archive's Astro navigation hooks into SvelteKit.
+For an SSR app, choose the initial mode deliberately. CSS media mode needs no browser JavaScript to determine the initial color scheme. Render a persisted explicit choice server-side from a cookie, or apply it with a small pre-paint browser script consistent with the selected CSS strategy. The server cannot read `localStorage` or `matchMedia`. Reading preferences only in `onMount` is browser-safe but occurs after mount, so the default theme or mode may visibly flash. A head script must respect the application's CSP and handle unavailable storage. Do not copy the archive's Astro navigation hooks into SvelteKit.
 
-Keep server and client initial component markup deterministic. If the early script changes the root mode, do not simultaneously render a different mode label/icon during hydration from a separately initialized client preference. Establish one source of truth; render mode-dependent controls consistently, then update after mount when necessary. CSS-only color changes do not justify suppressing hydration warnings.
+Keep server and client initial component markup deterministic. If an early script changes the root mode, do not render a different mode label or icon during hydration from a separately initialized client preference. Establish one source of truth; render mode-dependent controls consistently, then update after mount when necessary. CSS-only color changes do not justify suppressing hydration warnings.
 
 Sources: [v3 Dark Mode](https://v3.skeleton.dev/docs/guides/mode), [Tailwind dark-mode initial-paint guidance](https://tailwindcss.com/docs/dark-mode), [Svelte lifecycle hooks](https://svelte.dev/docs/svelte/lifecycle-hooks).
 
 ## Styling debugging checklist
 
-1. Inspect `<html>` in the browser: correct imported `data-theme`, chosen mode selector, and computed `color-scheme`? Check ancestor `scheme-light`/`scheme-dark` overrides when pairings appear stuck.
-2. Inspect computed styles and CSS rules: are theme tokens resolved, or unset/overridden? For outlined presets, inspect border separately from inherited text/background.
+1. Inspect `<html>` in the browser. Confirm the correct imported `data-theme`, chosen mode selector, and computed `color-scheme`. Check ancestor `scheme-light` and `scheme-dark` overrides when pairings appear stuck.
+2. Inspect computed styles and CSS rules. Check whether theme tokens resolve or are unset or overridden. For outlined presets, inspect the border separately from inherited text and background.
 3. If `preset-*` does nothing, confirm `optional/presets` is imported globally. If forms differ, confirm the forms plugin import and installed dependency.
 4. If utilities are missing, confirm Tailwind processing, the app's source detection, and the correct component-package `@source` path relative to the stylesheet. Keep complete class strings visible to Tailwind; do not build names as `"bg-" + color + "-500"`. Map choices to full literal classes.
 5. Compare both schemes for every active theme in actual target browsers: pairing colors use modern `light-dark()`; native form rendering varies by platform. A screenshot from one browser is insufficient.
-6. Reload with JavaScript delayed/disabled and with a persisted opposite-mode preference. Observe first paint, hydration console warnings, and navigation consistency. Use the interaction checklist in [accessibility.md](accessibility.md) before shipping.
+6. Reload with JavaScript delayed and disabled, and with a persisted opposite-mode preference. Observe first paint, hydration console warnings, and navigation consistency. Use the interaction checklist in [accessibility.md](accessibility.md) before shipping.
 
 Sources: [v3 installation](https://v3.skeleton.dev/docs/get-started/installation/sveltekit), [v3 Mode](https://v3.skeleton.dev/docs/guides/mode), [Tailwind class detection](https://tailwindcss.com/docs/detecting-classes-in-source-files), [v3 Forms browser support](https://v3.skeleton.dev/docs/tailwind/forms).
