@@ -1,3 +1,5 @@
+![Skeleton UI — Svelte Agent Skills. A code-eyed skull in a celestial globe above an open reference book.](assets/skeleton-ui-skill.svg)
+
 # Skeleton UI for Svelte — Agent Skill
 
 An unofficial, version-qualified [Agent Skill](https://agentskills.io) for coding agents building with **Skeleton UI v3, Svelte 5, and SvelteKit 3**.
