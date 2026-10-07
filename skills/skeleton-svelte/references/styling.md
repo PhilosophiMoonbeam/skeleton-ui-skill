@@ -1,6 +1,6 @@
 # Styling and themes — Skeleton v3
 
-Use the framework-agnostic CSS from `@skeletonlabs/skeleton@3.2.2`; these are native-element utilities, not Svelte component imports. The authority is the [archived v3 documentation](https://v3.skeleton.dev/docs/get-started/core-api) and the pinned package CSS, not the current Skeleton site. Tailwind's version number is separate: Skeleton v3 uses Tailwind CSS v4.
+Use the framework-agnostic CSS from `@skeletonlabs/skeleton@3.2.2`; these are native-element utilities, not Svelte component imports. Its [package exports](https://unpkg.com/@skeletonlabs/skeleton@3.2.2/package.json) resolve to CSS, and its [core stylesheet](https://unpkg.com/@skeletonlabs/skeleton@3.2.2/dist/index.css) defines the utilities below. Prefer this pinned source over current Skeleton docs; use the [archived v3 documentation](https://v3.skeleton.dev/docs/get-started/core-api) for context. Tailwind's version number is separate: Skeleton v3 uses Tailwind CSS v4.
 
 ## Theme registration and activation
 
@@ -10,21 +10,21 @@ Global stylesheet example (`src/app.css`; component source path is relative to t
 
 ```css
 @import 'tailwindcss';
-@plugin '@tailwindcss/forms';
 @import '@skeletonlabs/skeleton';
 @import '@skeletonlabs/skeleton/optional/presets';
 @import '@skeletonlabs/skeleton/themes/cerberus';
+@plugin '@tailwindcss/forms';
 @source '../node_modules/@skeletonlabs/skeleton-svelte/dist';
 ```
 
-The forms plugin requires the installed `@tailwindcss/forms` package. The presets import is optional for Skeleton itself but required for the `preset-*` classes in this reference. Load this global stylesheet through the root layout. Set `data-theme="cerberus"` on the existing `<html>` element in `src/app.html`; preserve SvelteKit's head and body placeholders.
+The forms plugin requires the installed `@tailwindcss/forms` package. Keep **all imports before** `@plugin`, `@source`, variants, and style rules; this preserves [CSS import ordering](https://developer.mozilla.org/en-US/docs/Web/CSS/@import). The archived Forms page places the plugin immediately after Tailwind; the ordering above retains that plugin without interleaving imports and other directives. Presets are optional for Skeleton itself but required for the `preset-*` classes in this reference. Load this global stylesheet through the root layout. Set `data-theme="cerberus"` on the existing `<html>` element in `src/app.html`; preserve SvelteKit's head and body placeholders.
 
 For a custom theme:
 
 1. Open the generator linked by the [v3 Themes page](https://v3.skeleton.dev/docs/design/themes) at [themes.skeleton.dev](https://themes.skeleton.dev/).
 2. Give the theme a unique name; customize palette, contrast colors, typography, spacing, and radii. Open its code view and copy the CSS.
 3. Check the output against the [3.2.2 theme shape](https://unpkg.com/@skeletonlabs/skeleton@3.2.2/dist/themes/cerberus.css) before importing it: the hosted generator can evolve independently of the archive. V3 expects a `[data-theme='name']` block with the properties below, not a v2 configuration object or plugin registration.
-4. Save the exported stylesheet, for example `src/acme.css`. Add `@import './acme.css';` to the global stylesheet, after the Skeleton imports. Set `data-theme="acme"` on `<html>` to match the exported selector, not necessarily the file name.
+4. Save the exported stylesheet, for example `src/acme.css`. Add `@import './acme.css';` after the imported Skeleton theme and before `@plugin`/`@source` or style rules. Set `data-theme="acme"` on `<html>` to match the exported selector, not necessarily the file name.
 5. If switching at runtime, change `document.documentElement.dataset.theme` in browser-only code to one of your imported theme names. Ensure the initial server theme and any theme-dependent rendered text agree.
 
 Core v3 tokens include:
@@ -49,7 +49,7 @@ Override a token after the imported theme; scope it to the theme rather than glo
 }
 ```
 
-Sources: [v3 Themes](https://v3.skeleton.dev/docs/design/themes), [v3 installation](https://v3.skeleton.dev/docs/get-started/installation/sveltekit), [pinned Cerberus theme](https://unpkg.com/@skeletonlabs/skeleton@3.2.2/dist/themes/cerberus.css), [v3 Forms prerequisites](https://v3.skeleton.dev/docs/tailwind/forms).
+Sources: [v3 Themes](https://v3.skeleton.dev/docs/design/themes), [v3 installation](https://v3.skeleton.dev/docs/get-started/installation/sveltekit), [pinned core CSS](https://unpkg.com/@skeletonlabs/skeleton@3.2.2/dist/index.css), [pinned Cerberus theme](https://unpkg.com/@skeletonlabs/skeleton@3.2.2/dist/themes/cerberus.css), [v3 Forms prerequisites](https://v3.skeleton.dev/docs/tailwind/forms), [CSS import ordering](https://developer.mozilla.org/en-US/docs/Web/CSS/@import).
 
 ## Colors, pairings, and presets
 
@@ -74,7 +74,7 @@ The preset styles have **different rules** in [3.2.2's actual CSS](https://unpkg
 
 Do not invent `preset-tonal-primary-500`, arbitrary filled shade suffixes, or a uniform “all presets use 500” rule. Separate shape (`btn`, `card`) from paint (`preset-*`) and layout (`p-4`, `gap-4`).
 
-Sources: [v3 Colors](https://v3.skeleton.dev/docs/design/colors), [v3 Presets](https://v3.skeleton.dev/docs/design/presets), [pinned preset CSS](https://unpkg.com/@skeletonlabs/skeleton@3.2.2/dist/optional/presets.css).
+Sources: [v3 Colors](https://v3.skeleton.dev/docs/design/colors), [v3 Presets](https://v3.skeleton.dev/docs/design/presets), [pinned pairing definitions](https://unpkg.com/@skeletonlabs/skeleton@3.2.2/dist/index.css), [pinned preset CSS](https://unpkg.com/@skeletonlabs/skeleton@3.2.2/dist/optional/presets.css).
 
 ## Typography, spacing, and responsive layout
 
@@ -86,6 +86,8 @@ Start with one column, `w-full`, and readable maximum widths; add `md:grid-cols-
 
 Sources: [v3 Typography](https://v3.skeleton.dev/docs/design/typography), [v3 Spacing](https://v3.skeleton.dev/docs/design/spacing), [v3 layout guidance](https://v3.skeleton.dev/docs/guides/layouts).
 
+For visual direction, hierarchy, density, and a complete responsive shell, see [design.md](design.md). These utilities implement a design; they do not choose one.
+
 ## Native button, form, card, and table classes
 
 | Native markup | V3 utility classes | Preserve behavior |
@@ -95,7 +97,9 @@ Sources: [v3 Typography](https://v3.skeleton.dev/docs/design/typography), [v3 Sp
 | `<article>` / `<section>` / container | `card`, optionally `card-hover`; add a preset and padding | A card does not create an interaction. Use a real link/button; avoid clickable `div`s and nested interactive elements inside a card link. |
 | `<table>` in a wrapper | `table-wrap`, `table` | Use caption, header cells and scope. Actions belong in a cell as links/buttons, not row click handlers. |
 
-Standalone display recipe (`Summary.svelte`; no script or network dependency):
+Standalone display recipe; no script or network dependency.
+
+**File: `Summary.svelte`**
 
 ```svelte
 <section class="card preset-filled-surface-100-900 space-y-4 p-4 md:p-6" aria-labelledby="summary-title">
@@ -123,7 +127,7 @@ Sources: [Buttons](https://v3.skeleton.dev/docs/tailwind/buttons), [Forms](https
 
 ## Dark mode, initial paint, and hydration
 
-Media strategy is the default: CSS follows `prefers-color-scheme`. For an explicit class-based choice, define this in the global stylesheet and toggle `.dark` on `<html>`:
+Media strategy is the default: CSS follows `prefers-color-scheme`. In [core 3.2.2](https://unpkg.com/@skeletonlabs/skeleton@3.2.2/dist/index.css), `:root` sets `color-scheme: light` and switches to `dark` through `@variant dark`; body background/text also use that variant. Pairings use `light-dark()` and inherit the computed scheme. For an explicit class-based choice, define this after imports in the global stylesheet and toggle `.dark` on `<html>`:
 
 ```css
 @custom-variant dark (&:where(.dark, .dark *));
@@ -135,13 +139,13 @@ Alternatively, choose the attribute strategy instead:
 @custom-variant dark (&:where([data-mode=dark], [data-mode=dark] *));
 ```
 
-Then set `data-mode="dark"` on `<html>`. Choose **one** strategy; changing `data-mode` does nothing to a `.dark`-configured variant. `data-theme` chooses a theme, not light or dark mode. `scheme-light` and `scheme-dark` can locally force pairing colors; they are not equivalent to changing the global `dark:` selector.
+Then set `data-mode="dark"` on `<html>`. Choose **one** strategy; changing `data-mode` does nothing to a `.dark`-configured variant. `data-theme` chooses a theme, not light or dark mode. Tailwind's `scheme-light` and `scheme-dark` locally force `color-scheme` and thus pairing colors and native control appearance; they do not activate the global `dark:` selector or replace Skeleton's variant-controlled body background/text.
 
 For an SSR app, choose the initial mode deliberately. CSS media mode needs no browser JavaScript to determine the initial color scheme. Render a persisted explicit choice server-side from a cookie, or apply it with a small pre-paint browser script consistent with the selected CSS strategy. The server cannot read `localStorage` or `matchMedia`. Reading preferences only in `onMount` is browser-safe but occurs after mount, so the default theme or mode may visibly flash. A head script must respect the application's CSP and handle unavailable storage. Do not copy the archive's Astro navigation hooks into SvelteKit.
 
 Keep server and client initial component markup deterministic. If an early script changes the root mode, do not render a different mode label or icon during hydration from a separately initialized client preference. Establish one source of truth; render mode-dependent controls consistently, then update after mount when necessary. CSS-only color changes do not justify suppressing hydration warnings.
 
-Sources: [v3 Dark Mode](https://v3.skeleton.dev/docs/guides/mode), [Tailwind dark-mode initial-paint guidance](https://tailwindcss.com/docs/dark-mode), [Svelte lifecycle hooks](https://svelte.dev/docs/svelte/lifecycle-hooks).
+Sources: [pinned root/body/pairing CSS](https://unpkg.com/@skeletonlabs/skeleton@3.2.2/dist/index.css), [v3 Dark Mode](https://v3.skeleton.dev/docs/guides/mode), [Tailwind color scheme](https://tailwindcss.com/docs/color-scheme), [Tailwind dark-mode initial-paint guidance](https://tailwindcss.com/docs/dark-mode), [Svelte lifecycle hooks](https://svelte.dev/docs/svelte/lifecycle-hooks).
 
 ## Styling debugging checklist
 

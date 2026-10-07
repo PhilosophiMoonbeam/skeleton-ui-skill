@@ -12,6 +12,8 @@ The stable root components use ordinary props and callback props. Their publishe
 | `Accordion` | `value: string[]` | `onValueChange(e)` → `e.value: string[]` | `.Item` requires `control()`; optional `panel()` and `lead()` |
 | `Switch` | `checked: boolean` | `onCheckedChange(e)` → `e.checked: boolean` | ordinary children become its label |
 | `Popover`, `Tooltip`, `Modal` | `open: boolean` | `onOpenChange(e)` → `e.open: boolean` | `trigger()` and `content()`; the component creates the trigger button |
+| `Combobox` | `value: string[]` | `onValueChange(e)` → `e.value: string[]` | visible `label` prop; optional `item(option)` |
+| `Pagination` | `page: number`, `pageSize: number` | `onPageChange(e)` → `e.page`; `onPageSizeChange(e)` → `e.pageSize` | optional no-argument button-label snippets; rows rendered by the consumer |
 
 Named snippets declared directly inside a component are passed as props of the same name. They are not legacy `slot="..."` elements. No-argument `Snippet` takes `()`; `Combobox`'s `item: Snippet<[T]>` takes one data item, and `Slider`'s `mark: Snippet<[number]>` takes a numeric marker. Native inputs still use normal Svelte `bind:value`, `bind:checked`, or `bind:group`.
 
@@ -225,3 +227,130 @@ Sources: [archived Modal/drawer examples](https://v3.skeleton.dev/docs/integrati
 The official reusable pattern is a `createToaster()` reference shared by client consumers and **one `<Toaster {toaster}>` in the root layout**. For a SvelteKit app, keep user-specific notification state out of request-shared server modules; a layout-owned store distributed via Svelte context is an option when SSR isolation matters. Trigger notifications from client event handlers. Use `.success`, `.warning`, `.error`, `.info`, or `.create({ type, title, description })`; no `<Toast.Root>` or external Portal is required. Keep permanent errors and actionable details inline as well, rather than relying solely on a temporary toast.
 
 Sources: [archived toast setup and methods](https://v3.skeleton.dev/docs/components/toast/svelte), [Toaster props](https://unpkg.com/@skeletonlabs/skeleton-svelte@1.5.3/dist/components/Toast/types.d.ts), [SvelteKit shared-state guidance](https://svelte.dev/docs/kit/state-management#Avoid-shared-state-on-the-server).
+
+## Combobox: searchable local selection
+
+**File: `SearchableCombobox.svelte` — complete component.** The root wrapper builds the collection and filters labels case-insensitively. Keep its `onInputValueChange` and `onOpenChange` unassigned to retain that built-in behavior; supplying either callback replaces the corresponding wrapper handler rather than composing with it. Labels are unique because the shipped option loop is keyed by label.
+
+```svelte
+<script lang="ts">
+  import { Combobox } from '@skeletonlabs/skeleton-svelte';
+
+  const projects = [
+    { label: 'Atlas design system', value: 'atlas', category: 'Design' },
+    { label: 'Beacon dashboard', value: 'beacon', category: 'Analytics' },
+    { label: 'Cedar documentation', value: 'cedar', category: 'Content' },
+    { label: 'Delta storefront', value: 'delta', category: 'Commerce' }
+  ];
+  let selected = $state<string[]>([]);
+  const selectedProject = $derived(projects.find((project) => project.value === selected[0]));
+</script>
+
+<section class="max-w-md space-y-4">
+  <h2 class="h2">Choose a project</h2>
+  <Combobox
+    data={projects}
+    label="Project"
+    placeholder="Search projects"
+    value={selected}
+    onValueChange={(e) => (selected = e.value)}
+    translations={{ triggerLabel: 'Show project options' }}
+    positioning={{ placement: 'bottom-start', sameWidth: true }}
+    zIndex="50"
+  >
+    {#snippet item(project)}
+      <span class="flex w-full items-center justify-between gap-3">
+        <span>{project.label}</span>
+        <span class="text-sm opacity-60">{project.category}</span>
+      </span>
+    {/snippet}
+  </Combobox>
+  <p role="status">
+    Selected project: {selectedProject ? `${selectedProject.label} (${selectedProject.value})` : 'none'}
+  </p>
+</section>
+```
+
+Focus the named Project input and type `bea`: only Beacon dashboard remains. Use Arrow Down to highlight it and Enter to select it; the input value and visible selected-project status update together. Escape closes the popup without submitting a form. The dropdown trigger opens the full list again. Selection remains a string array even in single-select mode; typed search text is not itself a selected value. With no matches the shipped wrapper shows no option list; clearing the query restores options. It positions in place, so avoid clipping ancestors rather than adding an invented Portal.
+
+Sources: [archived Combobox integration](https://v3.skeleton.dev/docs/integrations/popover/svelte#combobox), [1.5.3 props](https://unpkg.com/@skeletonlabs/skeleton-svelte@1.5.3/dist/components/Combobox/types.d.ts), [shipped filtering and label markup](https://unpkg.com/@skeletonlabs/skeleton-svelte@1.5.3/dist/components/Combobox/Combobox.svelte), [Zag 1.18.3 selection and keyboard contract](https://unpkg.com/@zag-js/combobox@1.18.3/dist/index.d.ts).
+
+## Pagination: controlled local table
+
+**File: `PaginatedProjects.svelte` — complete component.** Pass the entire local data array to Pagination, not the current slice. Page numbers are one-based; array slice offsets are zero-based. This example resets to page 1 whenever the page size changes, so a formerly valid last page cannot become an empty out-of-range page.
+
+```svelte
+<script lang="ts">
+  import { Pagination } from '@skeletonlabs/skeleton-svelte';
+
+  const projects = Array.from({ length: 23 }, (_, index) => ({
+    id: index + 1,
+    name: `Project ${String(index + 1).padStart(2, '0')}`,
+    status: index % 3 === 0 ? 'In review' : 'Active'
+  }));
+  let page = $state(1);
+  let pageSize = $state(5);
+  const start = $derived((page - 1) * pageSize);
+  const visibleProjects = $derived(projects.slice(start, start + pageSize));
+  const totalPages = $derived(Math.ceil(projects.length / pageSize));
+
+  function changePageSize(size: number) {
+    pageSize = size;
+    page = 1;
+  }
+</script>
+
+<section class="space-y-4">
+  <h2 class="h2">Project directory</h2>
+  <div class="table-wrap">
+    <table class="table">
+      <caption class="p-3 text-start">Local projects</caption>
+      <thead>
+        <tr><th scope="col">ID</th><th scope="col">Project</th><th scope="col">Status</th></tr>
+      </thead>
+      <tbody>
+        {#each visibleProjects as project (project.id)}
+          <tr><td>{project.id}</td><td>{project.name}</td><td>{project.status}</td></tr>
+        {/each}
+      </tbody>
+    </table>
+  </div>
+  <div class="flex flex-wrap items-center justify-between gap-4">
+    <label class="label">
+      <span class="label-text">Rows per page</span>
+      <select
+        class="select w-fit"
+        value={String(pageSize)}
+        onchange={(e) => changePageSize(Number(e.currentTarget.value))}
+      >
+        <option value="5">5</option>
+        <option value="10">10</option>
+        <option value="20">20</option>
+      </select>
+    </label>
+    <Pagination
+      data={projects}
+      {page}
+      {pageSize}
+      onPageChange={(e) => (page = e.page)}
+      onPageSizeChange={(e) => changePageSize(e.pageSize)}
+      translations={{ rootLabel: 'Project pages' }}
+      showFirstLastButtons
+      titleFirst="First page"
+      titleLast="Last page"
+    >
+      {#snippet labelFirst()}First{/snippet}
+      {#snippet labelPrevious()}Previous{/snippet}
+      {#snippet labelNext()}Next{/snippet}
+      {#snippet labelLast()}Last{/snippet}
+    </Pagination>
+  </div>
+  <p role="status">
+    Page {page} of {totalPages}: rows {start + 1}–{start + visibleProjects.length} of {projects.length}
+  </p>
+</section>
+```
+
+Initially IDs 1–5 render. Activate Next with Enter or Space to show IDs 6–10. Activate Last to show IDs 21–23 on page 5. Change Rows per page to 20: page resets to 1, IDs 1–20 render, and Last shows IDs 21–23 on page 2. Previous/Next and First/Last disable at their respective boundaries. Pagination uses individually tabbable buttons, not a roving arrow-key list. The wrapper renders no controls when there is only one page; the consumer still renders its data and status. Its `onPageSizeChange` contract is wired, but this wrapper has no size picker: the native select performs the actual size change.
+
+Sources: [archived Pagination](https://v3.skeleton.dev/docs/components/pagination/svelte), [1.5.3 props](https://unpkg.com/@skeletonlabs/skeleton-svelte@1.5.3/dist/components/Pagination/types.d.ts), [shipped controls and data count](https://unpkg.com/@skeletonlabs/skeleton-svelte@1.5.3/dist/components/Pagination/Pagination.svelte), [Zag 1.18.3 callbacks and page range](https://unpkg.com/@zag-js/pagination@1.18.3/dist/index.d.ts).

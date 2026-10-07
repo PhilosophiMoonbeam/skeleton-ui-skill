@@ -8,8 +8,9 @@ Give a new agent session the API contracts, complete examples, and integration g
 
 - **Task-based navigation:** a compact `SKILL.md` routes agents to the references needed for each task.
 - **Version-aware implementation:** exact package pins, a runtime export catalog, and installed-type inspection help prevent invented APIs and mixed-major examples.
-- **Complete examples:** six standalone Skeleton component recipes, plus Svelte and native form examples.
+- **Complete examples:** eight standalone Skeleton component recipes, a responsive app-shell recipe, and Svelte and native form examples.
 - **Application integration:** themes, Tailwind CSS, Svelte runes, SSR, hydration, request isolation, and native or enhanced server forms.
+- **Visual composition:** hierarchy, spacing, density, realistic content states, and narrow/wide screenshot review for polished pages.
 - **Practical verification:** keyboard, focus, responsive layout, and accessibility checks, with explicit limits on the recorded evidence.
 
 This repository contains skill documentation, not a component library or application template. React is outside its scope.
@@ -50,15 +51,16 @@ See [setup](skills/skeleton-svelte/references/setup.md) for the complete toolcha
 | [Setup](skills/skeleton-svelte/references/setup.md) | Exact pins, scaffolding, Kit 3 configuration, global CSS, and source scanning |
 | [Migration](skills/skeleton-svelte/references/migration.md) | v2-to-v3 cutover, removed APIs, mixed-version traps, and offline inspection |
 | [Components](skills/skeleton-svelte/references/components.md) | Runtime exports, API shapes, declaration links, and styled native alternatives |
-| [Recipes](skills/skeleton-svelte/references/recipes.md) | Complete tabs, accordion, switch, tooltip, modal, and toast examples |
+| [Recipes](skills/skeleton-svelte/references/recipes.md) | Complete tabs, accordion, switch, tooltip, modal, toast, combobox, and pagination examples |
 | [Styling](skills/skeleton-svelte/references/styling.md) | Themes, tokens, presets, responsive layout, dark mode, and motion |
+| [Design](skills/skeleton-svelte/references/design.md) | Visual brief, composition, responsive app-shell recipe, and screenshot review |
 | [Accessibility](skills/skeleton-svelte/references/accessibility.md) | Semantics, forms, validation feedback, and keyboard and focus checks |
 | [SvelteKit](skills/skeleton-svelte/references/sveltekit.md) | Runes, snippets, SSR, hydration, request isolation, and server actions |
 | [Sources](skills/skeleton-svelte/references/sources.md) | Primary sources, compatibility evidence, maintenance, and distribution |
 
 ## Evidence and limits
 
-The [recorded authoring checks](skills/skeleton-svelte/references/sources.md#exact-compatibility-baseline-and-observed-smoke) include installation without forced peers, type checking, production builds, and browser interaction with the documented examples at the pinned baseline.
+The [second-pass authoring checks](skills/skeleton-svelte/references/sources.md#exact-compatibility-baseline-and-observed-smoke) record installation without forced peers, type checking with 0 errors and 0 warnings, production builds, and browser interactions across the eight Skeleton recipes and responsive app shell. The evidence names exercised behavior and viewport sizes; it does not automatically cover future edits.
 
 These checks are not upstream certification, exhaustive component or browser coverage, a full accessibility audit, or deployment proof. Agents must verify the application they change and report only checks they actually performed.
 

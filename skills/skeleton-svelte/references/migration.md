@@ -17,12 +17,14 @@ Sources: [core CSS exports](https://registry.npmjs.org/@skeletonlabs/skeleton/3.
 
 Work on a migration branch and preserve existing changes. The archived guide describes a major rewrite, not a prop-compatible update, and explicitly leaves component props and many utility migrations to manual work.
 
+**Skeleton-only migration:** retain a supported existing toolchain. The [archived installation baseline](https://v3.skeleton.dev/docs/get-started/installation/sveltekit) is Kit 2 or later, Svelte 5, and Tailwind 4; the pinned component package requires Svelte `^5.20.0`, and core requires Tailwind `^4.0.0`. Check the installed framework, Vite integration, Node, and adapter peers. These minimums do not require Kit 3, Svelte `5.57.2`, or the other greenfield pins.
+
 1. Inventory legacy imports, root-level providers, Tailwind and PostCSS configuration, theme registration, custom CSS classes, and each affected component callsite.
-2. Migrate Svelte to `5.57.2` using the [Svelte 5 migration guide](https://svelte.dev/docs/svelte/v5-migration-guide). Existing legacy Svelte syntax can still work; don't conflate that with retaining removed Skeleton APIs.
-3. Migrate Kit to `3.0.1` using the [Kit 3 migration guide](https://svelte.dev/docs/kit/migrating-to-sveltekit-3), not only the archived Skeleton guide's Kit 2 instructions. Move `svelte.config.*` options into `sveltekit({...})` in Vite, remove the obsolete configuration, migrate changed module imports, and update the adapter and toolchain. Preserve supported application settings.
-4. Migrate root `tsconfig.json` from `./.svelte-kit/tsconfig.json` to `$app/tsconfig`, with explicit `include: ["src", "test", "*"]` and `exclude: ["src/service-worker"]`. Merge existing compiler options, additional source paths, and exclusions rather than overwriting them. The old generated config is obsolete; use the [complete setup reference](setup.md#typescript-configuration) and [exact Kit 3 migration section](https://svelte.dev/docs/kit/migrating-to-sveltekit-3#$app-tsconfig).
-5. Migrate Tailwind to 4 and remove the v2 integration described below.
-6. Install the [exact setup pins](setup.md), integrate CSS, themes, and source scanning, then migrate every legacy component and store caller.
+2. If a prerequisite is missing, migrate only what is required within the requested scope. Use the [Svelte 5 migration guide](https://svelte.dev/docs/svelte/v5-migration-guide) for a Svelte 4 app and the [Tailwind 4 upgrade guide](https://tailwindcss.com/docs/upgrade-guide) for Tailwind 3. Existing legacy Svelte syntax can still work; removed Skeleton APIs cannot.
+3. Install core `3.2.2` and components `1.5.3` as in [existing-project setup](setup.md#existing-project); preserve compatible framework and Tailwind/Vite releases. Integrate CSS, themes, and source scanning.
+4. Remove the v2 integration described below and migrate every affected component and store caller. Do not change unrelated application state or deployment conventions.
+
+**Optional exact-target migration:** only when the user requests Svelte `5.57.2` / Kit `3.0.1`, apply the [complete target pins](setup.md#version-contract) and [Kit 3 migration guide](https://svelte.dev/docs/kit/migrating-to-sveltekit-3). Coordinate Node, Vite, the Svelte Vite plugin, optional TypeScript, and the existing deployment adapter. Move supported `svelte.config.*` options into `sveltekit({...})`, remove the obsolete file, migrate changed imports, and merge the [Kit 3 tsconfig](setup.md#typescript-configuration) with existing source paths and compiler options. Do not apply those Kit 3 changes to a retained Kit 2 project.
 
 The archived guide describes `npx skeleton migrate skeleton-3`. Do not blindly run this unpinned historical CLI against a modern project: the guide says it changes dependencies, imports, names, and classes but **does not update component props or most v2 utilities**. Migrate manually to avoid letting a current CLI silently choose newer packages. If using automation, inspect its exact version, help, and resulting diff, then restore the target pins; no CLI invocation substitutes for the manual steps here.
 
@@ -100,7 +102,7 @@ For online confirmation, use version-qualified metadata, for example `npm view @
 | `Portal`, `Dialog`, `useListCollection` import failure | Compare `dist/index.d.ts`; rewrite for the available v3 integration/API, not a newer package version. |
 | `value`/callback type error after rename | Compare component declarations and archived examples; preserve the new value shape and read callback payload directly. |
 | Theme/preset utilities disappeared | Fix v3 CSS imports, active theme, class names, and component source scan; don't re-enable the Tailwind 3 Skeleton plugin. |
-| Kit fails before rendering | Apply Kit 3 config/module/adapter migration and toolchain pins in [setup](setup.md); do not blame the Skeleton API. |
+| Kit fails before rendering | Inspect the installed Kit generation, configuration, modules, adapter, and peers. Use [setup](setup.md) for an approved Kit 3 migration; do not force that upgrade or blame the Skeleton API. |
 | Styling vanishes only in monorepo builds | Resolve `@source` relative to the actual stylesheet and check Tailwind's scan base path. |
 
 After migration, the integrating agent should run existing checks and the build, then verify real component interactions, overlays, keyboard behavior, focus behavior, and themed styling. Report only exercised checks. API consistency, type consistency, and published peers are evidence, not a substitute for runtime verification.

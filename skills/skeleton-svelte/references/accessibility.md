@@ -1,6 +1,6 @@
 # Accessibility and browser verification
 
-Skeleton's classes style elements; they do not supply semantics, validation policy, or focus management for arbitrary elements. Use the archived v3 native utilities with semantic HTML, then verify actual behavior. The [v3 Forms page](https://v3.skeleton.dev/docs/tailwind/forms) explicitly calls for browser and platform validation; the [v3 Tables page](https://v3.skeleton.dev/docs/tailwind/tables) recommends real links or buttons inside cells rather than interactive rows.
+Skeleton's [core 3.2.2 CSS](https://unpkg.com/@skeletonlabs/skeleton@3.2.2/dist/index.css) styles native elements; arbitrary containers do not gain semantics, validation policy, or focus management from classes. Use semantic HTML and verify actual behavior. This is distinct from the separately versioned Svelte components and their individual interaction contracts. The [v3 Forms page](https://v3.skeleton.dev/docs/tailwind/forms) calls for browser/platform validation; the [v3 Tables page](https://v3.skeleton.dev/docs/tailwind/tables) recommends links or buttons inside cells rather than interactive rows. Archive examples are not an accessibility certification: retain their useful styles, not malformed table structure or placeholder links.
 
 ## Preserve native semantics and names
 
@@ -27,6 +27,8 @@ Sources: [WAI Form Notifications](https://www.w3.org/WAI/tutorials/forms/notific
 ## Standalone styled local form recipe
 
 This complete `ProfilePreview.svelte` component updates a **local preview**, not an account or server. It requires the global Skeleton theme/preset imports and forms plugin described in [styling.md](styling.md). Native `required` and `maxlength` constraints run before the `submit` handler; the status region honestly describes the outcome. For a persisted form, use your SvelteKit server action instead of treating this handler as persistence.
+
+**File: `ProfilePreview.svelte`**
 
 ```svelte
 <script lang="ts">
@@ -87,6 +89,8 @@ For a modal dialog, verify all of these:
 For tooltip-like help, verify hover **and keyboard focus** expose it, Escape dismisses it, and focus stays on the trigger. Associate tooltip text through `aria-describedby`; the tooltip itself has `role="tooltip"` and no focusable content. Keep it visible while the pointer moves over its content. If it contains links/buttons, it is an interactive popup, not a tooltip; use the appropriate dialog/popover interaction model. Essential instructions should be visible without opening a tooltip. The APG tooltip pattern is explicitly a work in progress, not a finalized component certification.
 
 Sources: [APG Modal Dialog](https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/), [APG Tooltip](https://www.w3.org/WAI/ARIA/apg/patterns/tooltip/).
+
+For simple mobile page navigation, a native `<details>`/`<summary>` disclosure can avoid a modal entirely. Retain its native keyboard behavior and marker; put real links inside a named `<nav>`. It is not an ARIA `menu`, does not trap focus, and does not require Escape dismissal. See the responsive shell in [design.md](design.md). If choosing an overlay instead, implement the full modal contract above.
 
 ## Contrast, motion, and scale
 

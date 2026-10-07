@@ -1,12 +1,14 @@
 # Svelte 5.57.2 and SvelteKit 3.0.1 integration
 
-Use this reference for application behavior around Skeleton v3, not to justify migrating an unrelated application. Skeleton's archived installation guide targets Kit 2 or later; its framework examples do not describe Kit 3's breaking changes. Prefer the exact installed declarations and the Kit 3 migration guide when they differ.
+Use this reference for application behavior around Skeleton v3, not to justify migrating an unrelated application. Skeleton's archived installation baseline is Kit 2 or later; preserve a supported existing toolchain. Apply the Kit 3-specific configuration, imports, and action options below only to a Kit 3 project or an explicitly requested migration. Prefer exact installed declarations over version-mixed examples.
 
 ## Verify the project before changing it
 
 Inspect the package manifest, lockfile, installed package versions, route and layout structure, Vite configuration, global CSS, theme ownership, and existing form and state conventions. Use the project's package manager; do not regenerate configuration or replace working conventions merely to match an example. New runes components can coexist with existing legacy Svelte components, but do not mix `export let` or `$:` declarations into a runes component.
 
 The frozen target is `svelte@5.57.2`, `@sveltejs/kit@3.0.1`, `@skeletonlabs/skeleton@3.2.2`, and `@skeletonlabs/skeleton-svelte@1.5.3`. Skeleton's component package has independent versioning: do not request a nonexistent component-package `@3` just because the design system is v3. Its 1.5.3 peer is Svelte `^5.20.0`. Kit 3.0.1 requires Node `>=22.17`, Svelte `^5.57.1`, Vite `^8.0.12`, and `@sveltejs/vite-plugin-svelte` `^7.0.0`. Its TypeScript peer is optional: use TypeScript `^6.0.0` when TypeScript tooling is present; JavaScript-only projects do not have to install it. Check the adapter's own compatibility too; satisfying these peers alone is not proof of a working application.
+
+These requirements describe the chosen Kit 3 target, not every existing Skeleton app. See [setup](setup.md#existing-project) for the inspection-only path and the combined Node/Vite-plugin engine ranges.
 
 For an npm project, these are inspection commands, not upgrade commands:
 
@@ -45,7 +47,9 @@ DOM events use properties such as `onclick`, `oninput`, and `onsubmit`. Use the 
 
 New components receive snippets through props and render them with `{@render children()}`; named `{#snippet ...}` blocks can be passed as named props. Type them as `Snippet` or `Snippet<[ArgumentType]>` from `svelte`. Slots and `let:` belong to legacy APIs; use the installed component's documented slot or snippet contract rather than converting library internals or assuming newer compound components exist in v3.
 
-A standalone native wrapper demonstrating typed props, `$bindable`, a snippet, derived state and a hydration-safe ID follows. Save as `NameField.svelte`; a parent can use `<NameField bind:value={name}>Help text</NameField>` with `let name = $state('')`.
+A standalone native wrapper demonstrates typed props, `$bindable`, a snippet, derived state and a hydration-safe ID. A parent can use `<NameField bind:value={name}>Help text</NameField>` with `let name = $state('')`.
+
+`src/lib/NameField.svelte`:
 
 ```svelte
 <script lang="ts">
@@ -77,7 +81,9 @@ Sources: [state](https://svelte.dev/docs/svelte/$state), [derived](https://svelt
 
 Import `page`, `navigating`, or `updated` from `$app/state` as needed. These are read-only reactive objects, not stores: read `page`, not `$page`, and do not call `.subscribe()` or `.set()`. Derive reactive values with runes, not legacy `$:` or a one-time destructuring assignment. `page.url` is read-only in Kit 3; use a new `URL`/`URLSearchParams` and supported navigation APIs to change the location.
 
-Standalone route-state display (`RouteLocation.svelte`):
+Standalone route-state display:
+
+`src/lib/RouteLocation.svelte`:
 
 ```svelte
 <script lang="ts">
@@ -102,7 +108,9 @@ Component initialization and universal `load` can execute on the server. Do not 
 
 Use a synchronous `onMount` callback so its returned cleanup is registered. If it starts async initialization, launch the async work inside it, handle rejection, and guard against completion after destruction. Unsubscribe observers and listeners and release library instances on unmount; effect cleanup also runs before each rerun. `onDestroy` can run on the server, so it is not itself a browser guard.
 
-Standalone `ReducedMotion.svelte`, with stable SSR markup until mounting:
+Standalone browser-state example, with stable SSR markup until mounting:
+
+`src/lib/ReducedMotion.svelte`:
 
 ```svelte
 <script lang="ts">
@@ -129,7 +137,9 @@ Sources: [lifecycle](https://svelte.dev/docs/svelte/lifecycle-hooks), [effects](
 
 `+page.ts`/`+layout.ts` export universal `load`: they normally run on the server for initial SSR, during browser hydration, and in the browser for later navigation. `+page.server.ts`/`+layout.server.ts` run only on the server. Use the provided `fetch` in `load` for request-aware fetching and hydration reuse; don't duplicate that request in `onMount` without a separate requirement.
 
-Keep credentials, database queries and private environment access in server modules. In Kit 3, use `$app/env/private`; variables are defined and configured through the project's `src/env` convention. Public environment values are deliberately browser-visible. Do not import private code into a component or universal loader, even indirectly. `.server.ts` files and server directories protect the boundary, but **anything returned from server `load` or an action is sent to the browser**. Never return tokens, password hashes or internal exception details.
+Keep credentials, database queries and private environment access in server modules. In Kit 3, define a `variables` export in `src/env.ts` or `src/env.js` using `defineEnvVars` from `@sveltejs/kit/env`, then import private values from `$app/env/private`. Variables are private by default; `public: true` deliberately exposes them through `$app/env/public`. Existing Kit 2 projects retain their supported environment convention unless migration is requested.
+
+Do not import private code into a component or universal loader, even indirectly. A `.server.ts` filename or a `server` directory inside the project (except under `src/routes` or `static`) protects the Kit 3 boundary; external packages are not automatically protected by that naming rule. **Anything returned from server `load` or an action is sent to the browser**. Never return tokens, password hashes or internal exception details.
 
 Server `load` results must be serializable by Kit's `devalue` transport. Conservative results use plain objects, arrays, strings, numbers, booleans and null; Kit also supports types such as `Date`, `Map`, `Set` and `BigInt`. Do not return database clients, functions, DOM nodes or arbitrary class instances without a deliberately implemented transport. Use generated `PageServerLoad`, `PageLoad`, `PageProps` and `Actions` types from `./$types` rather than duplicating their shapes.
 
@@ -139,7 +149,9 @@ Sources: [load](https://svelte.dev/docs/kit/load), [server-only modules](https:/
 
 Import existing global CSS once in the root layout. For the archived Skeleton v3 setup, `src/app.css` imports Tailwind, Skeleton core, optional presets and the chosen theme, with `@source '../node_modules/@skeletonlabs/skeleton-svelte/dist'` adjusted relative to the actual stylesheet. Do not scatter these imports across route components.
 
-Minimal `src/routes/+layout.svelte` (merge into the existing layout, retaining its providers and shell):
+Minimal root layout; merge into the existing layout, retaining its providers and shell:
+
+`src/routes/+layout.svelte`:
 
 ```svelte
 <script lang="ts">
@@ -227,7 +239,7 @@ export const actions = {
 
 Kit exposes returned action data through the page's `form` prop. `return fail(400, data)` creates an action failure; it does **not** throw. `redirect(303, location)` and `error(404, 'Message')` from `@sveltejs/kit` throw internally and return `never`: call them directly, without `throw` or returning a fabricated result. Do not swallow them in a broad `catch`. Use `fail` for expected field validation; use `error` for an HTTP error page. After a real persisted mutation, a local `redirect(303, location)` gives POST/Redirect/GET. Kit 3 requires explicit `external` permission for external redirect targets; validate destinations instead of trusting a submitted URL.
 
-Default `use:enhance` resets a successful form, refreshes data, updates action state, follows redirects and renders errors. Kit 3 also navigates when an action targets another page, matching native submission. If adding a custom submission callback, its returned result callback replaces the default behavior: invoke `await update()` to keep it, or implement every required result path deliberately. Kit 3's update option is `refreshAll`, not the Kit 2 `invalidateAll`; `update({ reset: false })` preserves input values after success when intended. Do not suppress errors or bypass the form with click-only handlers.
+Default `use:enhance` resets a successful form, refreshes data, updates action state, follows redirects and renders errors. Kit 3 also navigates when an action targets another page, matching native submission. If adding a custom submission callback, its returned result callback replaces the default behavior: invoke `await update()` to keep it, or implement every required result path deliberately. In Kit 3, `refreshAll` replaces the deprecated `invalidateAll` update option; `update({ reset: false })` preserves input values after success when intended. Retained Kit 2 projects use their installed enhancement contract. Do not suppress errors or bypass the form with click-only handlers.
 
 Named actions use `action="?/save"`; do not combine named and default actions on the same page. Keep private fields (passwords, tokens) out of failure data. File forms need `enctype="multipart/form-data"` for native submissions, plus server file validation. Authentication, authorization and persistence are application responsibilities, not styling or enhancement features.
 
