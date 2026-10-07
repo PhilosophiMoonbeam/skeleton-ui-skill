@@ -49,6 +49,10 @@ Override a token after the imported theme; scope it to the theme rather than glo
 }
 ```
 
+Use the smallest override that expresses the brief. `--radius-base` shapes buttons and controls; `--radius-container` shapes cards. Body type uses the `--base-*` tokens, while `h1`–`h6` classes consume the heading tokens; an unclassed heading does not acquire that styling. The recipe's custom `.page-title` consumes the heading family but explicitly sets weight and size, so change those local declarations if that title needs a different treatment.
+
+Keep `--spacing` stable for a local density change: adjust card padding, row gaps, and control sizing instead. `--text-scaling` changes the core's Tailwind text sizes **and their line-height values**, not arbitrary `clamp()` sizes or browser zoom. When recoloring a palette, update its full shade ramp and per-shade contrast assignments together; changing only `--color-primary-500` neither rebuilds the ramp nor recomputes foreground contrast. Compare the title, body, metadata, action, form, and card in both modes before propagating the choice.
+
 Sources: [v3 Themes](https://v3.skeleton.dev/docs/design/themes), [v3 installation](https://v3.skeleton.dev/docs/get-started/installation/sveltekit), [pinned core CSS](https://unpkg.com/@skeletonlabs/skeleton@3.2.2/dist/index.css), [pinned Cerberus theme](https://unpkg.com/@skeletonlabs/skeleton@3.2.2/dist/themes/cerberus.css), [v3 Forms prerequisites](https://v3.skeleton.dev/docs/tailwind/forms), [CSS import ordering](https://developer.mozilla.org/en-US/docs/Web/CSS/@import).
 
 ## Colors, pairings, and presets
@@ -97,13 +101,18 @@ For visual direction, hierarchy, density, and a complete responsive shell, see [
 | `<article>` / `<section>` / container | `card`, optionally `card-hover`; add a preset and padding | A card does not create an interaction. Use a real link/button; avoid clickable `div`s and nested interactive elements inside a card link. |
 | `<table>` in a wrapper | `table-wrap`, `table` | Use caption, header cells and scope. Actions belong in a cell as links/buttons, not row click handlers. |
 
-Standalone display recipe; no script or network dependency.
+Standalone local example content; no network dependency. Svelte 5.20+ supplies an instance ID that stays consistent through SSR hydration.
 
 **File: `Summary.svelte`**
 
 ```svelte
-<section class="card preset-filled-surface-100-900 space-y-4 p-4 md:p-6" aria-labelledby="summary-title">
-  <h2 id="summary-title" class="h3">Project summary</h2>
+<script lang="ts">
+  const uid = $props.id();
+  const titleId = `${uid}-summary-title`;
+</script>
+
+<section class="card preset-filled-surface-100-900 space-y-4 p-4 md:p-6" aria-labelledby={titleId}>
+  <h2 id={titleId} tabindex="-1" class="h3">Project summary</h2>
   <p>Two tasks remain before the release.</p>
   <div class="table-wrap">
     <table class="table">
@@ -117,13 +126,13 @@ Standalone display recipe; no script or network dependency.
       </tbody>
     </table>
   </div>
-  <a href="#summary-title" class="btn preset-tonal-primary">Return to summary heading</a>
+  <a href={`#${titleId}`} class="btn preset-tonal-primary">Return to summary heading</a>
 </section>
 ```
 
-Give IDs unique values if repeating the recipe on one page. See [accessibility.md](accessibility.md) for a local-only form recipe and interaction checks.
+Each instance owns its heading ID, label association, and real fragment target; callers do not need to allocate IDs. Do not replace `$props.id()` with random values or a shared module counter. See [accessibility.md](accessibility.md) for a local-only form recipe and interaction checks.
 
-Sources: [Buttons](https://v3.skeleton.dev/docs/tailwind/buttons), [Forms](https://v3.skeleton.dev/docs/tailwind/forms), [Cards](https://v3.skeleton.dev/docs/tailwind/cards), [Tables](https://v3.skeleton.dev/docs/tailwind/tables).
+Sources: [Buttons](https://v3.skeleton.dev/docs/tailwind/buttons), [Forms](https://v3.skeleton.dev/docs/tailwind/forms), [Cards](https://v3.skeleton.dev/docs/tailwind/cards), [Tables](https://v3.skeleton.dev/docs/tailwind/tables), [Svelte hydration-safe instance IDs](https://svelte.dev/docs/svelte/$props#%24props.id()).
 
 ## Dark mode, initial paint, and hydration
 

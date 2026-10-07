@@ -8,6 +8,8 @@ Capture the audience, their primary task, content type, and desired tone in two 
 
 Example brief: “A small community design studio needs to find and review project briefs. Use calm neutral surfaces, one blue accent, editorial headings, and generous space around compact, factual project cards.” This differs from a generic analytics dashboard without inventing metrics, charts, or a decorative hero unrelated to the task.
 
+Adapt the existing app before introducing a new look: retain its active theme, loaded fonts, spacing rhythm, navigation conventions, and component shapes unless the brief requires a change. For a new app, start with one bundled theme and calibrate it rather than combining several themes or importing a dashboard template. Preserve installed package versions; a visual refresh is not a migration.
+
 ## Establish a small visual system
 
 | Decision | Recommended starting point | Avoid |
@@ -20,6 +22,10 @@ Example brief: “A small community design studio needs to find and review proje
 | Composition | One dominant task area with quieter supporting information. Align card titles, controls, and text edges. | Symmetry for its own sake; arbitrary metric tiles; decorative panels that force the useful content below the fold. |
 
 These are starting points, not fixed ratios or a prescribed brand. Modify theme tokens intentionally rather than hardcoding competing palettes. Match backgrounds with appropriate foregrounds; the existence of a contrast token does not prove the final rendered contrast passes. Skeleton's `card` supplies radius, not padding or paint; `btn` defaults to nonwrapping text, so explicitly permit wrapping for long labels.
+
+Calibrate one representative screen with real-length content before repeating components. Choose a canvas, a content surface, one accent treatment, four type roles, and comfortable or compact density; use the token override pattern in [styling.md](styling.md). If everything competes, remove accents, borders, and bold weights before adding decoration. If hierarchy is weak, increase section spacing and distinguish the title before enlarging every card. If content feels sparse, improve grouping and column widths rather than inventing metrics.
+
+Adapt the recipe to the task: keep the editorial introduction for a collection or reading experience; shorten it to a title and explanation for frequent operational work. Use a list or table when users compare the same fields across many records; retain cards when descriptions and next steps need reading space. Change grid breakpoints when the actual labels and controls stop fitting, not to reach a preferred column count.
 
 ## Compose from narrow to wide
 
@@ -249,6 +255,7 @@ These are **checks to perform**, not a claim of tested screenshots or accessible
 4. **Local interaction:** After mount, enter `harbor` and apply filters: one brief remains. Reset: four return. Select Draft and apply: two remain. Apply `zzzz`: zero results and a readable empty state; Reset filters restores the list without losing keyboard access. Editing drafts alone does not change results or announce every keystroke; the persistent result region changes on apply/reset.
 5. **Initial/disabled state:** Before JavaScript loads, render the same four briefs and disabled filters on server and client. With JavaScript disabled, section navigation and disclosure still work; the explanatory message remains and no controls imply filtering is available. After mount, enable filters without changing the sample dataset. No request or persistence success is reported.
 6. **Visual review:** Inspect 320/375/768/1280px widths, 200% zoom, enlarged text, long replacement titles, both color schemes, reduced motion, and forced colors. Measure contrast of body/metadata, buttons, borders needed to identify controls, and focus indicators. Check the actual theme, not only token names. Screen-reader review should identify landmarks, headings, filter labels, status changes, and the empty state.
+7. **Design review:** Identify the primary task at a glance. Confirm that one accent and one distinguishing device lead the composition, repeated elements share type/spacing/radius rules, and the narrow layout retains the same hierarchy. Remove decorative panels that displace useful content. Check replacement content and reachable states, not just the polished default dataset.
 
 For real data, replace the local filter with the application's supported route/load flow and implement genuine pending/error/retry states. Do not carry a “local only” claim into a persisted feature or add fake success feedback to this recipe.
 

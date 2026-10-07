@@ -78,6 +78,29 @@ Kit `3.0.1` requires Node `>=22.17` and has peer requirements for Svelte `^5.57.
 
 These observations cover the extracted fixture and listed interactions, not every exported component, application, browser, or version satisfying peer ranges. They do not certify a full contrast audit, screen-reader or assistive-technology behavior, production adapters, hosting, or deployment. Parent binding, file upload, monorepo installation, and interactions not listed above are not claimed as exercised in this pass. Archived minimums and peer ranges remain separate evidence from runtime checks. Re-run relevant gates and browser interactions after future changes.
 
+## Third-pass verification
+
+Observed **2026-10-07** in a disposable fixture; this record supplements, rather than replaces, the second-pass history above. Resolved versions: Node `24.15.0`, npm `12.2.0`, core `3.2.2`, Svelte components `1.5.3`, Svelte `5.57.2`, Kit `3.0.1`, Vite `8.0.12`, Svelte Vite plugin `7.0.0`, TypeScript `6.0.3`, **svelte-check `4.6.0`** (second pass: `4.7.6`), Tailwind and its Vite plugin `4.3.3`, forms `0.5.11`, adapter-auto `8.0.0`. These are observed versions, not latest-release claims.
+
+- **Fixture and installation:** extracted the exact documented Vite configuration, TypeScript configuration, Kit layout, and global CSS with forms enabled. Mounted all 15 complete non-layout Svelte examples and the greeting action, plus repeated ProfilePreview/Summary and NameField parent-binding routes. The setup mapping `#lib/*` → `./src/lib/*` and `$app/env` browser import compiled and mounted. `npm install --no-audit --no-fund` installed 110 packages without forced peers.
+- **Type/build evidence:** `npm run check` (`svelte-kit sync && svelte-check --tsconfig ./tsconfig.json`) checked **273 files, 0 errors, 0 warnings**. The check and `npm run build` passed again after the PreferencesForm correction; both client/server production builds completed. Adapter-auto found no supported production target; Node emitted a `NO_COLOR`/`FORCE_COLOR` environment warning, not an application or type error.
+- **Skill structure:** `skills-ref validate skills/skeleton-svelte` passed after final routing/provenance integration. A Python structural check covered all 10 skill Markdown files and README links, resolved local targets and anchors, and found balanced fences.
+
+**Runtime evidence:** real Chromium `Chrome/154.0.8037.97` against production preview; the hydrated browser error list was empty.
+
+- Tabs: Activity click, then ArrowLeft returned Overview. Accordion: Cancel click, then Space closed to none. Switch: native checkbox Space changed notifications; `FormData` reported `true`. Combobox: typing `bea`, ArrowDown, and Enter selected Beacon dashboard (`beacon`).
+- Tooltip: keyboard focus exposed described-by content; Escape dismissed it. Modal: title `Archive this project?`, description, initial Cancel focus, Shift+Tab containment, Escape restoring the Archive project trigger, and local confirmation status were observed. Toast activation rendered title and description.
+- Pagination: initial rows 1–5, Next 6–10, Last 21–23, disabled Next at the boundary; size 20 reset to page 1/rows 1–20, then Last showed page 2/rows 21–23.
+- Repeated ProfilePreview before repair reproduced duplicate `preview-title`/`name`/`help` IDs, an unnamed second input, and both labels targeting the first form. After repair, IDs were unique, both labels resolved their own forms, and changing the second left the first `Not set`. Repeated Summary had unique IDs and heading associations; its second fragment link focused the second heading. NameField parent binding showed `Maya` and the derived `4/80` counter. RouteLocation displayed the current route; ReducedMotion responded to enabled and disabled media preferences.
+- Native required validation blocked empty local preview submission; `Grace` updated local-only status. Greeting native POST: whitespace returned 400 and retained exact spaces; an 81-character name returned 400 and retained all 81 characters; ` Grace ` returned 200 and `Hello, Grace!`. Before repair, native POST lost whitespace input to `''`. Enhanced whitespace errors retained spaces, associated help/error content, and focused the invalid input; success returned `Hello, Ada!`.
+- Fieldnotes: Harbor search returned 1 brief, Draft 2, no match an empty state, and reset 4. Mobile Space opened disclosure; a real library section link worked and disclosure stayed open. The skip link focused `main`.
+- With JavaScript disabled: four briefs rendered, shell filters were disabled with an explanation, native disclosure worked, and ProfilePreview input/submit were disabled. Greeting native whitespace POST retained its value, error association, and Edit name link.
+- PreferencesForm before repair submitted local values through a native GET without JavaScript. After repair, its submit button remained disabled and Enter did not change the URL; after hydration, Space and submission still returned `Ada / weekly / notifications: true`.
+
+**Visual evidence:** no page horizontal overflow at **320, 375, 768, and 1280 CSS px**; sidebar/mobile disclosure switched as expected. Cerberus light/dark computed schemes and article colors switched. Narrow and wide screenshots were inspected.
+
+**Limits:** one Chromium version; no full contrast, forced-colors, text-zoom, or screen-reader audit, exhaustive component catalog, deployment/adapter-target proof, file-upload or monorepo runtime test, or concurrent authenticated-session test. Visual checks do not certify accessibility.
+
 ## Maintenance and future re-verification
 
 When updating this skill or integrating different versions:

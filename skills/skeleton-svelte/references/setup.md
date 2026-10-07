@@ -62,7 +62,7 @@ Retain compatible existing Svelte 5, Kit 2-or-later, Tailwind 4, and Vite integr
 
 ## TypeScript configuration
 
-For **Kit 3 only**, the application's root `tsconfig.json` must extend `$app/tsconfig`, not `./.svelte-kit/tsconfig.json`. The old generated `.svelte-kit/tsconfig.json` is obsolete; do not try to restore it by rerunning sync. Kit's new base configuration does not supply `include` or `exclude`, so set them explicitly. Use this complete minimal configuration:
+For **Kit 3 only**, the application's root `tsconfig.json` (or `jsconfig.json` for JavaScript) must extend `$app/tsconfig`, not `./.svelte-kit/tsconfig.json`. The old generated `.svelte-kit/tsconfig.json` is obsolete; do not try to restore it by rerunning sync. Kit's new base configuration does not supply `include` or `exclude`, so set them explicitly. Use this complete minimal configuration:
 
 `tsconfig.json`:
 
@@ -95,9 +95,31 @@ export default defineConfig({
 });
 ```
 
-If existing components require `vitePreprocess()`, keep its import from `@sveltejs/vite-plugin-svelte` and pass `preprocess: vitePreprocess()` to `sveltekit(...)`. Kit 3 also replaces `$lib` with explicit `#lib` package imports and `$app/environment` with `$app/env`; migrate affected callsites, not just the configuration.
+If existing components require `vitePreprocess()`, keep its import from `@sveltejs/vite-plugin-svelte` and pass `preprocess: vitePreprocess()` to `sveltekit(...)`. Migrate Kit 3 module imports as described below; moving configuration alone is insufficient.
 
 Sources: [Kit 3 configuration migration](https://svelte.dev/docs/kit/migrating-to-sveltekit-3#Configuration), [exact Kit 3.0.1 plugin declarations](https://unpkg.com/@sveltejs/kit@3.0.1/types/index.d.ts), [Tailwind Vite installation](https://tailwindcss.com/docs/installation/using-vite), [archived Skeleton migration plugin order](https://v3.skeleton.dev/docs/get-started/migrate-from-v2#migrate-to-the-tailwind-vite-plugin). Do not add Skeleton's old Tailwind plugin. Avoid processing Tailwind a second time via PostCSS; preserve unrelated PostCSS work if the project still needs it.
+
+## Kit 3 package imports and environment
+
+**Kit 3 only:** `$lib` is no longer generated. Merge this public Node subpath-import mapping into the **application's** `package.json`, preserving its other fields and existing import mappings:
+
+```json
+{
+  "imports": {
+    "#lib/*": "./src/lib/*"
+  }
+}
+```
+
+Replace every `$lib/...` import and re-export with `#lib/...`, including in wrappers, tests, and shared helpers. Include the actual filename extension: `src/lib/components/ProfileCard.svelte` becomes `#lib/components/ProfileCard.svelte`; `src/lib/utils.ts` becomes `#lib/utils.ts` (or `.js` for a JavaScript file). The mapping does not create files or infer directory indexes. If callers import bare `$lib`, also map `"#lib": "./src/lib/index.ts"` (or `.js`) to the real barrel file and migrate those callers to `#lib`. Remove obsolete `files.lib` and `$lib` alias overrides; for a custom library directory, point the package mapping at that directory instead. Do not add a `$lib` compatibility alias.
+
+Replace every `$app/environment` import with `$app/env`; its public `browser`, `building`, `dev`, and `version` exports remain available:
+
+```ts
+import { browser, building, dev, version } from '$app/env';
+```
+
+Retained Kit 2 projects keep their supported `$lib` and `$app/environment` conventions. Sources: [Kit 3 import migration](https://svelte.dev/docs/kit/migrating-to-sveltekit-3#$lib-is-now-lib), [exact 3.0.1 package-import handling](https://unpkg.com/@sveltejs/kit@3.0.1/src/utils/imports.js), [exact 3.0.1 Vite plugin](https://unpkg.com/@sveltejs/kit@3.0.1/src/exports/vite/index.js), [exact 3.0.1 public env declarations](https://unpkg.com/@sveltejs/kit@3.0.1/types/index.d.ts).
 
 ## Global CSS and dependency scanning
 

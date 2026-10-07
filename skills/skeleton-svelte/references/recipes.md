@@ -4,7 +4,7 @@ These examples target core **3.2.2**, component package **1.5.3**, Svelte **5.57
 
 ## State, callbacks, and snippets
 
-The stable root components use ordinary props and callback props. Their published Svelte declarations expose no bindable state props. Update a controlled prop from its callback; otherwise the UI retains the supplied state. Use `defaultValue`, `defaultChecked`, or `defaultOpen` instead where the inherited primitive supports them and application-owned state is unnecessary.
+The controls used below (`Tabs`, `Accordion`, `Switch`, `Tooltip`, `Modal`, `Combobox`, `Pagination`) use ordinary props and callback props; their **1.5.3** declarations expose no bindable state props. This is not a rule for every Skeleton component or version. Update a controlled prop from its callback; otherwise the UI retains the supplied state. Use `defaultValue`, `defaultChecked`, or `defaultOpen` instead where the inherited primitive supports them and application-owned state is unnecessary.
 
 | Component | Controlled prop | Callback payload | Content composition |
 | --- | --- | --- | --- |
@@ -17,7 +17,9 @@ The stable root components use ordinary props and callback props. Their publishe
 
 Named snippets declared directly inside a component are passed as props of the same name. They are not legacy `slot="..."` elements. No-argument `Snippet` takes `()`; `Combobox`'s `item: Snippet<[T]>` takes one data item, and `Slider`'s `mark: Snippet<[number]>` takes a numeric marker. Native inputs still use normal Svelte `bind:value`, `bind:checked`, or `bind:group`.
 
-Sources: [published Skeleton types](https://unpkg.com/@skeletonlabs/skeleton-svelte@1.5.3/dist/components/), [Tabs inherited types](https://unpkg.com/@zag-js/tabs@1.18.3/dist/index.d.ts), [Accordion inherited types](https://unpkg.com/@zag-js/accordion@1.18.3/dist/index.d.ts), [Switch inherited types](https://unpkg.com/@zag-js/switch@1.18.3/dist/index.d.ts).
+Skeleton/Zag supplies generated roles, IDs, keyboard handlers, positioning, and supported focus behavior. The application supplies names, meaningful content, contrasting colors, controlled state updates, validation, persistence, and data fetching. Initial markup can render during SSR, but Zag starts machine effects on client mount: keyboard interaction, focus trapping, dismissal, and portals are not server behavior. Keep server and client initial props consistent; these examples start floating surfaces closed and perform no server mutations. Local state resets when its component is recreated.
+
+Sources: [published Skeleton types](https://unpkg.com/@skeletonlabs/skeleton-svelte@1.5.3/dist/components/), [Tabs bindable metadata](https://unpkg.com/@skeletonlabs/skeleton-svelte@1.5.3/dist/components/Tabs/Tabs.svelte.d.ts), [Switch bindable metadata](https://unpkg.com/@skeletonlabs/skeleton-svelte@1.5.3/dist/components/Switch/Switch.svelte.d.ts), [Tabs inherited types](https://unpkg.com/@zag-js/tabs@1.18.3/dist/index.d.ts), [Accordion inherited types](https://unpkg.com/@zag-js/accordion@1.18.3/dist/index.d.ts), [Switch inherited types](https://unpkg.com/@zag-js/switch@1.18.3/dist/index.d.ts), [Zag Svelte mount lifecycle](https://unpkg.com/@zag-js/svelte@1.18.3/dist/machine.svelte.js).
 
 ## Tabs: controlled local panels
 
@@ -51,7 +53,7 @@ Sources: [published Skeleton types](https://unpkg.com/@skeletonlabs/skeleton-sve
 
 Interaction contract: click Activity to show its panel. Focus a tab and use the Left and Right arrows; default automatic activation selects the tab as focus moves. Home and End move to the first and last tabs. For manual activation, use the supported `activationMode="manual"`; Enter or Space then activates the focused tab. Keep `.Control` as the interactive element; do not nest buttons or links inside it or replace generated keyboard handlers.
 
-Sources: [archived Tabs example](https://v3.skeleton.dev/docs/components/tabs/svelte), [1.5.3 Tabs types](https://unpkg.com/@skeletonlabs/skeleton-svelte@1.5.3/dist/components/Tabs/types.d.ts), [Zag 1.18.3 contract](https://unpkg.com/@zag-js/tabs@1.18.3/dist/index.d.ts), [ARIA Tabs pattern](https://www.w3.org/WAI/ARIA/apg/patterns/tabs/).
+Sources: [archived Tabs example](https://v3.skeleton.dev/docs/components/tabs/svelte), [1.5.3 Tabs types](https://unpkg.com/@skeletonlabs/skeleton-svelte@1.5.3/dist/components/Tabs/types.d.ts), [Zag 1.18.3 contract](https://unpkg.com/@zag-js/tabs@1.18.3/dist/index.d.ts), [pinned keyboard implementation](https://unpkg.com/@zag-js/tabs@1.18.3/dist/index.js), [ARIA Tabs pattern](https://www.w3.org/WAI/ARIA/apg/patterns/tabs/).
 
 ## Accordion: collapsible FAQ
 
@@ -79,9 +81,9 @@ Sources: [archived Tabs example](https://v3.skeleton.dev/docs/components/tabs/sv
 </section>
 ```
 
-Enter or Space toggles a focused header; the primitive supplies arrow, Home, and End navigation. `collapsible` allows an empty array; add `multiple` to let both panels stay open. Do not wrap `control()` in another button or add a competing click handler.
+Enter or Space toggles a focused header; Up/Down, Home, and End move between headers without expanding them. `collapsible` allows an empty array; add `multiple` to let both panels stay open. Closed panels are unmounted by this wrapper, so component-local state inside them does not survive closing; keep state above the item when needed. Do not wrap `control()` in another button or add a competing click handler.
 
-Sources: [archived Accordion](https://v3.skeleton.dev/docs/components/accordion/svelte), [1.5.3 item types](https://unpkg.com/@skeletonlabs/skeleton-svelte@1.5.3/dist/components/Accordion/types.d.ts), [ARIA Accordion pattern](https://www.w3.org/WAI/ARIA/apg/patterns/accordion/).
+Sources: [archived Accordion](https://v3.skeleton.dev/docs/components/accordion/svelte), [1.5.3 item types](https://unpkg.com/@skeletonlabs/skeleton-svelte@1.5.3/dist/components/Accordion/types.d.ts), [conditional panel source](https://unpkg.com/@skeletonlabs/skeleton-svelte@1.5.3/dist/components/Accordion/AccordionItem.svelte), [pinned keyboard implementation](https://unpkg.com/@zag-js/accordion@1.18.3/dist/index.js), [ARIA Accordion pattern](https://www.w3.org/WAI/ARIA/apg/patterns/accordion/).
 
 ## Switch and native inputs: one state model, two APIs
 
@@ -89,11 +91,14 @@ Sources: [archived Accordion](https://v3.skeleton.dev/docs/components/accordion/
 
 ```svelte
 <script lang="ts">
+  import { onMount } from 'svelte';
   import { Switch } from '@skeletonlabs/skeleton-svelte';
   let displayName = $state('Ada');
   let frequency = $state('weekly');
   let notifications = $state(false);
   let submitted = $state('');
+  let ready = $state(false);
+  onMount(() => { ready = true; });
 
   function submit(event: SubmitEvent) {
     event.preventDefault();
@@ -121,12 +126,13 @@ Sources: [archived Accordion](https://v3.skeleton.dev/docs/components/accordion/
     onCheckedChange={(e) => (notifications = e.checked)}
   >Enable notifications</Switch>
   <p>Notifications: {notifications ? 'on' : 'off'}</p>
-  <button type="submit" class="btn preset-filled-primary-500">Review preferences</button>
+  <button type="submit" disabled={!ready} class="btn preset-filled-primary-500">Review preferences</button>
   <p role="status">{submitted}</p>
+  <p class="text-sm">JavaScript is required to review this local form; nothing is saved.</p>
 </form>
 ```
 
-Tab to the switch and press Space: the boolean and displayed state must change together. Do not put an extra `<label>` around Switch (it already renders one), use `bind:checked` on Switch, or simulate it with a clickable div. The submit handler only reviews local form data; replace it with a real SvelteKit form action when persistence is needed.
+Tab to the switch and press Space: the boolean and displayed state must change together. Do not put an extra `<label>` around Switch (it already renders one), use `bind:checked` on Switch, or simulate it with a clickable div. Review preferences stays disabled until mount so the unenhanced local form cannot submit its values through a native GET. The submit handler only reviews local form data; replace it with a real SvelteKit form action when persistence is needed.
 
 Sources: [archived Switch](https://v3.skeleton.dev/docs/components/switch/svelte), [published Switch source](https://unpkg.com/@skeletonlabs/skeleton-svelte@1.5.3/dist/components/Switch/Switch.svelte), [archived forms](https://v3.skeleton.dev/docs/tailwind/forms), [Svelte bindings](https://svelte.dev/docs/svelte/bind).
 
@@ -140,7 +146,7 @@ Sources: [archived Switch](https://v3.skeleton.dev/docs/components/switch/svelte
 </script>
 
 <Tooltip
-  triggerAriaLabel="Keyboard shortcut help"
+  triggerAriaLabel="Keyboard shortcuts help"
   triggerBase="btn preset-tonal-primary"
   contentBase="card bg-surface-100-900 p-3 shadow-xl"
   positioning={{ placement: 'top' }}
@@ -174,7 +180,7 @@ Sources: [archived floating integration](https://v3.skeleton.dev/docs/integratio
   {open}
   onOpenChange={(e) => (open = e.open)}
   ids={{ title: `${uid}-title`, description: `${uid}-description` }}
-  triggerAriaLabel="Open archive confirmation"
+  triggerAriaLabel="Archive project confirmation"
   triggerBase="btn preset-tonal-primary"
   contentBase="card bg-surface-100-900 p-6 space-y-4 shadow-xl w-full max-w-md"
 >
@@ -201,7 +207,7 @@ The inherited dialog defaults trap focus, prevent background interaction and scr
 
 The v3 docs implement **drawers using Modal**: set `positionerJustify="justify-start"`, clear `positionerAlign`/`positionerPadding`, give `contentBase` a sidebar width and full-screen height, and use `transitionsPositionerIn/Out` with an `x` offset matching the sidebar width. Retain dialog naming, close controls, and focus behavior. No separate `Drawer` export is needed. For interfaces this wrapper cannot express, the archive also documents separately installed headless Svelte integrations; do not assume their current APIs are part of Skeleton.
 
-Sources: [archived Modal/drawer examples](https://v3.skeleton.dev/docs/integrations/popover/svelte#modal), [Modal source](https://unpkg.com/@skeletonlabs/skeleton-svelte@1.5.3/dist/components/Modal/Modal.svelte), [dialog 1.18.3 types](https://unpkg.com/@zag-js/dialog@1.18.3/dist/index.d.ts), [archived Bits UI integration](https://v3.skeleton.dev/docs/headless/bits-ui).
+Sources: [archived Modal/drawer examples](https://v3.skeleton.dev/docs/integrations/popover/svelte#modal), [Modal source](https://unpkg.com/@skeletonlabs/skeleton-svelte@1.5.3/dist/components/Modal/Modal.svelte), [dialog 1.18.3 types](https://unpkg.com/@zag-js/dialog@1.18.3/dist/index.d.ts), [pinned dialog naming and focus implementation](https://unpkg.com/@zag-js/dialog@1.18.3/dist/index.js), [archived Bits UI integration](https://v3.skeleton.dev/docs/headless/bits-ui).
 
 ## Toast strategy: create a store and mount a renderer
 
@@ -261,7 +267,7 @@ Sources: [archived toast setup and methods](https://v3.skeleton.dev/docs/compone
     {#snippet item(project)}
       <span class="flex w-full items-center justify-between gap-3">
         <span>{project.label}</span>
-        <span class="text-sm opacity-60">{project.category}</span>
+        <span class="text-sm">{project.category}</span>
       </span>
     {/snippet}
   </Combobox>
@@ -273,7 +279,9 @@ Sources: [archived toast setup and methods](https://v3.skeleton.dev/docs/compone
 
 Focus the named Project input and type `bea`: only Beacon dashboard remains. Use Arrow Down to highlight it and Enter to select it; the input value and visible selected-project status update together. Escape closes the popup without submitting a form. The dropdown trigger opens the full list again. Selection remains a string array even in single-select mode; typed search text is not itself a selected value. With no matches the shipped wrapper shows no option list; clearing the query restores options. It positions in place, so avoid clipping ancestors rather than adding an invented Portal.
 
-Sources: [archived Combobox integration](https://v3.skeleton.dev/docs/integrations/popover/svelte#combobox), [1.5.3 props](https://unpkg.com/@skeletonlabs/skeleton-svelte@1.5.3/dist/components/Combobox/types.d.ts), [shipped filtering and label markup](https://unpkg.com/@skeletonlabs/skeleton-svelte@1.5.3/dist/components/Combobox/Combobox.svelte), [Zag 1.18.3 selection and keyboard contract](https://unpkg.com/@zag-js/combobox@1.18.3/dist/index.d.ts).
+Category text inherits the option foreground at full opacity; avoid `opacity-60` on readable metadata unless its composited contrast is verified against normal, highlighted, and selected backgrounds in both color schemes. Small text needs at least 4.5:1 contrast. This recipe selects local data only: it does not fetch remote results or submit a selected value. For remote search, the application must provide filtering/loading/error behavior when overriding the wrapper callbacks.
+
+Sources: [archived Combobox integration](https://v3.skeleton.dev/docs/integrations/popover/svelte#combobox), [1.5.3 props](https://unpkg.com/@skeletonlabs/skeleton-svelte@1.5.3/dist/components/Combobox/types.d.ts), [shipped filtering and label markup](https://unpkg.com/@skeletonlabs/skeleton-svelte@1.5.3/dist/components/Combobox/Combobox.svelte), [Zag 1.18.3 selection contract](https://unpkg.com/@zag-js/combobox@1.18.3/dist/index.d.ts), [pinned keyboard implementation](https://unpkg.com/@zag-js/combobox@1.18.3/dist/index.js), [WCAG contrast guidance](https://www.w3.org/WAI/WCAG22/Understanding/contrast-minimum.html).
 
 ## Pagination: controlled local table
 

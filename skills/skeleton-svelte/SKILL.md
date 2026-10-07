@@ -54,14 +54,14 @@ full catalog for a single control.
 
 | Task / question | Read | What to extract |
 | --- | --- | --- |
-| Install, greenfield scaffold, peer/toolchain failure, CSS not generated | [Setup](references/setup.md) | Exact pins, Kit 3 Vite/TypeScript configuration, global CSS, scanning, adapter constraints |
-| v2 stores/components/classes, Tailwind 3, mixed-major examples | [Migration](references/migration.md) | Inventory and clean cutover of callers; removed APIs; root versus alpha subpath; offline lookup |
+| Install, greenfield scaffold, peer/toolchain failure, CSS not generated | [Setup](references/setup.md) | Exact pins, Kit 3 Vite/TypeScript configuration and `#lib/*` mapping, global CSS, scanning, adapter constraints |
+| v2 stores/components/classes, Tailwind 3, mixed-major examples, explicit Kit 3 migration | [Migration](references/migration.md) | Clean cutover of configuration and every caller, including `$lib` to `#lib` and `$app/env`; removed APIs; offline lookup |
 | Choose a control or verify an import/prop/callback/snippet | [Components](references/components.md) | Complete runtime export inventory and `FileUploadApi` type; native alternatives; exact declaration links |
-| Implement tabs, accordion, preferences, tooltip, modal/drawer, or toast | [Recipes](references/recipes.md) | Six complete standalone components; copy the relevant example as a unit and adapt its state/semantics |
+| Implement tabs, accordion, switch/preferences, tooltip, modal/drawer, toast, combobox, or pagination | [Recipes](references/recipes.md) | Eight complete standalone components; adapt state, semantics, local-data limits, and local-form mount gating |
 | Theme, tokens, presets, native classes, responsive styling, mode | [Styling](references/styling.md) | Theme import plus activation, v3 CSS variables/presets, form prerequisites, hydration-aware mode |
-| Compose a polished page, dashboard, or responsive app shell | [Design](references/design.md) | Visual brief, hierarchy, spacing, density, responsive composition, and a complete app-shell recipe |
-| Forms, labels, validation feedback, keyboard/focus, contrast, motion | [Accessibility](references/accessibility.md) | Native semantics and concrete browser checks, including overlays and assistive feedback |
-| Runes/snippets, SSR, hydration, route/load data, server forms | [SvelteKit](references/sveltekit.md) | Kit 3 removals, request isolation, browser lifecycle cleanup, server actions and native enhancement |
+| Compose a polished page, dashboard, or responsive app shell | [Design](references/design.md) | Existing-style calibration, visual brief, hierarchy, density, responsive composition, and a complete app-shell recipe |
+| Forms, labels, validation feedback, keyboard/focus, contrast, motion | [Accessibility](references/accessibility.md) | Instance-safe associations, local-only/no-JavaScript preview limits, native semantics, and concrete browser checks |
+| Runes/snippets, native bindings, SSR, hydration, route/load data, server forms | [SvelteKit](references/sveltekit.md) | Kit 3 boundaries, request isolation, lifecycle cleanup, instance-safe fields, raw failed-value preservation, and native enhancement |
 | Establish provenance, resolve conflicting docs, work offline | [Sources](references/sources.md) | Version-qualified primary sources, package inspection, evidence boundaries |
 
 For a new page or app shell, combine **design + styling + accessibility**, adding
@@ -82,14 +82,15 @@ migration requires **migration + setup** and each affected control's reference.
    Establish whether this is existing-app work, greenfield setup, or an explicitly
    requested migration; do not treat version inspection as permission to migrate.
    Read only the task router's relevant references.
-2. **Choose semantics and behavior.** Use styled native elements for simple
-   buttons, text fields, select/checkbox/radio controls, cards, and tables.
-   Choose an available functional primitive for managed interaction. Confirm
-   its public export/subpath before importing it; missing behavior is not a
-   reason to invent a Skeleton component.
-   For page composition, read [design](references/design.md): preserve the app's
-   visual language or choose a coherent brief, then define hierarchy, density,
-   primary action, content states, and narrow/wide layout before assembling controls.
+2. **Calibrate before markup.** Read [design](references/design.md) and
+   [styling](references/styling.md) for page composition. Inspect existing theme
+   tokens, presets, representative screens, typography, spacing, and density.
+   Preserve that visual language; for a new app, choose a coherent brief.
+   Define hierarchy, primary action, realistic content states, and narrow/wide
+   composition before assembling controls. Use styled native elements for simple
+   buttons, fields, selects, checkboxes, radios, cards, and tables; use a verified
+   functional primitive for managed interaction. Missing behavior is not a reason
+   to invent a Skeleton component.
 3. **Read the contract.** Consult the task-specific reference, then the selected
    component's exact declarations and source for required props, value shape,
    callback payload, snippets, rendered tags, and binding support. Use only
@@ -98,7 +99,12 @@ migration requires **migration + setup** and each affected control's reference.
    component instance; update it from the actual callback payload. Use Svelte
    runes, typed snippets, and event properties for new runes components.
    Preserve labels, native form participation, focus behavior, and server
-   validation. Keep initial markup deterministic and user state request-safe.
+   validation. Use instance-safe IDs for reusable associations and native bindings
+   only where supported. Preserve exact submitted values on failure; normalize
+   only according to the application's validation policy. Distinguish local-only
+   previews from persisted actions. Gate local-only form submission until mount
+   and explain its JavaScript requirement; retain native server forms where needed.
+   Keep initial markup deterministic and user state request-safe.
 5. **Verify the real result.** Run the application's check/typecheck and build
    scripts with its package manager. Exercise the rendered UI in supported
    browsers: state changes, keyboard/focus, dismissal, forms, theme/mode,
@@ -116,8 +122,10 @@ migration requires **migration + setup** and each affected control's reference.
 
 - **Framework versions matter.** Kit 3 changes configuration and imports.
   Read [setup](references/setup.md) for the exact toolchain/peer contract and
+  `#lib/*` package mapping, and [migration](references/migration.md) for every
+  affected import/re-export and obsolete configuration. Read
   [SvelteKit](references/sveltekit.md) before copying older framework examples.
-  Apply those instructions to Kit 3 only; preserve other working versions.
+  Apply Kit 3 instructions only to Kit 3; preserve other working versions.
   Archived Skeleton minimums are not proof of compatibility with every later Kit.
 - **Do not invent root exports.** This pair has `Modal` for dialogs/drawers and
   `Toaster`/`createToaster` for notifications, not `Dialog`, `Drawer`, or `Toast`.
@@ -126,9 +134,10 @@ migration requires **migration + setup** and each affected control's reference.
   separate alpha API, not interchangeable with the root API. Some root components
   have dot members; some are marked temporary in source. Consult the inventory
   and component contract, not a universal compound pattern or stability assumption.
-- **Props do not imply bindings.** The root components used by the six recipes
-  expose no bindable state props. Use controlled props and verified callbacks,
-  not assumed `bind:value`/`bind:checked`; native inputs can use bindings. This
+- **Props do not imply bindings.** The named controls in the eight recipes
+  expose no bindable state props in component package `1.5.3`. Use controlled
+  props and verified callbacks, not assumed `bind:value`/`bind:checked`;
+  native inputs can use bindings. This
   is not a claim about every export or `/composed` component. Callback payloads
   differ between components. Snippet triggers may already render a button: do
   not nest another button inside them.
