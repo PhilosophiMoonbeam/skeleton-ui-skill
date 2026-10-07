@@ -1,146 +1,158 @@
 ---
-name: skeleton-ui
-description: >
-  Use Skeleton UI components instead of building custom markup. MUST be consulted
-  when creating or modifying any UI: buttons, forms, dialogs, modals, drawers,
-  navigation, tabs, accordions, tooltips, popovers, toasts, alerts, dropdowns,
-  selects, switches, sliders, checkboxes, radios, tags, file uploads, avatars,
-  progress bars, ratings, badges, cards, tables, inputs, textareas, segments,
-  clipboards, or pin inputs.
+name: skeleton-svelte
+description: >-
+  Implement, debug, style, or migrate Skeleton UI in Svelte and SvelteKit applications.
+  Use for Skeleton Svelte components, styled native buttons/forms/tables, themes,
+  tokens, presets, dark mode, tabs, accordions, switches, tooltips, popovers,
+  dialogs/drawers, toasts, file upload, accessibility, SSR, hydration, and v2-to-v3
+  migration. Provides a frozen Skeleton v3 reference for Svelte 5.57.2 and
+  SvelteKit 3.0.1, with installed-version checks before applying APIs. Not a
+  React skill and not a requirement for unrelated UI work.
+compatibility: >-
+  Reference target: @skeletonlabs/skeleton 3.2.2, @skeletonlabs/skeleton-svelte
+  1.5.3, Svelte 5.57.2, SvelteKit 3.0.1, Tailwind CSS 4.3.3. Kit 3 requires
+  Node >=22.17 and compatible Vite/plugin/adapter tooling. Honor the project's
+  package manager and lockfile. Network optional: bundled references plus
+  installed declarations/source support offline work.
+metadata:
+  version: "1.0"
+  skeleton-core: "3.2.2"
+  skeleton-svelte: "1.5.3"
+  svelte: "5.57.2"
+  sveltekit: "3.0.1"
 ---
 
-# Skeleton UI Component Skill
+# Skeleton v3 for Svelte
 
-## Core Principle
+Use this skill when the task involves Skeleton's Svelte integration or design
+system. Prefer semantic native HTML with Skeleton styling for simple UI; use a
+verified functional component when its behavior is needed. Neither approach
+makes application validation, persistence, or accessibility automatic.
 
-**Before building ANY UI element, check if Skeleton has a component or styled element for it.** Do not hand-roll markup when a Skeleton component exists. This catalog lists everything available.
+## Version boundary: inspect before using examples
 
-## Import Pattern
+The frozen pair is **`@skeletonlabs/skeleton@3.2.2`** (CSS) and
+**`@skeletonlabs/skeleton-svelte@1.5.3`** (Svelte components). Their version
+numbers are independent; Skeleton v3 does not mean component-package `@3`.
+The framework target is **Svelte `5.57.2` / SvelteKit `3.0.1`**.
 
-```ts
-import { ComponentName, Portal } from '@skeletonlabs/skeleton-svelte';
-```
+- **Existing app:** inspect resolved versions first. Preserve the user's working
+  toolchain, adapter, conventions, and unrelated changes. This skill is not an
+  instruction to upgrade or downgrade the application.
+- **Different major or API:** stop applying this catalog. Use version-matched
+  primary documentation and installed types/source, or perform an explicitly
+  agreed migration. Do not install a newer package to satisfy a copied example
+  or downgrade an existing v4/v5 application to fit these references.
+- **Greenfield target:** use the exact pins and complete configuration in
+  [setup](references/setup.md). Inspect generated scaffold versions rather than
+  assuming the current CLI emits this toolchain. Do not force incompatible peers.
 
-## Composition Pattern
+## Read only the references needed for the task
 
-Skeleton uses granular child components:
+Each resource is directly available from this entrypoint; no catalog needs to be
+loaded in full for a single control.
 
-```svelte
-<Avatar>
-  <Avatar.Image src="..." />
-  <Avatar.Fallback>JD</Avatar.Fallback>
-</Avatar>
-```
+| Task / question | Read | What to extract |
+| --- | --- | --- |
+| Install, greenfield scaffold, peer/toolchain failure, CSS not generated | [Setup](references/setup.md) | Exact pins, Kit 3 Vite/TypeScript configuration, global CSS, scanning, adapter constraints |
+| v2 stores/components/classes, Tailwind 3, mixed-major examples | [Migration](references/migration.md) | Inventory and clean cutover of callers; removed APIs; root versus alpha subpath; offline lookup |
+| Choose a control or verify an import/prop/callback/snippet | [Components](references/components.md) | Complete runtime export inventory and `FileUploadApi` type; native alternatives; exact declaration links |
+| Implement tabs, accordion, preferences, tooltip, modal/drawer, or toast | [Recipes](references/recipes.md) | Six complete standalone components; copy the relevant example as a unit and adapt its state/semantics |
+| Theme, tokens, presets, native classes, responsive styling, mode | [Styling](references/styling.md) | Theme import plus activation, v3 CSS variables/presets, form prerequisites, hydration-aware mode |
+| Forms, labels, validation feedback, keyboard/focus, contrast, motion | [Accessibility](references/accessibility.md) | Native semantics and concrete browser checks, including overlays and assistive feedback |
+| Runes/snippets, SSR, hydration, route/load data, server forms | [SvelteKit](references/sveltekit.md) | Kit 3 removals, request isolation, browser lifecycle cleanup, server actions and native enhancement |
+| Establish provenance, resolve conflicting docs, work offline | [Sources](references/sources.md) | Version-qualified primary sources, package inspection, evidence boundaries |
 
-## Data Flow
+For a persisted form, combine **components/styling + SvelteKit + accessibility**;
+for an overlay, combine **components + the relevant recipe + accessibility**;
+for a theme preference, combine **styling + SvelteKit**. Migration requires
+**migration + setup** and the reference for each affected control.
 
-- Props in, `onXxxChange` callbacks out (e.g., `onValueChange`, `onOpenChange`)
-- Collections use `useListCollection()` helper for item mapping
+## Blind-session workflow
 
-## Positioned Content
+1. **Inspect the application.** Read its manifest, resolved lockfile, installed
+   package versions, package-manager/workspace configuration, Node/toolchain,
+   Vite and any legacy Svelte config, TypeScript config, root layout, HTML
+   template, global CSS, theme ownership, and relevant component/server callers.
+   Distinguish declared ranges from resolved versions. Do not create a second
+   lockfile or replace configuration wholesale.
+2. **Choose semantics and behavior.** Use styled native elements for simple
+   buttons, text fields, select/checkbox/radio controls, cards, and tables.
+   Choose an available functional primitive for managed interaction. Confirm
+   its public export/subpath before importing it; missing behavior is not a
+   reason to invent a Skeleton component.
+3. **Read the contract.** Consult the task-specific reference, then the selected
+   component's exact declarations/source for required props, value shape,
+   callback payload, snippets, rendered tags, and binding support. Use only
+   public entrypoints. Resolve docs/types conflicts before implementing.
+4. **Implement in the existing application.** Own controlled state in a
+   component instance; update it from the actual callback payload. Use Svelte
+   runes, typed snippets, and event properties for new runes components.
+   Preserve labels, native form participation, focus behavior, and server
+   validation. Keep initial markup deterministic and user state request-safe.
+5. **Verify the real result.** Run the application's check/typecheck and build
+   scripts with its package manager. Exercise the rendered UI in supported
+   browsers: state changes, keyboard/focus, dismissal, forms, theme/mode,
+   responsive layout, SSR/hydration, and console errors as relevant. Follow the
+   accessibility checklist; compile success cannot establish these behaviors.
+6. **Hand off truthfully.** State changed behavior, resolved versions, exact
+   commands/results and actual browser coverage. Name unperformed checks and
+   deployment/accessibility limits. Do not present local previews or selected
+   files as persisted operations, or a build/SSR smoke as deployment proof.
 
-Components that render floating/overlay content need `<Portal>`:
-Combobox, Popover, Tooltip, Dialog, Select, Toast
+## Nonnegotiable traps
 
----
+- **Kit 3 configuration is not Kit 2 configuration.** Put supported options in
+  `sveltekit({...})` in Vite; `svelte.config.js` is removed. Extend `$app/tsconfig`
+  with explicit `include`/`exclude`, not `.svelte-kit/tsconfig.json`. Preserve
+  adapter, preprocessing, compiler options, and project-specific paths.
+- **Kit 3 imports changed.** `$app/environment` became `$app/env`; `$app/stores`
+  was removed. `$lib` is no longer generated: declare `#lib` package imports or
+  use relative paths. `$env/...` paths are deprecated. Read the framework
+  reference before applying familiar Kit 2 examples, including form enhancement.
+- **Use the matching toolchain.** For the frozen target: Node >=22.17, Vite
+  `8.0.12`, Svelte Vite plugin `7.0.0`, Tailwind/plugin `4.3.3`; when TypeScript
+  is present, `6.0.3` satisfies Kit's optional `^6.0.0` peer. Check the adapter
+  separately. The archived Skeleton installation guide alone is not Kit 3 proof.
+- **Do not invent root exports.** This pair has `Modal` for dialogs/drawers and
+  `Toaster`/`createToaster` for notifications, not `Dialog`, `Drawer`, or `Toast`.
+  No root `Portal` or `useListCollection` exists. Simple select/checkbox/radio
+  controls use native styled HTML. Root `Avatar` is flat; `/composed` is a
+  separate alpha API, not the production root API. Some verified root components
+  do have dot members: consult the inventory rather than applying a universal
+  compound-component pattern.
+- **Props do not imply bindings.** The stable root recipe components expose no
+  bindable state props. Use controlled props and verified callbacks, not assumed
+  `bind:value`/`bind:checked`; native inputs can use bindings. Callback payloads
+  differ between components. Snippet triggers may already render a button: do
+  not nest another button inside them.
+- **CSS is integration, not behavior.** Import core, the chosen theme, and
+  optional presets when used; activate the imported theme on `<html>` and scan
+  the actual component distribution. Styled native forms require
+  `@tailwindcss/forms`. Use v3 tokens/presets, not v2 plugin/`variant-*` wiring.
+- **SSR must isolate users.** Never keep user data, drafts, theme preferences,
+  modal state, or toast queues in mutable server module singletons. Keep state
+  per component/layout/request; guard browser-only work and clean it up. Do not
+  expose secrets through load/action results or disable app-wide SSR to hide a
+  browser-only import. Server render and initial hydration must agree.
 
-## Component Catalog
+## Evidence hierarchy and offline fallback
 
-### Layout & Navigation
+Use **resolved installed package exports, declarations, source, and CSS** for the
+actual API; use version-qualified registry metadata for peers/engines. Consult
+**archived `v3.skeleton.dev`** for this Skeleton generation and the official
+Svelte/Kit migration documentation for the requested framework version. The
+bundled references link these authorities; [sources](references/sources.md)
+records provenance and verification boundaries.
 
-| Component      | Use When                                                  |
-| -------------- | --------------------------------------------------------- |
-| **Navigation** | App-level nav bars, sidebar navigation                    |
-| **Tabs**       | Switching between views/panels in the same context        |
-| **Accordion**  | Collapsible sections, FAQ lists, expandable details       |
-| **Segment**    | Toggle between a small set of options (like button group) |
+Current `skeleton.dev` and version-ambiguous Context7 results are discovery
+leads, not v3 authority—even a library labeled v3 can return later-major material.
+Compare any example with the actual export/prop contract before using it.
 
-### Overlays & Feedback
-
-| Component    | Use When                                              |
-| ------------ | ----------------------------------------------------- |
-| **Dialog**   | Confirmation prompts, modal forms, detail views       |
-| **Drawer**   | Side panels, mobile menus, supplementary content      |
-| **Popover**  | Rich contextual content on click (menus, info panels) |
-| **Tooltip**  | Brief hover hints for icons/buttons                   |
-| **Toast**    | Temporary notifications, success/error messages       |
-| **Alert**    | Inline banners, warnings, info messages               |
-| **Progress** | Loading indicators, completion bars                   |
-
-### Form Components
-
-| Component      | Use When                                          |
-| -------------- | ------------------------------------------------- |
-| **Combobox**   | Searchable dropdown, autocomplete, multi-select   |
-| **Select**     | Simple dropdown selection (no search needed)      |
-| **Switch**     | Boolean toggles                                   |
-| **Slider**     | Numeric range input                               |
-| **Checkbox**   | Multiple selections from a list                   |
-| **Radio**      | Single selection from a list                      |
-| **TagsInput**  | Freeform tag/token entry                          |
-| **FileUpload** | File selection with drag-and-drop                 |
-| **Clipboard**  | Copy-to-clipboard buttons                         |
-| **PinInput**   | Verification codes, OTP entry                     |
-
-### Data Display
-
-| Component  | Use When                                |
-| ---------- | --------------------------------------- |
-| **Avatar** | User/entity profile images with fallback |
-| **Rating** | Star ratings, scoring displays          |
-
-### Styled Elements (Tailwind classes, not components)
-
-These are applied as CSS classes on standard HTML elements:
-
-| Class        | Element       | Example                                              |
-| ------------ | ------------- | ---------------------------------------------------- |
-| `btn`        | `<button>`    | `<button class="btn preset-filled-primary-500">`     |
-| `card`       | `<div>`       | `<div class="card p-4">`                             |
-| `badge`      | `<span>`      | `<span class="badge preset-filled-primary-500">`     |
-| `input`      | `<input>`     | `<input class="input" type="text" />`                |
-| `select`     | `<select>`    | `<select class="select">`                            |
-| `textarea`   | `<textarea>`  | `<textarea class="textarea">`                        |
-| `table`      | `<table>`     | `<table class="table">`                              |
-| `label`      | `<label>`     | `<label class="label">`                              |
-| `progress`   | `<progress>`  | `<progress class="progress" value="50" max="100">`   |
-| `hr`         | `<hr>`        | `<hr class="hr" />`                                  |
-
-### Preset Classes
-
-Style variants follow the pattern: `preset-{style}-{color}-{shade}`
-
-- Styles: `filled`, `tonal`, `outlined`
-- Colors: `primary`, `secondary`, `tertiary`, `success`, `warning`, `error`, `surface`
-- Shade: typically `500`
-
-Examples:
-- `preset-filled-primary-500`
-- `preset-tonal-error`
-- `preset-outlined-surface-500`
-
----
-
-## Documentation Lookup
-
-When implementing UI, use **Context7 MCP** for accurate reference docs:
-
-**Skeleton components** — full props, events, and examples:
-```
-Library ID: /websites/skeleton_dev_svelte
-Query: "[ComponentName] component props examples usage"
-```
-
-**Tailwind CSS** — utility classes, modifiers, and layout:
-```
-Library ID: /tailwindlabs/tailwindcss.com
-Query: "[topic] classes usage examples"
-```
-
-Look up Tailwind docs when unsure about utility classes (grid, flex, spacing, responsive modifiers, dark mode, etc.) rather than guessing class names. This is especially important for Skeleton's styled elements which are composed with Tailwind utilities.
-
-## Decision Checklist
-
-1. Is there a **Skeleton component** for this? (see catalog above) -> Use it
-2. Is there a **styled element class** for this? (btn, card, badge, etc.) -> Use it
-3. Neither exists? -> Build custom markup with Tailwind, matching Skeleton's design tokens
+Offline, locate packages through the application's real dependency directory
+or symlink. Read `package.json`/`exports`, component `dist/index.d.ts`, the
+selected `.svelte.d.ts` and `types.d.ts`, inherited primitive declarations, and
+shipped `.svelte` source; inspect core CSS/presets/theme files for styling.
+Follow the detailed lookup in the component/migration references. If required
+API evidence is unavailable, report the precise missing contract rather than
+fabricating a prop/export or claiming an unperformed verification.
