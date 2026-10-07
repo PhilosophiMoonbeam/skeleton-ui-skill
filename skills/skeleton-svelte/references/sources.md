@@ -101,6 +101,17 @@ Observed **2026-10-07** in a disposable fixture; this record supplements, rather
 
 **Limits:** one Chromium version; no full contrast, forced-colors, text-zoom, or screen-reader audit, exhaustive component catalog, deployment/adapter-target proof, file-upload or monorepo runtime test, or concurrent authenticated-session test. Visual checks do not certify accessibility.
 
+## Skill Creator review verification
+
+Observed **2026-10-07**; this check covers the revised entrypoint and motion-free Modal recipe, not a repeat of the full fixture above.
+
+- An independent read-only forward test produced concrete responses for an existing Kit 2 card restyle, a local archive confirmation, and greenfield Kit 3 setup. It preserved the existing app's versions/routes, selected the pinned Modal contract, and distinguished metadata from execution evidence. It identified the recipe's missing reduced-motion handling; the revised example disables its JavaScript fly/fade transitions.
+- `skills-ref validate skills/skeleton-svelte` passed. Local file/section links and balanced fences were checked across all 10 skill Markdown files.
+- A disposable fixture extracted the documented setup configuration and revised `ConfirmModal.svelte`, mounting two instances. The toolchain matched the third-pass versions above. `npm install --no-audit --no-fund` installed 110 packages without forced peers; `npm run check` returned 0 errors and 0 warnings; `npm run build` completed client/server builds. Adapter-auto found no production target.
+- Chromium **153.0.8010.12** production-preview checks passed at **375 and 1280 CSS px**, each with `prefers-reduced-motion: reduce` and `no-preference`: keyboard opening, initial Cancel focus, Tab/Shift+Tab containment, Escape/Cancel/outside dismissal, trigger focus restoration, distinct instance title/description IDs, isolated local confirmation, and reset on reload. Overlay animation inspection found no nonzero fly/fade durations. No page overflow or browser errors/warnings were observed; narrow/wide screenshots were inspected.
+
+Limits: one Chromium version and the changed recipe only; no full accessibility audit, animated drawer implementation, production deployment, or repeat verification of unchanged examples.
+
 ## Maintenance and future re-verification
 
 When updating this skill or integrating different versions:

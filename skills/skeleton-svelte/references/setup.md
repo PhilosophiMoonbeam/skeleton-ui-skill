@@ -1,5 +1,15 @@
 # Setup: Skeleton v3 with Svelte 5 and SvelteKit 3
 
+- [Version contract](#version-contract)
+- [Greenfield project](#greenfield-project)
+- [Existing project](#existing-project)
+- [TypeScript configuration](#typescript-configuration)
+- [Vite integration](#vite-integration)
+- [Kit 3 package imports and environment](#kit-3-package-imports-and-environment)
+- [Global CSS and dependency scanning](#global-css-and-dependency-scanning)
+- [Root layout and active theme](#root-layout-and-active-theme)
+- [Targeted diagnosis](#targeted-diagnosis)
+
 ## Version contract
 
 Use this exact package set for a **greenfield project or an explicitly requested framework migration**. Preserve a supported existing toolchain otherwise. **Skeleton's core and Svelte component packages do not share a v3 version number.** When installing this skill's Skeleton pair, pin both packages; do not replace `1.5.3` with `3`, `4`, or `latest`.

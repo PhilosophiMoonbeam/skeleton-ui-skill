@@ -2,6 +2,13 @@
 
 This reference supplies **design recommendations**, not additional Skeleton requirements. The upstream contracts are the pinned CSS utilities, theme tokens, and import prerequisites in [styling.md](styling.md). Use [accessibility.md](accessibility.md) for semantic and interaction requirements. A theme is a vocabulary, not a finished composition.
 
+- [Write a visual brief before markup](#write-a-visual-brief-before-markup)
+- [Establish a small visual system](#establish-a-small-visual-system)
+- [Compose from narrow to wide](#compose-from-narrow-to-wide)
+- [Content, states, and visual assets](#content-states-and-visual-assets)
+- [Complete responsive app-shell recipe](#complete-responsive-app-shell-recipe)
+- [Acceptance and smoke expectations](#acceptance-and-smoke-expectations)
+
 ## Write a visual brief before markup
 
 Capture the audience, their primary task, content type, and desired tone in two sentences. Choose one distinguishing device: an editorial heading, a disciplined dense list, a useful illustration, or a distinctive navigation rail. Use it consistently, not all at once.

@@ -2,6 +2,14 @@
 
 Use this reference for application behavior around Skeleton v3, not to justify migrating an unrelated application. Skeleton's archived installation baseline is Kit 2 or later; preserve a supported existing toolchain. Apply the Kit 3-specific configuration, imports, and action options below only to a Kit 3 project or an explicitly requested migration. Prefer exact installed declarations over version-mixed examples.
 
+- [Verify the project before changing it](#verify-the-project-before-changing-it)
+- [Runes, props, snippets and events](#runes-props-snippets-and-events)
+- [Page state and request isolation](#page-state-and-request-isolation)
+- [Browser-only work and cleanup](#browser-only-work-and-cleanup)
+- [Load, secrets and serialization](#load-secrets-and-serialization)
+- [Global CSS, layout children and hydration](#global-css-layout-children-and-hydration)
+- [Native form actions with progressive enhancement](#native-form-actions-with-progressive-enhancement)
+
 ## Verify the project before changing it
 
 Inspect the package manifest, lockfile, installed package versions, route and layout structure, Vite configuration, global CSS, theme ownership, and existing form and state conventions. Use the project's package manager; do not regenerate configuration or replace working conventions merely to match an example. New runes components can coexist with existing legacy Svelte components, but do not mix `export let` or `$:` declarations into a runes component.

@@ -2,6 +2,16 @@
 
 These examples target core **3.2.2**, component package **1.5.3**, Svelte **5.57.2**, and SvelteKit **3.0.1**. Each `svelte` fence contains a **complete standalone component**, with its filename identified above the fence. The examples require the application's global Skeleton and Tailwind CSS, theme, component `@source`, optional presets, and (for native form styling) `@tailwindcss/forms`; no icon package is required. Mount any example in a page or copy its complete contents to `+page.svelte`.
 
+- [State, callbacks, and snippets](#state-callbacks-and-snippets)
+- [Tabs: controlled local panels](#tabs-controlled-local-panels)
+- [Accordion: collapsible FAQ](#accordion-collapsible-faq)
+- [Switch and native inputs: one state model, two APIs](#switch-and-native-inputs-one-state-model-two-apis)
+- [Floating help: tooltip](#floating-help-tooltip)
+- [Dialog strategy: Modal, including drawer styling](#dialog-strategy-modal-including-drawer-styling)
+- [Toast strategy: create a store and mount a renderer](#toast-strategy-create-a-store-and-mount-a-renderer)
+- [Combobox: searchable local selection](#combobox-searchable-local-selection)
+- [Pagination: controlled local table](#pagination-controlled-local-table)
+
 ## State, callbacks, and snippets
 
 The controls used below (`Tabs`, `Accordion`, `Switch`, `Tooltip`, `Modal`, `Combobox`, `Pagination`) use ordinary props and callback props; their **1.5.3** declarations expose no bindable state props. This is not a rule for every Skeleton component or version. Update a controlled prop from its callback; otherwise the UI retains the supplied state. Use `defaultValue`, `defaultChecked`, or `defaultOpen` instead where the inherited primitive supports them and application-owned state is unnecessary.
@@ -166,7 +176,7 @@ Sources: [archived floating integration](https://v3.skeleton.dev/docs/integratio
 
 ## Dialog strategy: Modal, including drawer styling
 
-**File: `ConfirmModal.svelte` — complete component.** Use the exported `Modal`, not an invented `Dialog` import. Controlled state drives both built-in and application dismissals. Title and description IDs are supplied because a plain heading snippet does not automatically become the primitive's title element.
+**File: `ConfirmModal.svelte` — complete component.** Use the exported `Modal`, not an invented `Dialog` import. Controlled state drives both built-in and application dismissals. Title and description IDs are supplied because a plain heading snippet does not automatically become the primitive's title element. This example disables the wrapper's default JavaScript fly/fade transitions for motion-free feedback.
 
 ```svelte
 <script lang="ts">
@@ -183,6 +193,10 @@ Sources: [archived floating integration](https://v3.skeleton.dev/docs/integratio
   triggerAriaLabel="Archive project confirmation"
   triggerBase="btn preset-tonal-primary"
   contentBase="card bg-surface-100-900 p-6 space-y-4 shadow-xl w-full max-w-md"
+  transitionsBackdropIn={{ duration: 0 }}
+  transitionsBackdropOut={{ duration: 0 }}
+  transitionsPositionerIn={{ duration: 0 }}
+  transitionsPositionerOut={{ duration: 0 }}
 >
   {#snippet trigger()}Archive project{/snippet}
   {#snippet content()}
@@ -205,7 +219,7 @@ Sources: [archived floating integration](https://v3.skeleton.dev/docs/integratio
 
 The inherited dialog defaults trap focus, prevent background interaction and scrolling, close on Escape or outside interaction, and restore focus. Preserve them unless the interaction specification explicitly requires otherwise. Open with the keyboard, cycle Tab and Shift+Tab inside, dismiss with Escape, and confirm focus returns to the trigger. For a real mutation, await the result and show success only after it succeeds.
 
-The v3 docs implement **drawers using Modal**: set `positionerJustify="justify-start"`, clear `positionerAlign`/`positionerPadding`, give `contentBase` a sidebar width and full-screen height, and use `transitionsPositionerIn/Out` with an `x` offset matching the sidebar width. Retain dialog naming, close controls, and focus behavior. No separate `Drawer` export is needed. For interfaces this wrapper cannot express, the archive also documents separately installed headless Svelte integrations; do not assume their current APIs are part of Skeleton.
+The v3 docs implement **drawers using Modal**: set `positionerJustify="justify-start"`, clear `positionerAlign`/`positionerPadding`, and give `contentBase` a sidebar width and full-screen height. Retain dialog naming, close controls, and focus behavior. Optional drawer motion uses `transitionsPositionerIn/Out` with an `x` offset matching the sidebar width. Keep zero duration until the browser preference is known and whenever reduced motion is requested; subscribe and clean up as in [browser-only work](sveltekit.md#browser-only-work-and-cleanup). A CSS media rule alone does not configure these JavaScript transitions. No separate `Drawer` export is needed. For interfaces this wrapper cannot express, the archive also documents separately installed headless Svelte integrations; do not assume their current APIs are part of Skeleton.
 
 Sources: [archived Modal/drawer examples](https://v3.skeleton.dev/docs/integrations/popover/svelte#modal), [Modal source](https://unpkg.com/@skeletonlabs/skeleton-svelte@1.5.3/dist/components/Modal/Modal.svelte), [dialog 1.18.3 types](https://unpkg.com/@zag-js/dialog@1.18.3/dist/index.d.ts), [pinned dialog naming and focus implementation](https://unpkg.com/@zag-js/dialog@1.18.3/dist/index.js), [archived Bits UI integration](https://v3.skeleton.dev/docs/headless/bits-ui).
 
