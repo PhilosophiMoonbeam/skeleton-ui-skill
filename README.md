@@ -15,12 +15,19 @@ Give a new agent session the API contracts, complete examples, and integration g
 
 This repository contains skill documentation, not a component library or application template. React is outside its scope.
 
-## Use the skill
+## Install and use the skill
+
+Run this command from the project where you want to use the skill:
+
+```sh
+npx skills add PhilosophiMoonbeam/skeleton-ui-skill
+```
+
+Follow the [skills CLI](https://github.com/vercel-labs/skills) prompts to select your coding agents and installation method.
 
 1. Open [the skill entrypoint](skills/skeleton-svelte/SKILL.md) to browse its workflow and task router.
-2. Copy the entire [`skills/skeleton-svelte/`](skills/skeleton-svelte/) directory into a skill location supported by your coding agent. Follow that host's discovery instructions; there is no universal installation path or CLI.
-3. Preserve the directory name, `SKILL.md`, and `references/` structure. Refresh skill discovery if your host requires it.
-4. Ask the agent to use `skeleton-svelte` for a relevant Skeleton task. It should inspect the application's resolved versions before applying the examples.
+2. Refresh skill discovery if your coding agent requires it.
+3. Ask the agent to use `skeleton-svelte` for a relevant Skeleton task. It should inspect the application's resolved versions before applying the examples.
 
 Example request:
 
