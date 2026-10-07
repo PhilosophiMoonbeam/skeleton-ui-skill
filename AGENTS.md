@@ -1,3 +1,19 @@
+# Unofficial Skeleton UI v3 Toolkit SKILLs
+
+We'll focus on implementing the Svelete version for now.
+See: /skills/skeleton-svelte
+SKILL.md Specification: /skills/SKILLS_SPEC.md
+
+Skeleton UI Documentation | https://www.skeleton.dev/docs/svelte/get-started/introduction
+Official LLMs.txt info | https://www.skeleton.dev/docs/svelte/resources/llms
+
+More Available on Context7/ctx7 -- see your 'find-docs' skill.
+
+Comprehensive list of LLMs txt files. | https://www.skeleton.dev/llms.txt
+Complete documentation for Skeleton, tailored for React. | https://www.skeleton.dev/llms-react.txt
+Complete documentation for Skeleton, tailored for Svelte. | https://www.skeleton.dev/llms-svelte.txt
+Complete documentation for Skeleton | https://www.skeleton.dev/llms-full.txt
+
 <!-- graft:start -->
 ## Graft — repo context graph
 
