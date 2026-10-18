@@ -2,3 +2,5 @@
 /graft/
 # Playwright CLI output (may contain credentials)
 .playwright-cli/
+# Local agent skills are development tools, not distributed project skills.
+/.agents/skills/
