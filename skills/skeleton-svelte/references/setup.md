@@ -1,4 +1,4 @@
-# Setup: Skeleton 5 with Svelte 5 and SvelteKit 3
+# Setup: Skeleton 5 with Svelte 5 and SvelteKit 3.1+
 
 - [Version contract](#version-contract)
 - [Greenfield project](#greenfield-project)
@@ -12,7 +12,7 @@
 
 ## Version contract
 
-Use this exact package set for a **greenfield project or an explicitly requested framework migration**. Preserve a supported existing toolchain otherwise. Both Skeleton packages are pinned to `5.0.1`; their equal versions do not justify inferring versions for other generations.
+This skill supports **SvelteKit `>=3.1.0` only**. The exact package set below is the tested, reproducible Kit `3.1.0` baseline for greenfield projects and prerequisite framework migrations. For a newer existing Kit release, check its matching official documentation, package metadata, public declarations and sources before retaining its toolchain; the baseline does not certify every later release. Both Skeleton packages are pinned to `5.0.1`; their equal versions do not justify inferring versions for other generations.
 
 | Package | Pin | Evidence |
 | --- | --- | --- |
@@ -30,7 +30,7 @@ Use this exact package set for a **greenfield project or an explicitly requested
 
 Use **Node 22.17+ within 22.x, or Node 24+**; maintained Node 24 LTS is recommended. Kit requires `>=22.17`; the Svelte Vite plugin requires `^20.19 || ^22.12 || >=24`. Node 20 and 23 fail the combined contract. JavaScript-only projects can omit TypeScript and its checker. Do not substitute TypeScript 7 for Kit's optional TypeScript 6 peer.
 
-The [current Skeleton installation guide](https://www.skeleton.dev/docs/svelte/get-started/installation/sveltekit) still lists Kit 2 as its minimum. Kit 3, Vite 8 and TypeScript 6 are this reference's reproducible framework baseline, not Skeleton-only requirements. Direct pins require a committed lockfile to freeze transitive resolution. Published peer compatibility does not establish runtime behavior.
+The [current Skeleton installation guide](https://www.skeleton.dev/docs/svelte/get-started/installation/sveltekit) describes Skeleton's upstream requirements, not this skill's framework support boundary. Kit `>=3.1.0` is required here; Kit `3.1.0`, Vite 8 and TypeScript 6 form the exact reproducible baseline. Direct pins require a committed lockfile to freeze transitive resolution. Published peer compatibility does not establish runtime behavior.
 
 ## Greenfield project
 
@@ -53,25 +53,25 @@ npm install -D --save-exact @skeletonlabs/skeleton@5.0.1 @skeletonlabs/skeleton-
 
 For JavaScript-only projects without TypeScript tooling, omit `typescript@6.0.3` and `svelte-check@4.7.7`. Omit forms only when not using Skeleton native form utilities. Keep other scaffold tools only if their peers support this toolchain.
 
-Adapter auto 8's Kit `^3.0.0-next.0` peer includes stable `3.1.0`. During an approved Kit 3 migration, retain the existing deployment target and select a compatible release of its adapter instead of replacing it with auto. Preserve ESM `"type": "module"` and scripts; merge the Kit 3 TypeScript changes below. If the generator created `svelte.config.*`, migrate supported options into the Vite plugin and remove the obsolete file. Adapter auto is not a substitute for selecting a production deployment target.
+Adapter auto 8's Kit `^3.0.0-next.0` peer includes stable `3.1.0`. For an existing application, retain the deployment target and select a compatible release of its adapter instead of replacing it with auto. Preserve ESM `"type": "module"` and scripts; merge the TypeScript changes below. If the generator created `svelte.config.*`, migrate supported options into the Vite plugin and remove the obsolete file. Adapter auto is not a substitute for selecting a production deployment target.
 
 ## Existing project
 
-First inspect `package.json`, the resolved lockfile, Node version, `vite.config.*`, `svelte.config.*`, root layout, `src/app.html`, and the imported global stylesheet. **Inspection does not authorize an upgrade.** Preserve the supported framework, adapter, toolchain, lockfile, and working conventions; an existing app already using this Skeleton pair needs only the requested UI changes.
+First inspect `package.json`, the resolved lockfile, Node version, `vite.config.*`, `svelte.config.*`, root layout, `src/app.html`, and the imported global stylesheet. **Inspection does not authorize an upgrade.** An application below Kit `3.1.0` requires an explicitly scoped [prerequisite framework migration](migration.md) before this setup applies; if that migration is outside the request, report the prerequisite and leave the unrelated application unchanged. For an application already on Kit `>=3.1.0` with this Skeleton pair, preserve its compatible framework, deployment adapter, toolchain, lockfile and working conventions and make only the requested UI changes.
 
-For an approved Skeleton installation or migration, install the destination pair with the repository's package manager; the npm command is:
+For an approved Skeleton installation or migration on Kit `>=3.1.0`, install the destination pair with the repository's package manager; the npm command is:
 
 ```sh
 npm install -D --save-exact @skeletonlabs/skeleton@5.0.1 @skeletonlabs/skeleton-svelte@5.0.1
 ```
 
-Retain compatible existing Svelte 5, Kit 2-or-later, Tailwind 4 and Vite integration versions. The component peer requires Svelte `^5.40.0`; core requires Tailwind `^4.0.0`. Establish prerequisite migration scope rather than silently upgrading unrelated packages. Older Skeleton apps require the staged [migration](migration.md), not just a dependency update.
+Retain compatible existing Kit `>=3.1.0`, Svelte 5, Tailwind 4 and Vite integration versions only after checking the selected Kit release's framework, plugin and adapter contracts. Skeleton's component peer `^5.40.0` and core Tailwind peer `^4.0.0` do not lower this skill's framework floor; the exact Kit `3.1.0` baseline requires Svelte `^5.57.1`. Older Skeleton apps require the staged [migration](migration.md), not just a dependency update.
 
-**Only if the user requests this exact framework target**, apply the greenfield pins and [Kit 3 migration guide](https://svelte.dev/docs/kit/migrating-to-sveltekit-3). Coordinate Kit, Svelte, Vite, the Svelte Vite plugin, optional TypeScript, Node, and the adapter; never force incompatible peers. The Kit 3 configuration sections below do not apply to retained Kit 2 projects. Preserve application settings, plugins, layouts, and CSS; merge supported changes rather than overwriting whole files.
+For a prerequisite framework migration, use the [Kit migration guidance](migration.md) and the exact baseline above, or source-checked compatible versions for a newer Kit `>=3.1.0` target. Coordinate Kit, Svelte, Vite, the Svelte Vite plugin, optional TypeScript, Node and the existing deployment adapter; never force incompatible peers or silently rewrite unrelated applications. Apply the configuration and module changes below to the supported target. Preserve application settings, plugins, layouts and CSS; merge supported changes rather than overwriting whole files.
 
 ## TypeScript configuration
 
-For **Kit 3 only**, the application's root `tsconfig.json` (or `jsconfig.json` for JavaScript) must extend `$app/tsconfig`, not `./.svelte-kit/tsconfig.json`. The old generated `.svelte-kit/tsconfig.json` is obsolete; do not try to restore it by rerunning sync. Kit's new base configuration does not supply `include` or `exclude`, so set them explicitly. Use this complete minimal configuration:
+The application's root `tsconfig.json` (or `jsconfig.json` for JavaScript) must extend `$app/tsconfig`, not `./.svelte-kit/tsconfig.json`. The old generated `.svelte-kit/tsconfig.json` is obsolete; do not try to restore it by rerunning sync. Kit's new base configuration does not supply `include` or `exclude`, so set them explicitly. Use this complete minimal configuration:
 
 `tsconfig.json`:
 
@@ -89,7 +89,7 @@ Sources: [Kit 3 `$app/tsconfig` migration](https://svelte.dev/docs/kit/migrating
 
 ## Vite integration
 
-**Kit 3** no longer supports `svelte.config.js`. Move its `kit` options to the object passed to `sveltekit()`; put `preprocess`, `compilerOptions`, and other supported Svelte options alongside them. Preserve the deployment adapter, then remove the obsolete configuration file. Review removed or renamed Kit options instead of copying them blindly. Retained Kit 2 projects keep their supported configuration convention. Merge the Tailwind Vite plugin **before** `sveltekit()`. A minimal greenfield configuration using adapter auto is:
+Kit `>=3.1.0` no longer supports `svelte.config.js`. Move its `kit` options to the object passed to `sveltekit()`; put `preprocess`, `compilerOptions`, and other supported Svelte options alongside them. Preserve the deployment adapter, then remove the obsolete configuration file. Review removed or renamed Kit options instead of copying them blindly. Merge the Tailwind Vite plugin **before** `sveltekit()`. A minimal greenfield configuration using adapter auto is:
 
 `vite.config.ts`:
 
@@ -110,7 +110,7 @@ Sources: [Kit 3 configuration migration](https://svelte.dev/docs/kit/migrating-t
 
 ## Kit 3 package imports and environment
 
-**Kit 3 only:** `$lib` is no longer generated. Merge this public Node subpath-import mapping into the **application's** `package.json`, preserving its other fields and existing import mappings:
+`$lib` is no longer generated. Merge this public Node subpath-import mapping into the **application's** `package.json`, preserving its other fields and existing import mappings:
 
 ```json
 {
@@ -128,7 +128,7 @@ Use `$app/env` instead of the deprecated `$app/environment` compatibility module
 import { browser, building, dev, version } from '$app/env';
 ```
 
-Retained Kit 2 projects keep their supported `$lib` and `$app/environment` conventions. In Kit 3, `$app/stores` is removed: migrate to read-only rune-reactive `$app/state`, not `$page`/`subscribe`/`set`. For environment configuration, export `variables = defineEnvVars({...})` from `src/env.ts`/`.js`, importing `defineEnvVars` from `@sveltejs/kit/env`; public/static default false. Runtime values are read at startup, not per request; without a schema values must exist but may be empty. Keep private values out of browser imports; public values are deliberately exposed. Sources: [Kit 3 import migration](https://svelte.dev/docs/kit/migrating-to-sveltekit-3), [environment variables](https://svelte.dev/docs/kit/environment-variables), [exact 3.1.0 declarations](https://unpkg.com/@sveltejs/kit@3.1.0/types/index.d.ts).
+`$app/stores` is removed: migrate to read-only rune-reactive `$app/state`, not `$page`/`subscribe`/`set`. For environment configuration, export `variables = defineEnvVars({...})` from `src/env.ts`/`.js`, importing `defineEnvVars` from `@sveltejs/kit/env`; public/static default false. Runtime values are read at startup, not per request; without a schema values must exist but may be empty. Keep private values out of browser imports; public values are deliberately exposed. Sources: [Kit 3 import migration](https://svelte.dev/docs/kit/migrating-to-sveltekit-3), [environment variables](https://svelte.dev/docs/kit/environment-variables), [exact 3.1.0 declarations](https://unpkg.com/@sveltejs/kit@3.1.0/types/index.d.ts).
 
 ## Global CSS and dependency scanning
 
@@ -208,9 +208,9 @@ Theme registration (CSS import) and activation (`data-theme`) are distinct requi
 | Symptom | Inspect and correct |
 | --- | --- |
 | Unexpected dependency versions | Check both Skeleton pins (`5.0.1`), workspace manifest and resolved lockfile; pinning a migration CLI does not pin its generated ranges. |
-| Peer conflict involving Vite in the Kit 3 target | Check Kit's Vite `^8.0.12` and Svelte-plugin `^7.0.0` peers; the pinned Tailwind 4.3.3 Vite plugin supports Vite 8. Do not apply these target pins to a retained Kit 2 toolchain. |
+| Peer conflict involving Vite | Check the selected Kit release's peers; the exact Kit `3.1.0` baseline requires Vite `^8.0.12` and Svelte-plugin `^7.0.0`, and the pinned Tailwind 4.3.3 Vite plugin supports Vite 8. An older application needs the scoped prerequisite migration, not forced peers. |
 | TypeScript peer error in the Kit 3 target | Kit's optional peer is `^6.0.0`; the published target pin is `6.0.3`. Check installed tooling peers rather than bypassing them. |
-| `tsconfig_extends_missing` or missing `.svelte-kit/tsconfig.json` in Kit 3 | Extend `$app/tsconfig` and explicitly set `include`/`exclude` as in [TypeScript configuration](#typescript-configuration); preserve application compiler options. Retained Kit 2 projects still use their own generated configuration. |
+| `tsconfig_extends_missing` or missing `.svelte-kit/tsconfig.json` | Extend `$app/tsconfig` and explicitly set `include`/`exclude` as in [TypeScript configuration](#typescript-configuration); preserve application compiler options. |
 | Kit 3 complains about `svelte.config.*` or old module aliases | Move configuration to `sveltekit({...})`, remove the old file, and migrate imports per the Kit 3 guide. This is a Kit upgrade issue, not a Skeleton stylesheet problem. |
 | Tailwind works, component internals lack styles | Check `@import '@skeletonlabs/skeleton-svelte'` and the root layout CSS import. |
 | Utilities exist, theme colors do not | Check core CSS, theme CSS and matching `<html data-theme>`. |

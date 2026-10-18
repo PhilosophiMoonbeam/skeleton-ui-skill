@@ -17,7 +17,7 @@ Import runtime values from `@skeletonlabs/skeleton-svelte`. Roots are callable c
 | `Collapsible` | One disclosure: `.Trigger`, `.Indicator`, `.Content`. |
 | `Pagination` | Count-based page controls: `.FirstTrigger`, `.PrevTrigger`, `.Item`, `.Ellipsis`, `.NextTrigger`, `.LastTrigger`, `.Context`; consumer slices or fetches rows. |
 | `Steps` | Multi-step workflow: `.List`, `.Item`, `.Trigger`, `.Indicator`, `.Separator`, `.Content`, `.PrevTrigger`, `.NextTrigger`. Not a routing or validation engine. |
-| `Carousel` | Slide browsing: `.ItemGroup`, `.Item`, `.Control`, `.PrevTrigger`, `.NextTrigger`, `.IndicatorGroup`, `.Indicator`, `.AutoplayTrigger`, `.ProgressText`. |
+| `Carousel` | Slide browsing: `.ItemGroup`, `.Item`, `.Control`, `.PrevTrigger`, `.NextTrigger`, `.IndicatorGroup`, `.Indicator`, `.AutoplayTrigger`, `.ProgressText`. Prefer user-controlled movement; apply the [pause and static-content policy](accessibility.md#contrast-motion-and-scale) to autoplay. |
 | `TreeView` | Hierarchical selection/navigation: `.Tree`, `.Label`, `.NodeProvider`, `.Branch`, `.BranchControl`, `.BranchText`, `.BranchIndicator`, `.BranchContent`, `.BranchIndentGuide`, `.Item`; `createTreeViewCollection`. |
 | `Marquee` **beta** | Continuous content: `.Viewport`, `.Content index`, `.Edge side`, `.Context`; render copies using `api().contentCount`. `autoFill` and `pauseOnInteraction` are supported. Provide a pause policy and respect reduced motion; do not make moving content the only access to information. |
 
@@ -43,13 +43,13 @@ Use native `<input>`, `<select>`, `<textarea>`, checkbox, radio, date, file, or 
 | Export | Choose for / representative anatomy |
 | --- | --- |
 | `Avatar` | Image/fallback: `.Image`, `.Fallback`. |
-| `Progress` | Both linear `.Label`, `.ValueText`, `.Track`, `.Range` and circular `.Circle`, `.CircleTrack`, `.CircleRange` anatomy. Name the progressbar; a visible percentage alone is not a name. |
+| `Progress` | Both linear `.Label`, `.ValueText`, `.Track`, `.Range` and circular `.Circle`, `.CircleTrack`, `.CircleRange` anatomy. Name the progressbar; a visible percentage alone is not a name. Report actual progress, not an interpolated presentation value; use the installed indeterminate contract when progress is unknown. |
 | `QrCode` **beta** | QR output: `.Frame`, `.Pattern`, `.Overlay`, `.DownloadTrigger`, `.Context`, `.Provider`; factory `useQrCode`. Preserve a readable text/link alternative. |
 | `Tooltip` | Supplemental noninteractive help: `.Trigger`, `.Positioner`, `.Content`, optional `.Arrow`/`.ArrowTip`. |
 | `Popover` | Interactive contextual surface: `.Trigger`, `.Positioner`, `.Content`, `.Title`, `.Description`, `.CloseTrigger`, `.Arrow`, `.ArrowTip`. |
 | `Dialog` | Modal confirmation or styled drawer: `.Trigger`, `.Backdrop`, `.Positioner`, `.Content`, `.Title`, `.Description`, `.CloseTrigger`. |
 | `Menu` | Action menu: `.Trigger`/`.ContextTrigger`, `.Positioner`, `.Content`, `.Item`, `.OptionItem`, `.TriggerItem`, `.ItemText`, `.ItemIndicator`, `.ItemGroup`, `.Separator`. Not ordinary site navigation. |
-| `FloatingPanel` | Movable/resizable window: `.Trigger`, `.Positioner`, `.Content`, `.Header`, `.Title`, `.DragTrigger`, `.Control`, `.StageTrigger`, `.CloseTrigger`, `.Body`, `.ResizeTrigger`. |
+| `FloatingPanel` | Movable/resizable window: `.Trigger`, `.Positioner`, `.Content`, `.Header`, `.Title`, `.DragTrigger`, `.Control`, `.StageTrigger`, `.CloseTrigger`, `.Body`, `.ResizeTrigger`. Plan small-screen behavior and [non-drag alternatives](accessibility.md#focus-visibility-and-drag-alternatives), not only drag handles. |
 | `Toast` | Notifications: `.Group` with a toast-record children snippet; root `<Toast {toast}>`, `.Message`, `.Title`, `.Description`, `.ActionTrigger`, `.CloseTrigger`; store factory `createToaster`. |
 | `Portal` | Render floating anatomy outside clipping ancestors. Explicitly wrap positioners/backdrops where appropriate; set stacking on concrete elements. |
 | `LocaleProvider` **beta** | `<LocaleProvider locale="en-US">` and `.Context` provide locale and derived LTR/RTL direction without a DOM wrapper. Does not translate application strings or set document `lang`/`dir`; application owns those attributes. |

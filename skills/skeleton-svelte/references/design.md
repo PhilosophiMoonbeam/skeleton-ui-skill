@@ -6,6 +6,8 @@ This reference supplies **design recommendations**, not additional Skeleton requ
 - [Establish a small visual system](#establish-a-small-visual-system)
 - [Compose from narrow to wide](#compose-from-narrow-to-wide)
 - [Content, states, and visual assets](#content-states-and-visual-assets)
+- [Purposeful feedback and motion](#purposeful-feedback-and-motion)
+- [Performance and browser constraints](#performance-and-browser-constraints)
 - [Complete responsive app-shell recipe](#complete-responsive-app-shell-recipe)
 - [Acceptance and smoke expectations](#acceptance-and-smoke-expectations)
 
@@ -57,6 +59,52 @@ Use plausible domain content with specific titles, descriptions, owners, and act
 Plan default, focus, hover, selected, disabled, empty, pending, error, and success states **where the flow can actually enter them**. An empty filter result needs an explanation and a working recovery action. Pending should correspond to a real operation; error/success text should report its actual outcome. Static local filtering does not need fake loading or save notifications. Make selection/status legible without color alone; keep layout stable while feedback appears.
 
 Prefer text labels when an icon adds no information. If icons are useful, use one consistent stroke/size vocabulary; this recipe requires no icon package. Hide decorative SVG from assistive technology and name icon-only controls. Use media only when it supports the content: confirm ownership/licensing, provide meaningful alternative text or `alt=""` for decoration, reserve dimensions, and choose a responsive crop. Do not depend on remote placeholder images or unreadable text baked into an image. Motion is optional; respect reduced-motion preferences rather than animating every card.
+
+## Purposeful feedback and motion
+
+Keep expressive branding around a calm working area. Marketing, onboarding, and
+frequent operational tasks need different attention budgets; trend reports do not
+establish usability gains. “Dopamine-driven” is not an engineering standard or
+evidence of a neurological effect. Evaluate task completion, mistakes, recovery,
+comprehension, and user control rather than time spent alone.
+
+For genuine asynchronous work, show pending state promptly, prevent unintended
+duplicate requests, retain entered values, and expose an actionable error. Confirm
+success only after the operation succeeds, unless an explicit optimistic model
+supports rollback. Never add a delay to make an animation visible. Keep important
+results readable after any flourish ends; do not move focus to decoration.
+
+Separate actual state from its visual interpolation: progress text and accessible
+values report real work, not an eased display value. Use indeterminate feedback
+when progress is unknown. Prefer CSS for hover/focus/press feedback; choose the
+smallest [Svelte motion mechanism](sveltekit.md#purposeful-motion) only when it
+explains a state change or preserves useful spatial continuity. Keep static
+feedback and normal navigation complete without animation. Do not let two
+mechanisms animate the same property on the same element.
+
+These are design recommendations, not prescribed durations or a mandate to add
+motion. See [NN/g's animation guidance](https://www.nngroup.com/articles/animation-purpose-ux/)
+and the [accessibility motion requirements](accessibility.md#contrast-motion-and-scale).
+
+## Performance and browser constraints
+
+Establish the application's browser matrix before adopting decorative features;
+[Tailwind's minimums are not the complete stack's minimums](styling.md#browser-support-is-cumulative).
+Keep essential content server-renderable and independent of effects. Do not
+lazy-load the LCP image; reserve media and placeholder dimensions. Import only
+offered themes and load heavy effects only where used. Clean up listeners,
+observers, and animation frames; suspend continuous decorative work when hidden.
+
+Prefer transform/opacity for simple movement, but profile actual layout, paint,
+and layer costs. Animated gradients, blur, masks, and CSS variables are not
+automatically compositor-only. Add `will-change` only for a demonstrated need,
+not to every card. See [animation performance](https://web.dev/articles/animations-guide)
+and [LCP optimization](https://web.dev/articles/optimize-lcp).
+
+For production evaluation, [Core Web Vitals](https://web.dev/articles/vitals)
+good thresholds are LCP ≤2.5s, INP ≤200ms, and CLS ≤0.1 at the 75th percentile,
+segmented by mobile/desktop. These are experience metrics, not animation-duration
+limits. Local traces diagnose regressions; they do not establish field results.
 
 ## Complete responsive app-shell recipe
 

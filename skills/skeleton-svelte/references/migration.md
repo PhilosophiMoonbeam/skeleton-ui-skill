@@ -2,20 +2,24 @@
 
 ## Identify the installed generation first
 
-Inspect the application's manifest **and resolved lockfile**. This skill targets `@skeletonlabs/skeleton@5.0.1` and `@skeletonlabs/skeleton-svelte@5.0.1`. Core exports CSS; framework components come from the Svelte package root. Historical names below are migration sources, not current recommendations.
+Inspect the application's manifest **and resolved lockfile**. This skill targets **SvelteKit `>=3.1.0` only**, with `@skeletonlabs/skeleton@5.0.1` and `@skeletonlabs/skeleton-svelte@5.0.1`. Core exports CSS; framework components come from the Svelte package root. Historical framework and Skeleton versions below are migration sources or temporary intermediates, not supported destinations.
 
 | Signal | Interpretation/action |
 | --- | --- |
 | Components/store helpers imported from core; `initializeStores`, `getModalStore`, `getToastStore`, `getDrawerStore`, `AppShell`, `variant-*`, Skeleton Tailwind plugin | Historical v2 integration: inventory every caller before removal. |
 | Core `3.x` plus component `1.x` | Historical v3 pair; unequal majors were intentional. Follow the archived v3-to-v4 guide first. |
 | Core/component `4.x` | Establish a functional `4.15.2` pair before v5. |
-| Both packages `5.0.1`, framework CSS import | Target generation; still inspect component contracts and all local wrappers. |
+| Both packages `5.0.1`, framework CSS import, Kit `>=3.1.0` | Target generation; still inspect component contracts and all local wrappers, plus the selected Kit release's matching contracts. |
 
 Sources: [core 5.0.1 metadata](https://registry.npmjs.org/@skeletonlabs/skeleton/5.0.1), [component 5.0.1 metadata](https://registry.npmjs.org/@skeletonlabs/skeleton-svelte/5.0.1), [current v5 migration](https://www.skeleton.dev/docs/svelte/get-started/migrate-from-v4). A store name alone is only a clue: confirm its import and usage before removing application state.
 
-## Separate framework upgrades from Skeleton migration
+## Separate prerequisite framework migration from Skeleton migration
 
-Use a dedicated migration branch, preserving existing user changes. A Skeleton migration does **not** require upgrading a compatible Kit 2 app to Kit 3. Skeleton 5 core requires Tailwind `^4.0.0`; its Svelte package requires Svelte `^5.40.0`. Check existing Vite, Node and adapter peers independently.
+Use a dedicated migration branch, preserving existing user changes. An application below Kit `3.1.0` requires an explicitly scoped prerequisite framework migration before reaching this skill's supported destination. If that scope is not authorized, report the prerequisite and leave the unrelated application unchanged; do not offer its older framework as an alternative supported setup. Skeleton 5 core requires Tailwind `^4.0.0` and its Svelte package requires Svelte `^5.40.0`, but these lower peer floors do not replace Kit's stricter framework contract.
+
+For historical **Kit 2 sources**, the [official Kit 3 migration guide](https://svelte.dev/docs/kit/migrating-to-sveltekit-3) recommends upgrading to the latest Kit 2 release first to expose targeted deprecations, then running `npx sv migrate sveltekit-3` (not `sv@next`). Latest Kit 2 is a **temporary migration step only, never a supported destination**. Finish at [the exact tested Kit `3.1.0` baseline](setup.md#version-contract), or a newer Kit `>=3.1.0` release after checking its matching official documentation, metadata, declarations and sources. A Kit `3.0` application also needs the prerequisite upgrade to at least `3.1.0`; it is not an in-scope destination.
+
+Coordinate Node, Vite, the Svelte plugin, optional TypeScript and the existing deployment adapter. Automation does not replace manual review: move supported configuration into `sveltekit({...})`, remove obsolete `svelte.config.*`, merge [tsconfig](setup.md#typescript-configuration), and migrate every `$lib` import/re-export to `#lib` with explicit extensions. Use `$app/env`; `$app/environment` is deprecated, not absent, in exact Kit `3.1.0`. Replace removed `$app/stores` with read-only rune-reactive `$app/state`. Apply the remaining breaking changes relevant to the application from [Kit's migration guide](https://svelte.dev/docs/kit/migrating-to-sveltekit-3) and [Kit integration](sveltekit.md), preserving application behavior and unrelated configuration. The exact baseline does not certify all later Kit releases.
 
 1. Inventory imports, providers/hosts, wrappers, stores, themes, utility classes, Tailwind/PostCSS configuration and every affected callsite, including shared packages.
 2. For **v2**, follow the [archived v2-to-v4 guide](https://v4.skeleton.dev/docs/svelte/get-started/migrate-from-v2), including `skeleton-3` then `skeleton-4` transformations. For **v3**, follow the [archived v3-to-v4 guide](https://v4.skeleton.dev/docs/svelte/get-started/migrate-from-v3). Complete manual component/prop conversion and establish a working v4 app, not merely a changed manifest.
@@ -25,7 +29,7 @@ Use a dedicated migration branch, preserving existing user changes. A Skeleton m
 npm install -D --save-exact @skeletonlabs/skeleton@4.15.2 @skeletonlabs/skeleton-svelte@4.15.2
 ```
 
-4. From the functional intermediate app, follow the [v4-to-v5 guide](https://www.skeleton.dev/docs/svelte/get-started/migrate-from-v4). Raise Svelte to a release satisfying `^5.40.0` if needed; the CLI does not perform that peer bump. Preserve compatible framework/toolchain versions. Install the destination pair using [existing-project setup](setup.md#existing-project), integrate its CSS and finish the manual changes below.
+4. From the functional intermediate app, follow the [v4-to-v5 guide](https://www.skeleton.dev/docs/svelte/get-started/migrate-from-v4). Preserve the selected Kit `>=3.1.0` framework/toolchain contract, including its Svelte peer (`^5.57.1` at the exact baseline), not merely Skeleton's lower Svelte floor; the CLI does not perform the necessary peer bump. Install the destination pair using [existing-project setup](setup.md#existing-project), integrate its CSS and finish the manual changes below.
 5. Import custom themes into the [Theme Generator](https://themes.skeleton.dev/themes/import), inspect converted CSS and restore custom fonts through typography controls: theme import strips them. Preserve local font loading and assets. Register the converted theme and activate the same name on `<html>`.
 
 For an authorized automated application migration, the pinned CLI supports these commands; run only the stages appropriate to the starting version:
@@ -39,8 +43,6 @@ npx skeleton@5.0.1 migrate skeleton-5
 **CLI version is not output dependency version.** These commands mutate files and install dependencies. CLI `5.0.1`'s `skeleton-3` resolves core `>=3.0.0-0 <4.0.0` and components `>=1.0.0-0 <2.0.0`; `skeleton-4` writes `^4.0.0`; `skeleton-5` writes `^5.0.0`. Restore exact intermediate/destination pins and the chosen package manager's lockfile after each applicable stage. Review every diff. The v3-to-v4 conversion still requires manual composition/prop work; automated renames are not component conversion.
 
 The v5 scanner selects source folders and includes `.svelte`, `.css`, `.pcss`, `.postcss`, `.jsx`, `.tsx`, `.js`, `.mjs`, `.cjs`; it **omits `.ts` and `.html`**. Manually inspect those files and all callers outside selected folders, including themes, generated class strings, shared libraries and tests. Package/token/class automation does not cover semantic Field Group markup or every removed utility. Exact CLI source: [skeleton@5.0.1](https://unpkg.com/skeleton@5.0.1/dist/index.mjs).
-
-**Optional framework migration:** only when requested, apply [the exact Kit 3.1.0 baseline](setup.md#version-contract). Official Kit guidance recommends latest Kit 2 first to expose deprecations, then `npx sv migrate sveltekit-3` (not `sv@next`). Coordinate Node, Vite, the Svelte plugin, optional TypeScript and the existing deployment adapter. Move supported configuration into `sveltekit({...})`, remove obsolete `svelte.config.*`, merge [tsconfig](setup.md#typescript-configuration), and migrate every `$lib` import/re-export to `#lib` with explicit extensions. Use `$app/env`; `$app/environment` is deprecated, not absent, in exact Kit 3.1.0. Replace removed `$app/stores` with read-only rune-reactive `$app/state`. See [Kit's migration guide](https://svelte.dev/docs/kit/migrating-to-sveltekit-3) and [Kit integration](sveltekit.md).
 
 ## Remove Tailwind 3 and v2 plugin assumptions
 
@@ -174,7 +176,7 @@ Exact source links: [core index](https://unpkg.com/@skeletonlabs/skeleton@5.0.1/
 | Value/callback type error after rename | Check value shape and callback payload directly; do not assume `.detail` or bindability. |
 | Theme/preset utilities disappear | Fix current CSS imports, theme activation and class names, not the old Tailwind plugin. |
 | CLI leaves classes/tokens unchanged | Inspect `.ts`, `.html`, unselected/shared folders and dynamic class construction manually. |
-| Kit fails before rendering | Inspect installed Kit generation, configuration, modules, adapter and peers; do not force a Kit upgrade to solve a Skeleton issue. |
+| Kit fails before rendering | Inspect resolved Kit, configuration, modules, adapter and peers. Below Kit `3.1.0`, establish the scoped prerequisite migration; for a supported target, diagnose the actual failing layer rather than forcing peers or silently upgrading unrelated applications. |
 | Styling vanishes in monorepo builds | Resolve application `@source` paths relative to the stylesheet and inspect the scan base. |
 
 The integrating agent should run existing checks/build, then exercise real component interactions, overlays, keyboard/focus behavior, themed styling and SSR/hydration isolation. Report only exercised checks; metadata/types are not runtime certification.

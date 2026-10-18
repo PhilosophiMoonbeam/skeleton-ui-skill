@@ -1,6 +1,6 @@
 # Styling and themes — Skeleton v5
 
-Use the framework-agnostic CSS from `@skeletonlabs/skeleton@5.0.1` with Tailwind CSS 4.3.3. Native-element utilities are distinct from the optional Svelte components in `@skeletonlabs/skeleton-svelte@5.0.1`. The [package exports](https://unpkg.com/@skeletonlabs/skeleton@5.0.1/package.json) and [core stylesheet](https://unpkg.com/@skeletonlabs/skeleton@5.0.1/src/index.css) define this reference's versioned contract; consult the [current Core API](https://www.skeleton.dev/docs/svelte/get-started/core-api) for usage. An ordinary styling task does not require migrating an existing compatible SvelteKit 2 application.
+Use the framework-agnostic CSS from `@skeletonlabs/skeleton@5.0.1` with Tailwind CSS 4.3.3. Native-element utilities are distinct from the optional Svelte components in `@skeletonlabs/skeleton-svelte@5.0.1`. The [package exports](https://unpkg.com/@skeletonlabs/skeleton@5.0.1/package.json) and [core stylesheet](https://unpkg.com/@skeletonlabs/skeleton@5.0.1/src/index.css) define this reference's versioned contract; consult the [current Core API](https://www.skeleton.dev/docs/svelte/get-started/core-api) for usage. This skill targets SvelteKit 3.1+ exclusively, with Kit 3.1.0 as the exact tested baseline; check matching package metadata and source contracts before using later releases.
 
 ## Theme registration and activation
 
@@ -106,6 +106,72 @@ Sources: [Typography](https://www.skeleton.dev/docs/svelte/design/typography), [
 
 For visual direction, hierarchy, density, and a complete responsive shell, see [design.md](design.md). These utilities implement a design; they do not choose one.
 
+## Tailwind CSS-first extensions
+
+Keep Skeleton's theme as the palette, typography, and shape authority. Add a top-level `@theme` only for new Tailwind utility or variant names; ordinary custom properties belong in `:root`, a theme selector, or a component rule when no generated name is needed. A supported namespace matters: `--ease-expressive` enables `ease-expressive`; an arbitrary variable name does not create a utility. Existing scoped Skeleton token overrides do not need another `@theme` block.
+
+Append this extension after the global stylesheet's imports. `@utility` registers an application utility in Tailwind's utilities layer, including support for variants; it does not add a new Skeleton preset family:
+
+```css
+@theme {
+  --ease-expressive: cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+:root {
+  --frame-width: 1px;
+}
+
+@utility expressive-frame {
+  padding: var(--frame-width);
+  border-radius: var(--radius-container);
+  background-image: linear-gradient(
+    135deg,
+    var(--color-primary-500),
+    var(--color-secondary-500),
+    var(--color-tertiary-500)
+  );
+}
+```
+
+Use the frame around a stable reading surface, not as the text background:
+
+```html
+<div class="expressive-frame">
+  <section class="card bg-surface-50-950 text-surface-950-50 p-6">
+    <h2 class="h3">Release overview</h2>
+    <p>The checklist is ready for review.</p>
+  </section>
+</div>
+```
+
+Tailwind 4 supports linear, radial, and conic gradients with semantic palette stops. These complete decorative fragments have explicit dimensions:
+
+```html
+<div aria-hidden="true" class="h-16 rounded-container bg-linear-to-br from-primary-500 to-secondary-500"></div>
+<div aria-hidden="true" class="h-16 rounded-container bg-radial from-secondary-300 to-primary-900"></div>
+<div aria-hidden="true" class="size-24 rounded-container bg-conic from-primary-500 via-tertiary-500 to-primary-500"></div>
+```
+
+Gradients are static until classes, variables, or styles change. Tailwind defaults gradient interpolation to OKLab; use a documented interpolation modifier when a different path is intentional. OKLCH separates lightness, chroma, and hue, but neither equal lightness nor a vivid palette guarantees contrast; high chroma can exceed a display's gamut. Check intermediate gradient colors and keep essential text on a verified surface.
+
+Source detection and runtime values solve different problems. Tailwind scans text, not evaluated Svelte expressions: map finite choices to complete literal classes instead of constructing `bg-${palette}-500`. Automatic detection skips dependencies, ignored files, and CSS files. Register required external application sources with stylesheet-relative `@source` paths; a source directive does not make interpolated names discoverable. Do not add a legacy Skeleton package scan to replace the v5 framework CSS import.
+
+For continuous runtime values, keep one detectable utility and update a custom property instead of generating unbounded class names. Standalone decorative preview:
+
+**File: `OpacityPreview.svelte`**
+
+```svelte
+<script lang="ts">
+  let { opacity = 0.6 }: { opacity?: number } = $props();
+</script>
+
+<div aria-hidden="true" class="h-16 rounded-container bg-primary-500 opacity-(--preview-opacity)"
+  style:--preview-opacity={opacity}></div>
+```
+
+Sources: [Tailwind theme namespaces and scope](https://tailwindcss.com/docs/theme), [custom utilities](https://tailwindcss.com/docs/adding-custom-styles#adding-custom-utilities), [gradients](https://tailwindcss.com/docs/background-image), [source detection](https://tailwindcss.com/docs/detecting-classes-in-source-files).
+
+
 ## Native button, form, card, and table classes
 
 | Native markup | V5 utility classes | Preserve behavior |
@@ -204,6 +270,15 @@ For an SSR app, choose the initial mode deliberately. CSS media mode needs no br
 Keep server and client initial component markup deterministic. If an early script changes the root mode, do not render a different mode label or icon during hydration from a separately initialized client preference. Establish one source of truth; render mode-dependent controls consistently, then update after mount when necessary. CSS-only color changes do not justify suppressing hydration warnings.
 
 Sources: [pinned root/body CSS](https://unpkg.com/@skeletonlabs/skeleton@5.0.1/src/base/globals.css), [Mode](https://www.skeleton.dev/docs/svelte/guides/mode), [Tailwind color scheme](https://tailwindcss.com/docs/color-scheme), [Tailwind initial-paint guidance](https://tailwindcss.com/docs/dark-mode), [Svelte lifecycle hooks](https://svelte.dev/docs/svelte/lifecycle-hooks).
+
+## Browser support is cumulative
+
+Tailwind 4 documents Safari 16.4+, Chrome 111+, and Firefox 128+ as its baseline, not the complete application's browser matrix. Skeleton 5.0.1 uses `light-dark()` for essential root, text, and paired colors; some Tailwind-baseline browsers do not support it. Define the application matrix from every essential feature and provide deliberate fallback styling where required. An optional corner shape, disclosure animation, or view-transition enhancement has a separate support requirement and must not hide content or prevent interaction when unsupported.
+
+Tailwind 4.3.3 includes first-party scrollbar styling, `@container-size` (not `size-container`), `zoom-*`, and `tab-*`. Their existence does not imply uniform browser support or make them necessary for a Skeleton app. Preserve scroll affordances and user zoom; CSS `zoom` is not a substitute for responsive layout or browser zoom testing. Validate essential colors, layout, and controls in actual target browsers, not only the current development browser.
+
+Sources: [Tailwind browser baseline](https://tailwindcss.com/docs/upgrade-guide#browser-requirements), [4.3 utility additions](https://tailwindcss.com/blog/tailwindcss-v4-3), [exact 4.3.3 utility definitions](https://github.com/tailwindlabs/tailwindcss/blob/v4.3.3/packages/tailwindcss/src/utilities.ts), [Skeleton root CSS](https://unpkg.com/@skeletonlabs/skeleton@5.0.1/src/base/globals.css), [`light-dark()` support](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Values/color_value/light-dark#browser_compatibility).
+
 
 ## Styling debugging checklist
 

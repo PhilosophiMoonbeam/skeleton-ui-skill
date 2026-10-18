@@ -1,6 +1,6 @@
 # Runnable Skeleton 5 / Svelte 5 recipes
 
-Targets core and component packages **5.0.1**, Svelte **5.57.2**, and Tailwind **4.3.3**. The reproducible new-project baseline uses Kit **3.1.0**; these components do not require upgrading an otherwise compatible Kit 2 application. Each Svelte fence is a complete standalone component. Import global Tailwind, Skeleton core, Skeleton Svelte root styles, and an activated theme first; native form classes also require `@tailwindcss/forms`. No icon dependency is needed. Mount a component in a page or copy its contents into `+page.svelte`.
+Targets core and component packages **5.0.1**, Svelte **5.57.2**, Tailwind **4.3.3**, and SvelteKit **3.1+** exclusively. The exact tested baseline uses Kit **3.1.0**; later Kit releases require matching dependency and source checks rather than assumed certification. Each Svelte fence is a complete standalone component. Import global Tailwind, Skeleton core, Skeleton Svelte root styles, and an activated theme first; native form classes also require `@tailwindcss/forms`. No icon dependency is needed. Mount a component in a page or copy its contents into `+page.svelte`.
 
 - [State, callbacks, and snippets](#state-callbacks-and-snippets)
 - [Tabs: controlled local panels](#tabs-controlled-local-panels)

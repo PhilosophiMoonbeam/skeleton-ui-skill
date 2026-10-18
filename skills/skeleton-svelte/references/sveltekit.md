@@ -1,22 +1,23 @@
-# Svelte 5.57.2 and SvelteKit 3.1.0 integration
+# Svelte 5.57.2 and SvelteKit 3.1+ integration
 
-Use this reference for application behavior around Skeleton 5.0.1, not to justify migrating an unrelated application. Skeleton's current installation minimum remains Kit 2; preserve compatible existing Kit 2 applications unless framework migration is requested. Apply the Kit 3-specific configuration, imports, navigation and action options below only to a Kit 3 project or an explicitly requested migration. Prefer exact installed declarations over version-mixed examples.
+Use this reference for application behavior around Skeleton 5.0.1 on SvelteKit 3.1+ exclusively. Kit 2 is historical migration context, not a supported target or alternative implementation. The exact tested baseline is Kit 3.1.0; for later releases, check matching package metadata, declarations and source before applying version-sensitive configuration, navigation or action contracts. Prefer exact installed declarations over version-mixed examples.
 
 - [Verify the project before changing it](#verify-the-project-before-changing-it)
 - [Runes, props, snippets and events](#runes-props-snippets-and-events)
 - [Page state and request isolation](#page-state-and-request-isolation)
 - [Browser-only work and cleanup](#browser-only-work-and-cleanup)
+- [Purposeful motion](#purposeful-motion)
 - [Load, secrets and serialization](#load-secrets-and-serialization)
 - [Global CSS, layout children and hydration](#global-css-layout-children-and-hydration)
 - [Native form actions with progressive enhancement](#native-form-actions-with-progressive-enhancement)
 
 ## Verify the project before changing it
 
-Inspect the package manifest, lockfile, installed package versions, route and layout structure, Vite configuration, global CSS, theme ownership, and existing form and state conventions. Use the project's package manager; do not regenerate configuration or replace working conventions merely to match an example. New runes components can coexist with existing legacy Svelte components, but do not mix `export let` or `$:` declarations into a runes component.
+Inspect the package manifest, lockfile, installed package versions, route and layout structure, Vite configuration, global CSS, theme ownership, and existing form and state conventions. Use the project's package manager; preserve compatible application behavior while adopting the Kit 3.1+ configuration and imports below. Use runes for new components; do not mix legacy `export let` or `$:` declarations into a runes component.
 
 The reproducible baseline is `@skeletonlabs/skeleton@5.0.1`, `@skeletonlabs/skeleton-svelte@5.0.1`, `svelte@5.57.2`, `@sveltejs/kit@3.1.0`, `tailwindcss@4.3.3`, `@tailwindcss/vite@4.3.3`, `vite@8.3.4`, and `@sveltejs/vite-plugin-svelte@7.3.1`. Skeleton core requires Tailwind `^4.0.0`; its Svelte package requires Svelte `^5.40.0`. Kit 3.1.0 separately requires Node `>=22.17`, Svelte `^5.57.1`, Vite `^8.0.12`, and the Svelte Vite plugin `^7.0.0`. Its TypeScript peer is optional: the baseline uses TypeScript `6.0.3` and `svelte-check@4.7.7` when TypeScript tooling is present; do not install TypeScript 7. JavaScript-only projects may omit that tooling. Preserve the production adapter and check its compatibility; `adapter-auto@8.0.0` is the baseline auto-adapter, not a replacement for deployment-specific configuration. Pin direct dependencies and retain the lockfile; satisfying peers alone is not proof of a working application.
 
-These requirements describe the chosen Kit 3 target, not every existing Skeleton app. See [setup](setup.md#existing-project) for the inspection-only path and the combined Node/Vite-plugin engine ranges.
+These requirements describe the exact tested Kit 3.1.0 baseline, not certification of every later Kit release. For newer Kit 3.1+ versions, inspect their matching dependencies and source contracts. See [setup](setup.md#existing-project) for project inspection and migration guidance and the combined Node/Vite-plugin engine ranges.
 
 For an npm project, these are inspection commands, not upgrade commands:
 
@@ -27,14 +28,14 @@ npm view @skeletonlabs/skeleton@5.0.1 peerDependencies exports
 npm view @skeletonlabs/skeleton-svelte@5.0.1 peerDependencies exports
 ```
 
-For an actual Kit 3 project, account for these differences from Kit 2 examples:
+For the Kit 3.1+ target, migrate these historical Kit 2 conventions:
 
 - Configuration belongs in `sveltekit({ ... })` from `@sveltejs/kit/vite`, inside `vite.config.*`; `svelte.config.js` is no longer supported. Move supported options into this plugin, preserving the adapter, required preprocessors and compiler options. Keep the Tailwind Vite plugin before `sveltekit()` and retain unrelated PostCSS transforms.
 - Kit 3 no longer generates `.svelte-kit/tsconfig.json`. Change the root `tsconfig.json`/`jsconfig.json` to extend `$app/tsconfig`, explicitly set `include: ["src", "test", "*"]` and `exclude: ["src/service-worker"]`, and merge custom source/test paths and compiler options. Do not disable `isolatedModules` or `verbatimModuleSyntax`. A TypeScript service worker uses its own config extending `$app/tsconfig/service-worker`. See [setup](setup.md) for complete configuration and the [Kit 3 `$app/tsconfig` migration](https://svelte.dev/docs/kit/migrating-to-sveltekit-3#$app-tsconfig).
 - Kit no longer generates `$lib`. Declare `"#lib/*": "./src/lib/*"` in `package.json` `imports`, then migrate every `$lib` import/re-export to `#lib` with explicit file extensions. Add a bare `#lib` mapping only if a real barrel exists and callers need it. Relative imports remain valid; do not add compatibility aliases.
 - Use `$app/env`, including `import { browser } from '$app/env'` for runtime guards. `$app/environment` remains a **deprecated compatibility module** in exact Kit 3.1.0, not a removed module.
 - `$app/stores` was **removed**, not merely deprecated. `$env/...` modules are **deprecated** in favor of `$app/env/private` and `$app/env/public`.
-- Do not enable experimental remote functions or async compiler features to implement ordinary Skeleton interactions or form actions.
+- Do not enable experimental remote functions or async compiler features to implement ordinary Skeleton interactions or form actions. Svelte's experimental async compiler option concerns top-level component `await`, async derived expressions and awaited markup; ordinary async event handlers and navigation callbacks do not require it.
 
 Sources: [Kit 3 migration](https://svelte.dev/docs/kit/migrating-to-sveltekit-3), [Kit 3.1.0 metadata](https://registry.npmjs.org/@sveltejs%2Fkit/3.1.0), [Svelte 5.57.2 metadata](https://registry.npmjs.org/svelte/5.57.2), [Skeleton core 5.0.1 metadata](https://registry.npmjs.org/@skeletonlabs%2Fskeleton/5.0.1), [Skeleton Svelte 5.0.1 metadata](https://registry.npmjs.org/@skeletonlabs%2Fskeleton-svelte/5.0.1), [current installation](https://www.skeleton.dev/docs/svelte/get-started/installation/sveltekit).
 
@@ -164,11 +165,155 @@ Use CSS `prefers-reduced-motion` for animation defaults that must apply before J
 
 Sources: [lifecycle](https://svelte.dev/docs/svelte/lifecycle-hooks), [effects](https://svelte.dev/docs/svelte/$effect), [Kit environment migration](https://svelte.dev/docs/kit/migrating-to-sveltekit-3#$app-environment-(renamed)), [load execution](https://svelte.dev/docs/kit/load#Universal-vs-server).
 
+## Purposeful motion
+
+Keep business state authoritative. Update selection, progress, text and ARIA values from the real state, not an interpolated value or an animation-completion callback. Motion is optional presentation; it must not delay submitting a form, reporting success or navigating.
+
+| Need | Smallest suitable mechanism |
+| --- | --- |
+| Hover, focus or pressed styling | CSS/Tailwind state variants |
+| Content entering or leaving the DOM | `transition:` with a function from `svelte/transition` |
+| Reordering existing list items | `animate:flip` from `svelte/animate`, on an immediate child of a keyed `{#each}` |
+| Spring-like or fixed-duration interpolation | `Spring` or `Tween` from `svelte/motion` |
+| Optional continuity between routes | `onNavigate` and the browser View Transitions API |
+| Element-bound browser integration | `{@attach ...}` with synchronous cleanup |
+
+Transitions can retain outgoing elements until the outro completes; do not assume state changes immediately remove them from the DOM. `animate:` handles reordering, not insertion/removal. Avoid two systems changing the same transform; animate a wrapper rather than a Skeleton control's internal element. Prefer existing Skeleton disclosure behavior or native `<details>` over rebuilding a control merely to animate it.
+
+Use the current `Spring`/`Tween` classes, not the deprecated `spring`/`tweened` stores. Set `.target` and read `.current`; use `.set(value, options)` when options are needed. `Spring.set` accepts `{ instant: true }`; `Tween.set` accepts `{ duration: 0 }` for an immediate update. Read `prefersReducedMotion.current`, not the media-query object as a boolean. Pass zero duration to Svelte transitions and list animations when motion is reduced: global CSS duration overrides do not disable their Web Animations API effects.
+
+Do not use a motion promise as an operation's completion signal. In Svelte 5.57.2, a superseded `Spring.set` promise rejects; an interrupted tween's promise need not resolve. Handle rejected spring promises when chaining them. Keep motion state per component and stop owned animation work on destruction.
+
+Standalone optional feedback for a local JavaScript-only selection, not a persisted operation:
+
+`src/lib/MotionSelection.svelte`:
+```svelte
+<script lang="ts">
+	import { onDestroy, onMount } from 'svelte';
+	import { Spring, prefersReducedMotion } from 'svelte/motion';
+
+	let ready = $state(false);
+	let selected = $state(false);
+	const scale = new Spring(1, { stiffness: 0.2, damping: 0.7 });
+
+	onMount(() => { ready = true; });
+
+	$effect(() => {
+		const reduced = prefersReducedMotion.current;
+		void scale.set(selected && !reduced ? 1.03 : 1, { instant: reduced })
+			.catch(() => { /* A newer target superseded this decorative movement. */ });
+	});
+
+	onDestroy(() => { void scale.set(1, { instant: true }); });
+</script>
+
+<div class="inline-block" style:transform={`scale(${prefersReducedMotion.current ? 1 : scale.current})`}>
+	<button
+		type="button"
+		disabled={!ready}
+		class="btn preset-tonal-primary"
+		aria-pressed={selected}
+		onclick={() => { selected = !selected; }}
+	>
+		{selected ? 'Selected' : 'Select'}
+	</button>
+</div>
+```
+
+The server and first client render both start at scale 1 with the same text and semantics. The button remains disabled until mounting and stays disabled without JavaScript; it does not imply that a selection was saved. Changing the motion preference does not change selection. CSS media queries remain preferable for effects that must respect the preference before hydration; do not branch the server-rendered content tree on a browser media query.
+
+Attachments run in browser effects and may rerun when their synchronous reactive dependencies change. Return cleanup synchronously to remove listeners, disconnect observers, cancel animation frames or destroy a library instance before rerun/unmount. Attach to a DOM element; a component receives an attachment only if its implementation forwards the attachment-bearing props to an element. Existing library actions remain valid; do not mechanically replace them. Neither attachments nor these motion APIs require experimental async compilation.
+
+Sources: [motion APIs](https://svelte.dev/docs/svelte/svelte-motion), [exact spring implementation](https://unpkg.com/svelte@5.57.2/src/motion/spring.js), [exact tween implementation](https://unpkg.com/svelte@5.57.2/src/motion/tweened.js), [transitions and reduced motion](https://svelte.dev/docs/svelte/transition), [keyed-list animation](https://svelte.dev/docs/svelte/animate), [attachments](https://svelte.dev/docs/svelte/@attach), [experimental async scope](https://svelte.dev/docs/svelte/await-expressions).
+
+### Route view transitions
+
+Register `onNavigate` during persistent-layout initialization, not inside `onMount`. It runs for client navigation, not initial SSR or full-document navigation. Kit waits for the returned promise: release that promise when the view-transition update callback starts, then return `navigation.complete` from the update callback. Awaiting completion before releasing Kit creates a deadlock. Never make Kit wait for the visual animation to finish.
+
+Complete Kit 3.1+ root layout with optional route transitions; merge into the existing layout, retaining its CSS, providers and shell. Keep the `navigation.shallow` filter: shallow navigation must not trigger route-replacement decoration. The exact tested contract is Kit 3.1.0; check matching navigation declarations and router source for later releases.
+
+`src/routes/+layout.svelte` (route-motion alternative):
+```svelte
+<script lang="ts">
+	import '../app.css';
+	import { onDestroy } from 'svelte';
+	import { onNavigate } from '$app/navigation';
+	import { prefersReducedMotion } from 'svelte/motion';
+	import type { LayoutProps } from './$types';
+
+	let { children }: LayoutProps = $props();
+	let active: { transition: ViewTransition; release: () => void } | undefined;
+
+	function skipActive() {
+		active?.release();
+		active?.transition.skipTransition();
+		active = undefined;
+	}
+
+	onDestroy(skipActive);
+
+	onNavigate((navigation) => {
+		skipActive();
+		if (navigation.shallow || prefersReducedMotion.current || !document.startViewTransition) return;
+
+		const complete = navigation.complete;
+		void complete.catch(() => {}); // An interrupted navigation may reject before the update callback runs.
+
+		return new Promise<void>((resolve) => {
+			const release = () => resolve();
+			try {
+				const transition = document.startViewTransition(() => {
+					release();
+					return complete;
+				});
+				const current = { transition, release };
+				active = current;
+
+				const finish = () => {
+					release();
+					if (active === current) active = undefined;
+				};
+				void transition.ready.catch(release);
+				void transition.updateCallbackDone.catch(release);
+				void transition.finished.then(finish, finish);
+			} catch {
+				release(); // A decorative API failure must not block navigation.
+			}
+		});
+	});
+</script>
+
+{@render children()}
+```
+
+Merge into the existing global stylesheet:
+
+`src/app.css` (route-motion addition):
+```css
+::view-transition-group(root),
+::view-transition-old(root),
+::view-transition-new(root) {
+	animation-duration: 160ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	::view-transition-group(*),
+	::view-transition-old(*),
+	::view-transition-new(*) {
+		animation: none;
+	}
+}
+```
+
+Kit 3 shallow `goto` calls also invoke navigation hooks; skip them when the effect is for route replacement only. Unsupported browsers and reduced-motion users navigate normally. A new navigation releases and skips the previous decoration; destruction does the same. Observe all three transition promises: duplicate `view-transition-name` values, skipped transitions or a rejected update callback can reject them. Consuming decoration failures does not replace Kit's navigation/error handling. Keep names unique among simultaneously rendered elements, retain route titles, focus and announcements, and test rapid navigation, Back/Forward and interrupted updates.
+
+Sources: [Kit navigation lifecycle](https://svelte.dev/docs/kit/$app-navigation#onNavigate), [Kit view-transition pattern](https://svelte.dev/docs/kit/faq#How-do-I-use-the-view-transitions-API), [Kit 3 shallow-navigation changes](https://svelte.dev/docs/kit/migrating-to-sveltekit-3#$app-navigation-Changes-to-shallow-routing), [exact Kit 3.1.0 router](https://unpkg.com/@sveltejs/kit@3.1.0/src/runtime/client/client.js), [startViewTransition](https://developer.mozilla.org/en-US/docs/Web/API/Document/startViewTransition), [transition promises](https://developer.mozilla.org/en-US/docs/Web/API/ViewTransition), [skipping transitions](https://developer.mozilla.org/en-US/docs/Web/API/ViewTransition/skipTransition).
+
 ## Load, secrets and serialization
 
 `+page.ts`/`+layout.ts` export universal `load`: they normally run on the server for initial SSR, during browser hydration, and in the browser for later navigation. `+page.server.ts`/`+layout.server.ts` run only on the server. Use the provided `fetch` in `load` for request-aware fetching and hydration reuse; don't duplicate that request in `onMount` without a separate requirement.
 
-Keep credentials, database queries and private environment access in server modules. In Kit 3, define a `variables` export in `src/env.ts` or `src/env.js` using `defineEnvVars` from `@sveltejs/kit/env`, then import named private values from `$app/env/private`. Variables default to `public: false` and `static: false`: runtime values are read at application startup, not separately for each request. `public: true` deliberately exposes values through `$app/env/public`; `static: true` validates/inlines the build-time value. With no `schema`, a variable must be set but may be empty; supply a synchronous validator to enforce nonempty/typed values or permit `undefined`. Never read tenant/session state from these process-wide values. Existing Kit 2 projects retain their supported environment convention unless migration is requested.
+Keep credentials, database queries and private environment access in server modules. In Kit 3, define a `variables` export in `src/env.ts` or `src/env.js` using `defineEnvVars` from `@sveltejs/kit/env`, then import named private values from `$app/env/private`. Variables default to `public: false` and `static: false`: runtime values are read at application startup, not separately for each request. `public: true` deliberately exposes values through `$app/env/public`; `static: true` validates/inlines the build-time value. With no `schema`, a variable must be set but may be empty; supply a synchronous validator to enforce nonempty/typed values or permit `undefined`. Never read tenant/session state from these process-wide values.
 
 Do not import private code into a component or universal loader, even indirectly. Within the project root and outside `node_modules`, `*.server.*` (including `server.ts`) is protected; a `server` directory is also protected except under the configured routes/assets directories (normally `src/routes` and `static`). External packages do not automatically gain this boundary from their filenames. Keep private module imports out of client/universal hooks and service workers too. **Anything returned from server `load` or an action is sent to the browser**. Never return tokens, password hashes or internal exception details.
 
@@ -297,7 +442,7 @@ Kit exposes returned action data through the page's `form` prop. `return fail(40
 
 Default `use:enhance` resets successful forms, refreshes data on success (not failure), updates action state, follows redirects and renders errors. Kit 3 navigates on **both success and failure** when an action targets another page, matching native submission. A custom returned result callback replaces this behavior: invoke `await update()` to retain it, or implement every required result path deliberately. The example does so before focusing the invalid field; native browser constraint failures occur before enhancement and retain browser-managed focus. Hydrated failed HTML responses focus the field on mount; without JavaScript the visible error and “Edit name” link remain available. Do not expect Kit's general focus reset to choose the invalid input.
 
-In Kit 3, `update({ refreshAll: false })` replaces the deprecated `invalidateAll` update option; `update({ reset: false })` prevents a successful form reset when intended. `update({ navigate: false })` applies non-redirect cross-page results locally; redirects are still followed. `refreshAll: false` does not prevent destination loads during cross-page navigation. These are `update` options, not arguments to `$app/navigation`'s no-argument `refreshAll()`. Failed forms are not reset by default, but unenhanced failed POSTs need explicit returned values as above. Retained Kit 2 projects use their installed enhancement contract. Do not suppress errors or bypass forms with click-only handlers. Check the pair with JavaScript enabled and disabled: empty native rejection, whitespace-only server failure, raw overlength POST failure and success. Confirm exact failed text, field association/focus and no hydration warnings; see [accessibility.md](accessibility.md#concrete-verification-checklist) for the shared keyboard/motion/contrast criteria.
+In Kit 3, `update({ refreshAll: false })` replaces the deprecated `invalidateAll` update option; `update({ reset: false })` prevents a successful form reset when intended. `update({ navigate: false })` applies non-redirect cross-page results locally; redirects are still followed. `refreshAll: false` does not prevent destination loads during cross-page navigation. These are `update` options, not arguments to `$app/navigation`'s no-argument `refreshAll()`. Failed forms are not reset by default, but unenhanced failed POSTs need explicit returned values as above. Do not suppress errors or bypass forms with click-only handlers. Check the pair with JavaScript enabled and disabled: empty native rejection, whitespace-only server failure, raw overlength POST failure and success. Confirm exact failed text, field association/focus and no hydration warnings; see [accessibility.md](accessibility.md#concrete-verification-checklist) for the shared keyboard/motion/contrast criteria.
 
 Named actions use `action="?/save"`; do not combine named and default actions on the same page. Keep private fields (passwords, tokens) out of failure data. File forms need `enctype="multipart/form-data"` for native submissions, plus server file validation. Authentication, authorization and persistence are application responsibilities, not styling or enhancement features.
 

@@ -5,6 +5,24 @@ Reference baseline as of **2026-10-18**: Skeleton core and Svelte components
 Exact packages establish API and dependency contracts, not upstream certification
 of every application, deployment, or accessibility requirement.
 
+## Exclusive framework scope
+
+Skill version **3.0** targets **SvelteKit 3.1+ exclusively**. The supported
+implementation path uses modern configuration, imports, state, navigation and
+forms. Older framework references identify migration inputs or patterns to
+replace; they are not alternative recipes. This policy supersedes earlier
+legacy-framework preservation guidance without relabeling historical test runs.
+
+The scope cutover changed instructions, not executable examples or dependency
+pins. A fresh exact-baseline fixture passed `npm run check` (**173 files,
+0 errors, 0 warnings**) and client/server production builds. Production preview
+returned SSR HTML and exercised native HTML POSTs: whitespace failure returned
+400 with the exact raw value; valid input returned 200 with its greeting.
+Skill-format and local link/fence checks passed. Adapter-auto still had no
+production target, and the build emitted the environmental color warning.
+Later releases require matching API/source checks; these results certify neither
+future releases nor a production deployment.
+
 ## Choose the authority before copying code
 
 1. **Inspect the application's resolved packages first.** Lockfile and installed
@@ -17,8 +35,8 @@ of every application, deployment, or accessibility requirement.
    staged migration evidence, not the v5 destination API.
 4. **Use version-appropriate official framework documentation.** Rolling pages
    can change; compare signatures with exact installed Svelte/Kit/Tailwind packages.
-   Skeleton 5 does not itself require Kit 3: preserve compatible existing Kit 2
-   applications unless their migration is requested.
+   This skill targets Kit 3.1+ exclusively, regardless of upstream Skeleton's
+   broader framework support. Older conventions are migration/avoidance context.
 5. **Treat search, Context7, and supplied research as discovery/secondary sources.**
    Follow underlying sources and resolve conflicts using exact package evidence.
    Scores, labels, statistics, and prose do not establish API compatibility.
@@ -28,7 +46,7 @@ of every application, deployment, or accessibility requirement.
 | Task | Primary sources | How to use them |
 | --- | --- | --- |
 | Establish versions and dependency contracts | Registry: [core 5.0.1](https://registry.npmjs.org/@skeletonlabs/skeleton/5.0.1), [components 5.0.1](https://registry.npmjs.org/@skeletonlabs/skeleton-svelte/5.0.1), [Svelte 5.57.2](https://registry.npmjs.org/svelte/5.57.2), [Kit 3.1.0](https://registry.npmjs.org/@sveltejs/kit/3.1.0), [Tailwind 4.3.3](https://registry.npmjs.org/tailwindcss/4.3.3) | Read `version`, `exports`, peers, optional peers, and engines. Development dependencies are not consumer requirements. |
-| Install Skeleton 5 | Official [SvelteKit installation](https://www.skeleton.dev/docs/svelte/get-started/installation/sveltekit.md) and [core API](https://www.skeleton.dev/docs/svelte/get-started/core-api.md) | Use current CSS imports and theme activation; apply Kit 3 setup only when targeting Kit 3. |
+| Install Skeleton 5 | Official [SvelteKit installation](https://www.skeleton.dev/docs/svelte/get-started/installation/sveltekit.md) and [core API](https://www.skeleton.dev/docs/svelte/get-started/core-api.md) | Use current CSS imports and theme activation with this skill's Kit 3.1+ setup; upstream minimums do not broaden the skill's target. |
 | Migrate older Skeleton applications | Official [v4-to-v5 migration](https://www.skeleton.dev/docs/svelte/get-started/migrate-from-v4.md); archived [v3-to-v4](https://v4.skeleton.dev/docs/svelte/get-started/migrate-from-v3) and [v2-to-v4](https://v4.skeleton.dev/docs/svelte/get-started/migrate-from-v2); exact [CLI source](https://unpkg.com/skeleton@5.0.1/dist/index.mjs) | Reach functional v4.15.2 before v5. CLI transformations do not replace manual component, Svelte-peer, field-group, and caller migration. See [migration](migration.md). |
 | Select exports and component anatomy | Exact [package metadata](https://unpkg.com/@skeletonlabs/skeleton-svelte@5.0.1/package.json), [runtime index](https://unpkg.com/@skeletonlabs/skeleton-svelte@5.0.1/dist/index.js), [declarations](https://unpkg.com/@skeletonlabs/skeleton-svelte@5.0.1/dist/index.d.ts); official [fundamentals](https://www.skeleton.dev/docs/svelte/get-started/fundamentals.md) and [Svelte documentation index](https://www.skeleton.dev/llms-svelte.txt) | Follow public exports into their declarations/source. Root is the public component entrypoint; `/composed` is not exported. See [components](components.md). |
 | Resolve state, callbacks, and floating anatomy | Official [Tabs](https://www.skeleton.dev/docs/svelte/framework-components/tabs.md), [Accordion](https://www.skeleton.dev/docs/svelte/framework-components/accordion.md), [Switch](https://www.skeleton.dev/docs/svelte/framework-components/switch.md), [Tooltip](https://www.skeleton.dev/docs/svelte/framework-components/tooltip.md), [Dialog](https://www.skeleton.dev/docs/svelte/framework-components/dialog.md), [Toast](https://www.skeleton.dev/docs/svelte/framework-components/toast.md) | Verify callbacks, bindability, providers, and element snippets against shipped declarations. See [recipes](recipes.md). |
@@ -36,7 +54,9 @@ of every application, deployment, or accessibility requirement.
 | Compose responsive pages | Official [typography](https://www.skeleton.dev/docs/svelte/design/typography), [spacing](https://www.skeleton.dev/docs/svelte/design/spacing), [responsive design](https://tailwindcss.com/docs/responsive-design) | Apply [design](design.md), then inspect actual narrow/wide rendering; a recipe is not an exported AppShell component. |
 | Configure Tailwind 4 | Official [Vite installation](https://tailwindcss.com/docs/installation/using-vite), [class detection](https://tailwindcss.com/docs/detecting-classes-in-source-files), [dark mode](https://tailwindcss.com/docs/dark-mode), [upgrade guide](https://tailwindcss.com/docs/upgrade-guide); exact [Vite plugin metadata](https://registry.npmjs.org/@tailwindcss/vite/4.3.3) | Use complete class strings and stylesheet-relative shared-source paths. Framework CSS replaces the old Skeleton distribution scan, not all uses of `@source`. |
 | Write Svelte 5 state and lifecycle | Official [migration](https://svelte.dev/docs/svelte/v5-migration-guide), [$state](https://svelte.dev/docs/svelte/$state), [$derived](https://svelte.dev/docs/svelte/$derived), [$effect](https://svelte.dev/docs/svelte/$effect), [$props](https://svelte.dev/docs/svelte/$props), [snippets](https://svelte.dev/docs/svelte/snippet), [lifecycle](https://svelte.dev/docs/svelte/lifecycle-hooks); exact [types](https://unpkg.com/svelte@5.57.2/types/index.d.ts) | Use instance-owned state and hydration-stable IDs; distinguish browser-only lifecycle from SSR. |
-| Configure or migrate Kit 3 | Official [stable Kit 3 migration](https://svelte.dev/docs/kit/migrating-to-sveltekit-3), [environment variables](https://svelte.dev/docs/kit/environment-variables); exact [Kit declarations](https://unpkg.com/@sveltejs/kit@3.1.0/types/index.d.ts) | Confirm Vite configuration, `$app/tsconfig`, `#lib`, `$app/env`, `$app/state`, navigation, and enhancement signatures. Preserve Kit 2 configuration when not migrating. |
+| Add optional motion or route continuity | Official [Svelte motion](https://svelte.dev/docs/svelte/svelte-motion), [transitions](https://svelte.dev/docs/svelte/transition), [attachments](https://svelte.dev/docs/svelte/@attach), [Kit view-transition pattern](https://svelte.dev/docs/kit/faq#How-do-I-use-the-view-transitions-API); exact [Spring](https://unpkg.com/svelte@5.57.2/src/motion/spring.js), [Tween](https://unpkg.com/svelte@5.57.2/src/motion/tweened.js), and [Kit router](https://unpkg.com/@sveltejs/kit@3.1.0/src/runtime/client/client.js) | Separate actual state from interpolation; verify cancellation, reduced motion, lifecycle cleanup, and nonblocking navigation. |
+| Evaluate expressive effects and performance | [Animation purpose](https://www.nngroup.com/articles/animation-purpose-ux/), [rendering cost](https://web.dev/articles/animations-guide), [LCP optimization](https://web.dev/articles/optimize-lcp), [Core Web Vitals](https://web.dev/articles/vitals) | Design recommendations and measurement targets are not proof of user outcomes, field performance, or accessibility. |
+| Configure or migrate Kit 3.1+ | Official [stable Kit 3 migration](https://svelte.dev/docs/kit/migrating-to-sveltekit-3), [environment variables](https://svelte.dev/docs/kit/environment-variables); exact [Kit declarations](https://unpkg.com/@sveltejs/kit@3.1.0/types/index.d.ts) | Use Vite configuration, `$app/tsconfig`, `#lib`, `$app/env`, `$app/state`, and current navigation/enhancement signatures. Remove historical alternatives during migration. |
 | Implement isolated SSR and native/progressive forms | Official [state management](https://svelte.dev/docs/kit/state-management), [load](https://svelte.dev/docs/kit/load), [server-only modules](https://svelte.dev/docs/kit/server-only-modules), [form actions](https://svelte.dev/docs/kit/form-actions) | Keep user data out of server singletons; preserve native POST and raw failed text. See [SvelteKit integration](sveltekit.md). |
 | Evaluate interaction and accessibility | WAI [modal dialogs](https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/), [labels](https://www.w3.org/WAI/tutorials/forms/labels/), [form notifications](https://www.w3.org/WAI/tutorials/forms/notifications/), [status messages](https://www.w3.org/WAI/WCAG22/Understanding/status-messages.html) | These are requirements/guidance, not passed checks. Use [accessibility](accessibility.md). |
 | Distribute the skill | [Agent Skills specification](https://agentskills.io/specification) | Preserve directory naming, string metadata, relative references, and progressive disclosure. |
@@ -69,6 +89,28 @@ The following corrections also apply when official prose conflicts with packages
 - Provider factories need required IDs; element snippets must forward supplied
   attributes. Custom example presets and corner tokens do not imply shipped
   utilities or automatic global geometry. See the relevant component/style guide.
+
+### Supplemental research review
+
+The user-supplied **`temp_supp_research-doc.md`**, titled “Expressive UI
+Development Reference” with a **2026-10-18** cutoff, is unvetted secondary research.
+It explicitly disclaims compilation/browser testing. The skill is self-contained;
+that temporary authoring input is not an installation prerequisite.
+
+| Research area | Disposition |
+| --- | --- |
+| Versions, package responsibilities, installation, themes, migrations | Retain exact-baseline optional-peer, adapter, CSS-import, and token qualifications. The skill's exclusive Kit 3.1+ scope supersedes earlier legacy-framework preservation policy. |
+| Compound component examples | Correct `<Switch.Root>` to callable `<Switch>`; 5.0.1's [Switch anatomy](https://unpkg.com/@skeletonlabs/skeleton-svelte@5.0.1/dist/components/switch/modules/anatomy.d.ts) has no `Root` member. Documentation-entry totals are not runtime export totals. |
+| Reactivity, motion, and route continuity | Validate against exact Svelte/Kit declarations and implementation; see [purposeful motion](sveltekit.md#purposeful-motion). Do not copy hardcoded reusable disclosure IDs or assume skipped visual transitions imply failed navigation. |
+| Tailwind extensibility and browser support | Add CSS-first extension guidance and cumulative browser constraints in [styling](styling.md). Keep Skeleton as the authoritative theme layer. |
+| Expressive design, feedback, and performance | Add [purposeful feedback and measured performance](design.md#purposeful-feedback-and-motion). Retain static reading surfaces and truthful state; editorial trends, neurochemical claims, and universal timing ranges are not requirements. |
+| Motion, focus, dragging, and accessibility levels | Add precise safeguards in [accessibility](accessibility.md#contrast-motion-and-scale), not an implied accessibility certification. |
+| Maintenance and verification | Existing exact-package, native/enhanced-form, hydration, responsive, and evidence-limit procedures remain applicable. Only executed supplemental checks are recorded below. |
+
+Context7 is discovery evidence; primary sources and the exact installed packages
+resolve API questions. Motion remains optional within the Kit 3.1+ target and
+does not require experimental framework features. No Kit 2 implementation path
+is supported by this skill.
 
 ## Offline installed-package inspection
 
@@ -107,7 +149,7 @@ Node 22 from 22.17 or Node 24+; use a maintained compatible release. JavaScript-
 apps need not add TypeScript. Preserve the application's production adapter.
 These pins and peers do not certify every version in their ranges.
 
-**Observed checks on this exact baseline (2026-10-18):**
+**Original v5 baseline checks (2026-10-18):**
 
 - The isolated installation added 130 packages without forced peers, using the
   exact versions above.
@@ -152,6 +194,48 @@ screen-reader audit, every exported/beta component, framework file-upload or
 monorepo runtime, concurrent authenticated-session isolation, or deployment.
 `adapter-auto` had no production target. Local confirmations do not establish
 persistence; historical v3 checks were not relabeled as v5 evidence.
+
+### Supplemental validation — 2026-10-18
+
+The supplemental review kept the exact dependency baseline above. A fresh
+installation added **130 packages** without forced peers on Node **24.15.0** /
+npm **12.2.0**. Eighteen named component files and their route/CSS examples were
+extracted into a disposable application; the optional route-motion layout
+replaced, rather than concatenated with, its baseline layout.
+
+- `npm run check`: **926 files, 0 errors, 0 warnings**.
+- `npm run build`: client/server production builds passed. `adapter-auto` again
+  had no production target; the environment emitted the color-variable warning.
+- `skills-ref validate skills/skeleton-svelte` and local link/fence checks passed.
+- Generated Tailwind **4.3.3** CSS confirmed `@container-size` (and absence of
+  `size-container`), documented scrollbar utilities, `zoom-125`, `tab-4`, custom
+  easing, and an exclusive class in an explicitly registered external source.
+
+Chromium **155.0.8059.84** production-preview checks covered:
+
+| Scenario | Observed result |
+| --- | --- |
+| Spring selection | Text/pressed state, independent instances, eight rapid Space activations, destruction/remount, and live reduced-motion changes worked without unhandled rejections. |
+| Initial reduced motion / no JavaScript | Preference set before hydration kept scale neutral and skipped route decoration. Without JavaScript, local selection controls remained disabled in SSR output. |
+| Native route continuity | Native transitions, Kit 3 shallow filtering/state retention, route titles, and Back/Forward worked. Unsupported API and injected synchronous setup failure still navigated. |
+| Native rejection/cancellation paths | Explicit skip, duplicate-name snapshot failure, a deferred-update timeout, rapid navigation cancelling an active decoration, and an injected update-callback rejection completed without blocking the final route or producing unhandled rejections. |
+| CSS extensions | Frame padding changed from 1px to 3px; opacity changed from 0.6 to 0.25 without new classes. Linear/radial/conic gradients rendered, custom easing resolved, and the solid reading surface inverted with color scheme. |
+| Visual inspection | CSS-extension screenshots were inspected at 1280px dark and 320px light; the narrow page had no horizontal overflow. |
+| Existing behavior | Tabs selected Activity; keyboard Switch state matched native `FormData`. Enhanced and no-JavaScript native POST failures preserved exact whitespace; enhanced failure focused the input and native success rendered its greeting. |
+
+The hydrated normal, unsupported-API, and initial-reduced-motion runs recorded
+no runtime/hydration errors. Fifteen scenario groups were retained in the review
+evidence. A 13-section coverage audit had no batch errors, input exclusions, or
+truncations; advisory safety/low-confidence flags were manually adjudicated
+against sources, declarations, and the affected runtime cases, with no unresolved
+concrete coverage finding.
+
+These checks do **not** establish older-browser fallback coverage, production
+Core Web Vitals, screen-reader announcements, full WCAG conformance, exhaustive
+Marquee/FloatingPanel behavior, deployment, or every possible navigation race.
+Fault injection tested decoration handling; it did not turn failed application
+operations into successes. The temporary research and disposable fixture are not
+required to consume this skill.
 
 ## Maintenance and future re-verification
 

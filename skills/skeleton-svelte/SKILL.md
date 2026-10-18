@@ -1,19 +1,19 @@
 ---
 name: skeleton-svelte
 description: >-
-  Build, style, debug, or migrate Skeleton UI 5 apps in Svelte and SvelteKit.
-  Use for Skeleton components, themes, native controls, responsive page composition,
-  SSR, and server forms. Includes exact Skeleton 5.0.1, Svelte 5.57.2,
-  SvelteKit 3.1.0, and Tailwind CSS 4.3.3 examples. Preserve compatible existing
-  Kit 2 apps unless migration is requested. Not for React or unrelated UI work.
+  Build, style, debug, or migrate Skeleton UI 5 apps exclusively on SvelteKit 3.1+.
+  Use for Skeleton components, themes, native controls, responsive composition,
+  progressive motion, SSR, and server forms. Tested examples use Skeleton 5.0.1,
+  Svelte 5.57.2, SvelteKit 3.1.0, and Tailwind CSS 4.3.3. Older framework
+  conventions appear only as migration or avoidance context. Not for React.
 compatibility: >-
   Baseline: Skeleton core and Svelte components 5.0.1, Svelte 5.57.2,
-  SvelteKit 3.1.0, Tailwind CSS 4.3.3. Kit 3 setup requires its compatible
-  Node/Vite/adapter toolchain; existing Kit 2 apps need not migrate.
+  SvelteKit 3.1.0, Tailwind CSS 4.3.3. Targets Kit 3.1+ exclusively with a
+  compatible Node/Vite/adapter toolchain; later releases need matching API checks.
   Bundled guidance and installed packages support offline inspection;
   dependency installation requires registry or cache access.
 metadata:
-  version: "2.0"
+  version: "3.0"
   skeleton-core: "5.0.1"
   skeleton-svelte: "5.0.1"
   svelte: "5.57.2"
@@ -33,14 +33,15 @@ The exact reference baseline is **`@skeletonlabs/skeleton@5.0.1`** (CSS),
 **`@skeletonlabs/skeleton-svelte@5.0.1`**, **Svelte `5.57.2`**,
 **SvelteKit `3.1.0`**, and **Tailwind CSS `4.3.3`**.
 
-- **Existing app:** inspect resolved versions; preserve its toolchain, adapter,
-  conventions, and unrelated work. A UI task does not authorize a migration.
-  Skeleton 5 does not require an otherwise compatible Kit 2 app to adopt Kit 3.
-- **Different version:** retrieve matching primary documentation/types/source
-  for affected APIs. Do not upgrade or downgrade to satisfy a bundled example.
-- **Greenfield:** use [setup](references/setup.md) for the exact baseline; inspect
-  scaffold output rather than assuming the CLI emits these versions. Honor an
-  explicitly requested alternative target. Never force incompatible peers.
+- **Existing app:** require SvelteKit 3.1 or later. Inspect resolved versions;
+  preserve compatible tooling, adapter, application conventions, and unrelated work.
+  An older app needs the [prerequisite migration](references/migration.md), not
+  a legacy-compatible implementation. Establish migration scope before editing it.
+- **Later release:** retrieve matching primary documentation/types/source for
+  affected APIs. The tested 3.1.0 baseline does not certify all future releases.
+  Do not downgrade a supported app merely to copy an example.
+- **Greenfield:** use [setup](references/setup.md); inspect scaffold output and
+  dependency contracts rather than assuming CLI defaults. Never force peers.
 
 ## Read only the references needed for the task
 
@@ -53,9 +54,10 @@ Read the relevant sections, not the full reference set.
 | Choose a control; verify exports, props, callbacks, anatomy | [Components](references/components.md): functional inventory, native alternatives, installed-types lookup |
 | Implement a functional control; customize providers/elements | [Recipes](references/recipes.md) for complete controls; [Components](references/components.md#six-supported-composition-patterns) for provider/element patterns |
 | Theme, tokens, brand presets, native classes, dark mode | [Styling](references/styling.md): theme registration, colors/presets, mode, diagnosis |
-| Page composition or visual refinement | [Design](references/design.md): brief, visual system, responsive composition; app-shell recipe when useful |
-| Labels, errors, keyboard/focus, contrast, motion | [Accessibility](references/accessibility.md): relevant interaction contract and browser checks |
+| Page composition, visual refinement, or performance | [Design](references/design.md): brief, visual system, purposeful feedback, performance constraints; app-shell recipe when useful |
+| Labels, errors, keyboard/focus, contrast, continuous motion | [Accessibility](references/accessibility.md): relevant interaction contract and browser checks |
 | Runes, SSR, lifecycle, route/load data, native server forms | [SvelteKit](references/sveltekit.md): selected framework boundary or example |
+| Springs, transitions, attachments, or route view transitions | [SvelteKit](references/sveltekit.md#purposeful-motion): smallest mechanism, reduced motion, navigation lifecycle |
 | Conflicting documentation, offline inspection, evidence | [Sources](references/sources.md): authority hierarchy, primary-source map, verification limits |
 
 For a page refresh, combine **design + styling** and relevant accessibility
@@ -91,9 +93,9 @@ relevant versions; setup or migration needs the full toolchain/configuration.
 
 ## Version-specific traps
 
-- **Kit 3 configuration is conditional.** Apply its Vite/TypeScript setup,
-  `#lib/*`, and `$app/env` guidance only to Kit 3. Do not turn a Skeleton upgrade
-  into an unrequested framework migration.
+- **Modern framework conventions are mandatory.** Use the Vite-based Kit
+  configuration, `$app/tsconfig`, `#lib/*`, `$app/env`, and `$app/state`.
+  Historical conventions are migration inputs, never alternative target paths.
 - **Use current public anatomy.** Callable roots such as `<Tabs>` and `<Dialog>`
   have verified child members; do not invent `.Root`. Tabs uses `.List`,
   `.Trigger`, and `.Content`, not old `.Control`/`.Panel` or list snippets.
@@ -114,6 +116,11 @@ relevant versions; setup or migration needs the full toolchain/configuration.
   Skeleton distribution scan. Retain `@source` for other shared UI when needed.
   Styled native form utilities require `@tailwindcss/forms`. CSS alone does not
   make a dialog modal or a styled disabled control semantically disabled.
+- **Motion decorates real state.** Accessible values and success messages must
+  report actual work, not animated interpolation. Honor reduced motion in CSS
+  and JavaScript; preserve static feedback and normal-navigation fallbacks.
+  Tailwind's browser baseline does not establish support for every Skeleton CSS
+  feature. Test the application's cumulative browser requirements.
 - **SSR must isolate users.** Keep mutable user state, dialogs, and toast queues
   per component/layout/request, not a shared server module. Guard browser-only
   work and clean it up. Initial markup and IDs must agree across hydration.
@@ -126,8 +133,9 @@ relevant versions; setup or migration needs the full toolchain/configuration.
 Use resolved installed exports/types/source/CSS for the actual API and exact
 registry metadata for peers/engines. Current official **`skeleton.dev`** v5 docs
 are relevant; archived v4 docs support only the staged migration to v5. Framework
-docs must match the requested version. Search, Context7, and supplied Gemini
-research are discovery/secondary evidence, not proof against shipped declarations.
+docs must match the requested version. Search, Context7, supplied Gemini research,
+and supplemental research are discovery/secondary evidence, not proof against
+shipped declarations.
 
 Offline, follow [components' installed-types lookup](references/components.md#offline-installed-types-lookup)
 through the actual dependency layout. [Sources](references/sources.md) records
