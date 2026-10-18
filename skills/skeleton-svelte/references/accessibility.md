@@ -1,6 +1,6 @@
 # Accessibility and browser verification
 
-Skeleton's [core 3.2.2 CSS](https://unpkg.com/@skeletonlabs/skeleton@3.2.2/dist/index.css) styles native elements; arbitrary containers do not gain semantics, validation policy, or focus management from classes. Use semantic HTML and verify actual behavior. This is distinct from the separately versioned Svelte components and their individual interaction contracts. The [v3 Forms page](https://v3.skeleton.dev/docs/tailwind/forms) calls for browser/platform validation; the [v3 Tables page](https://v3.skeleton.dev/docs/tailwind/tables) recommends links or buttons inside cells rather than interactive rows. Archive examples are not an accessibility certification: retain their useful styles, not malformed table structure or placeholder links.
+Skeleton's [core 5.0.1 CSS](https://unpkg.com/@skeletonlabs/skeleton@5.0.1/src/index.css) styles native elements; arbitrary containers do not gain semantics, validation policy, or focus management from classes. Use semantic HTML and verify actual behavior. This is distinct from the optional Svelte 5 framework components in `@skeletonlabs/skeleton-svelte@5.0.1` and their individual interaction contracts. The [Forms documentation](https://www.skeleton.dev/docs/svelte/tailwind-components/forms) calls for browser/platform validation; [Tables](https://www.skeleton.dev/docs/svelte/tailwind-components/tables) uses links or buttons inside cells rather than interactive rows. Neither appearance utilities nor framework components certify an application's accessibility.
 
 ## Preserve native semantics and names
 
@@ -11,8 +11,10 @@ Skeleton's [core 3.2.2 CSS](https://unpkg.com/@skeletonlabs/skeleton@3.2.2/dist/
 - Icon-only buttons need a stable accessible name, such as `aria-label="Close settings"`; hide purely decorative icons from assistive technology. Do not rely on a tooltip for the only name.
 - Preserve table structure: `caption`, `thead`, `tbody`, `th scope="col"` and `th scope="row"` where appropriate. Do not put `thead` inside `tbody`, even if a copied demonstration does so. Put actions in cells and make repeated names specific (“View Alice's profile”).
 - Do not remove focus outlines without an equally visible replacement. Use the natural document order; avoid positive `tabindex`, nested buttons/links, and visual reordering that disagrees with keyboard order.
+- `.disabled` changes appearance, not native disabled semantics or keyboard behavior. Use `disabled` on supported controls; `aria-disabled` alone needs deliberate prevention of activation and an appropriate focus policy. Do not imply a disabled link still navigates safely.
+- `field-group` joins controls visually; preserve each label and use a real `fieldset`/`legend` when a semantic group is needed. Label a `<meter>` and supply correct bounds plus a readable value; it is a measurement, not a progress indicator.
 
-Sources: [WAI Labeling Controls](https://www.w3.org/WAI/tutorials/forms/labels/), [v3 Buttons](https://v3.skeleton.dev/docs/tailwind/buttons), [v3 Typography](https://v3.skeleton.dev/docs/design/typography), [v3 Tables](https://v3.skeleton.dev/docs/tailwind/tables).
+Sources: [WAI Labeling Controls](https://www.w3.org/WAI/tutorials/forms/labels/), [Buttons](https://www.skeleton.dev/docs/svelte/tailwind-components/buttons), [Typography](https://www.skeleton.dev/docs/svelte/design/typography), [Tables](https://www.skeleton.dev/docs/svelte/tailwind-components/tables), [native disabled appearance](https://unpkg.com/@skeletonlabs/skeleton@5.0.1/src/base/globals.css).
 
 ## Validation, errors, and status
 
@@ -26,10 +28,9 @@ Sources: [WAI Form Notifications](https://www.w3.org/WAI/tutorials/forms/notific
 
 ## Standalone styled local form recipe
 
-This complete `ProfilePreview.svelte` component updates a **local preview**, not an account or server. It requires JavaScript and the global Skeleton theme/preset imports and forms plugin described in [styling.md](styling.md); controls remain disabled until mounting, so the unenhanced form cannot send the name through a native submission. Native `required` and `maxlength` constraints run before the `submit` handler. The local policy preserves entered whitespace and accepts whitespace-only text: `required` rejects an empty string, not a blank-looking one. For nonblank or persisted values, use the explicit validation policy in [sveltekit.md](sveltekit.md#native-form-actions-with-progressive-enhancement), not this preview as persistence.
+This complete `ProfilePreview.svelte` component updates a **local preview**, not an account or server. It requires JavaScript, the global Skeleton core/framework CSS and theme, and the required forms plugin described in [styling.md](styling.md); presets come from core. Controls remain disabled until mounting, so the unenhanced form cannot send the name through a native submission. Native `required` and `maxlength` constraints run before the `submit` handler. The local policy preserves entered whitespace and accepts whitespace-only text: `required` rejects an empty string, not a blank-looking one. For nonblank or persisted values, use the explicit validation policy in [sveltekit.md](sveltekit.md#native-form-actions-with-progressive-enhancement), not this preview as persistence.
 
 **File: `ProfilePreview.svelte`**
-
 ```svelte
 <script lang="ts">
   import { onMount } from 'svelte';
@@ -78,11 +79,13 @@ This complete `ProfilePreview.svelte` component updates a **local preview**, not
 
 `$props.id()` gives each instance a unique, hydration-stable ID; suffixes keep its title, label and help associations local. This example retains native validation rather than creating custom error state. For application validation failures, add visible field errors and `aria-invalid` only after validation returns a result.
 
-Sources: [v3 Forms](https://v3.skeleton.dev/docs/tailwind/forms), [v3 Presets](https://v3.skeleton.dev/docs/design/presets), [exact Svelte 5.57.2 IDs/lifecycle types](https://unpkg.com/svelte@5.57.2/types/index.d.ts), [Svelte event attributes](https://svelte.dev/docs/svelte/basic-markup#Events), [WAI Notifications](https://www.w3.org/WAI/tutorials/forms/notifications/).
+Sources: [Forms](https://www.skeleton.dev/docs/svelte/tailwind-components/forms), [Presets](https://www.skeleton.dev/docs/svelte/tailwind-utilities/presets), [exact Svelte 5.57.2 IDs/lifecycle types](https://unpkg.com/svelte@5.57.2/types/index.d.ts), [Svelte event attributes](https://svelte.dev/docs/svelte/basic-markup#Events), [WAI Notifications](https://www.w3.org/WAI/tutorials/forms/notifications/).
 
 ## Modal and tooltip interaction contracts
 
-Do not import v2 modal stores or assume current compound-component APIs exist in v3. Native classes do not implement a modal. Use a native modal dialog or an accessible headless implementation compatible with the installed framework. Preserve the library's trigger and content wiring rather than rebuilding only its appearance.
+Choose native `<dialog>` methods or the current framework `Dialog` component and preserve its documented trigger/content wiring. `class="dialog"` supplies CSS, not modality: `showModal()` opens a modal in the top layer with background inertness; `show()` or the `open` attribute is nonmodal. Use `close()` or a `method="dialog"` form to close it. A nonmodal dialog is not automatically a tooltip.
+
+Native dialog, its optional animation, newer `closedby="any"` light-dismiss, and invoker `command`/`commandfor` controls have **separate** browser support. Keep an explicit working close/cancel control; do not require backdrop-click dismissal. For unsupported invokers, retain a tested `showModal()`/`close()` path or an ordinary route/inline alternative appropriate to the task. Essential content must remain reachable when an enhanced dialog cannot run. Do not assume native dialog support implies `@starting-style`, discrete overlay transitions, or light-dismiss support.
 
 For a modal dialog, verify all of these:
 
@@ -94,9 +97,9 @@ For a modal dialog, verify all of these:
 
 For tooltip-like help, verify hover **and keyboard focus** expose it, Escape dismisses it, and focus stays on the trigger. Associate tooltip text through `aria-describedby`; the tooltip itself has `role="tooltip"` and no focusable content. Keep it visible while the pointer moves over its content. If it contains links/buttons, it is an interactive popup, not a tooltip; use the appropriate dialog/popover interaction model. Essential instructions should be visible without opening a tooltip. The APG tooltip pattern is explicitly a work in progress, not a finalized component certification.
 
-Sources: [APG Modal Dialog](https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/), [APG Tooltip](https://www.w3.org/WAI/ARIA/apg/patterns/tooltip/).
+Sources: [Skeleton native Dialogs](https://www.skeleton.dev/docs/svelte/tailwind-components/dialogs), [MDN dialog](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/dialog), [APG Modal Dialog](https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/), [APG Tooltip](https://www.w3.org/WAI/ARIA/apg/patterns/tooltip/).
 
-For simple mobile page navigation, a native `<details>`/`<summary>` disclosure can avoid a modal entirely. Retain its native keyboard behavior and marker; put real links inside a named `<nav>`. It is not an ARIA `menu`, does not trap focus, and does not require Escape dismissal. See the responsive shell in [design.md](design.md). If choosing an overlay instead, implement the full modal contract above.
+For simple mobile page navigation, a native `<details>`/`<summary>` disclosure can avoid a modal entirely. Retain its native keyboard behavior and marker; put real links inside a named `<nav>`. It is not an ARIA `menu`, does not trap focus, and does not require Escape dismissal. Skeleton's optional `disclosure`/`disclosure-content` classes add appearance and intrinsic-size animation, not a different interaction model. Unsupported `::details-content`/`interpolate-size` animation should fall back to instant native toggling. Where shared `details name` supports exclusive groups, allocate a unique group name per unrelated instance. See the responsive shell in [design.md](design.md). If choosing an overlay instead, implement the full modal contract above.
 
 ## Contrast, motion, and scale
 
@@ -104,31 +107,37 @@ Theme contrast tokens are a starting point, not evidence that every composite de
 
 Respect `prefers-reduced-motion` for nonessential motion, including custom CSS and Svelte transitions. A CSS media rule cannot cancel every JavaScript-driven animation; condition the transition or animation mechanism itself when needed. Preserve feedback with a static indicator or lower-motion alternative rather than hiding the result.
 
-Example global override for an application-owned decorative animation class:
+Global CSS fragment: application-owned decorative motion plus optional native dialog/disclosure transitions. Keep JavaScript-driven motion handling separate:
 
 ```css
 @media (prefers-reduced-motion: reduce) {
-  .decorative-motion {
+  .decorative-motion,
+  .animate-dialog,
+  .animate-dialog::backdrop {
     animation: none;
     transition: none;
   }
+  .disclosure summary { transition: none; }
+  .disclosure::details-content { transition: none; }
 }
 ```
 
-Check zoom, text enlargement, narrow layouts, and platform high-contrast/forced-colors settings. Do not shrink text or controls merely to fit an intended screenshot. Measure interactive targets: WCAG 2.2 AA requires at least **24 × 24 CSS pixels** or a qualifying spacing/other exception; **44 × 44** is a stronger touch-friendly design target, not the AA minimum. Recheck rendered dimensions whenever `--spacing` changes.
+Check zoom, text enlargement, narrow layouts, and platform high-contrast/forced-colors settings. Do not shrink text or controls merely to fit an intended screenshot. Measure interactive targets: WCAG 2.2 AA requires at least **24 × 24 CSS pixels** or a qualifying spacing/other exception; **44 × 44** is a stronger touch-friendly design target, not the AA minimum. Recheck rendered dimensions whenever `--spacing`, `field-*`, `btn-*`, or element-size tokens change. `--default-outline-width` is configurable, not an enforced accessibility guardrail: retain visible focus, including when overflow, rounded corners, and forced colors affect its rendering.
 
-Sources: [WCAG Contrast Minimum](https://www.w3.org/WAI/WCAG22/Understanding/contrast-minimum.html), [WCAG Non-text Contrast](https://www.w3.org/WAI/WCAG22/Understanding/non-text-contrast.html), [WCAG Target Size Minimum](https://www.w3.org/WAI/WCAG22/Understanding/target-size-minimum.html), [MDN reduced motion](https://developer.mozilla.org/en-US/docs/Web/CSS/@media/prefers-reduced-motion), [v3 Spacing](https://v3.skeleton.dev/docs/design/spacing).
+Treat masks and corner shapes as progressive decoration. Apply masking to a separate decorative layer, never essential text, the only informative image, the accessible name, or a focusable target's outline. Unsupported masking can leave an element unmasked; a supported but empty, failed, or unsupported-format mask resource can instead hide it completely. Do not rely on that resource as an essential-content fallback. Keep unmasked meaningful content available, and verify failed resources as well as unsupported CSS. Corner-shape utilities require nonzero radius; retain useful rounded fallback geometry and do not convey state through corner shape alone. Theme corner tokens do not automatically reshape all controls. Avoid animating blur, masks, or corner geometry unless requested and with a static reduced-motion alternative.
+
+Sources: [WCAG Contrast Minimum](https://www.w3.org/WAI/WCAG22/Understanding/contrast-minimum.html), [WCAG Non-text Contrast](https://www.w3.org/WAI/WCAG22/Understanding/non-text-contrast.html), [WCAG Target Size Minimum](https://www.w3.org/WAI/WCAG22/Understanding/target-size-minimum.html), [MDN reduced motion](https://developer.mozilla.org/en-US/docs/Web/CSS/@media/prefers-reduced-motion), [Spacing](https://www.skeleton.dev/docs/svelte/design/spacing), [Masks](https://www.skeleton.dev/docs/svelte/tailwind-utilities/masks), [mask resource failure](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/mask-image), [Corner shapes](https://www.skeleton.dev/docs/svelte/tailwind-utilities/corner-shapes).
 
 ## Concrete verification checklist
 
 Perform these checks in the actual supported browsers after implementation; this reference does not claim they have already been run.
 
 1. **Keyboard only:** Use Tab and Shift+Tab through the whole flow. Confirm visible, ordered focus, button activation with Enter and Space, and link activation with Enter. Verify that menus, tabs, and other widgets retain the chosen library's keyboard contract. Check for unintended traps; a modal intentionally contains focus until dismissal.
-2. **Modal/tooltip:** Exercise opening, Escape, close/cancel, focus restoration, background inertness, tooltip focus exposure, hover persistence, and accessible names. Try a removed trigger and long dialog content.
+2. **Modal/tooltip/disclosure:** Exercise opening, Escape, close/cancel, focus restoration, background inertness, tooltip focus exposure, hover persistence, and accessible names. Try a removed trigger and long dialog content. Check dialog behavior independently of newer light-dismiss/invoker support. Test disclosure keyboard toggling with and without animation support and independent grouping across instances.
 3. **Form:** Activate labels and submit empty, whitespace-only, overlength, invalid, and valid values under the declared policy. Check error association and focus, exact failed-value retention, keyboard behavior for selects/radios, autocomplete and native mobile inputs. Verify server failures separately from browser constraints, with and without enhancement. Mount two reusable instances and confirm each label/help/error resolves only its own control.
 4. **Screen reader/accessibility tree:** Inspect names, roles, heading levels, label association and table headers; use a real screen reader to hear error/status changes. Ensure icons and toasts are neither unnamed nor needlessly announced twice.
-5. **Responsive/visual:** Check narrow and wide viewports, 200% text enlargement and reflow at 320 CSS pixels, long labels, forced colors and reduced motion both before mount and after preference changes. Measure target sizes/spacing and rendered contrast in both schemes for every active theme, including default, focus, selected, invalid and disabled states. Disabled controls are contrast-exempt, not permission to obscure their state.
+5. **Responsive/visual:** Check narrow and wide viewports, 200% text enlargement and reflow at 320 CSS pixels, long labels, forced colors and reduced motion both before mount and after preference changes. Measure target sizes/spacing and rendered contrast in both schemes for every active theme, including default, focus, selected, invalid and disabled states. Disabled controls are contrast-exempt, not permission to obscure their state. Check static fallbacks for unsupported blur/corner/mask CSS and failed mask resources; essential content and focus must remain visible.
 6. **SSR/hydration:** Hard reload with slow JavaScript and an opposite persisted mode. Check first-paint flash, matching server and client markup, console hydration warnings, navigation behavior, and browser-only storage access. Check essential native form and navigation behavior without JavaScript; enhanced widgets may require JavaScript but must not falsely appear functional before hydration.
-7. **Tailwind/theme pipeline:** Confirm the correct `data-theme`, mode selector and computed `color-scheme`; global CSS loading; forms plugin; presets import; component source path; and complete literal class names. Use [styling.md](styling.md)'s debugging sequence rather than replacing broken tokens with random hardcoded colors.
+7. **Tailwind/theme pipeline:** Confirm the correct `data-theme`, mode selector and computed `color-scheme`; global core and framework CSS inclusion; forms plugin; application/shared-source detection; and complete literal class names. Presets ship in core, not a separate optional import. Use [styling.md](styling.md)'s debugging sequence rather than replacing broken tokens with random hardcoded colors.
 
-Sources: [v3 Forms browser support](https://v3.skeleton.dev/docs/tailwind/forms), [APG Dialog](https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/), [WAI Notifications](https://www.w3.org/WAI/tutorials/forms/notifications/), [v3 Dark Mode](https://v3.skeleton.dev/docs/guides/mode), [Svelte lifecycle](https://svelte.dev/docs/svelte/lifecycle-hooks).
+Sources: [Forms browser support](https://www.skeleton.dev/docs/svelte/tailwind-components/forms), [APG Dialog](https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/), [WAI Notifications](https://www.w3.org/WAI/tutorials/forms/notifications/), [Mode](https://www.skeleton.dev/docs/svelte/guides/mode), [Svelte lifecycle](https://svelte.dev/docs/svelte/lifecycle-hooks).

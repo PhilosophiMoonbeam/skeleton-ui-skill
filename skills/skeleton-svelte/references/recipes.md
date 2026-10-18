@@ -1,40 +1,41 @@
-# Runnable Skeleton v3 / Svelte 5 recipes
+# Runnable Skeleton 5 / Svelte 5 recipes
 
-These examples target core **3.2.2**, component package **1.5.3**, Svelte **5.57.2**, and SvelteKit **3.0.1**. Each `svelte` fence contains a **complete standalone component**, with its filename identified above the fence. The examples require the application's global Skeleton and Tailwind CSS, theme, component `@source`, optional presets, and (for native form styling) `@tailwindcss/forms`; no icon package is required. Mount any example in a page or copy its complete contents to `+page.svelte`.
+Targets core and component packages **5.0.1**, Svelte **5.57.2**, and Tailwind **4.3.3**. The reproducible new-project baseline uses Kit **3.1.0**; these components do not require upgrading an otherwise compatible Kit 2 application. Each Svelte fence is a complete standalone component. Import global Tailwind, Skeleton core, Skeleton Svelte root styles, and an activated theme first; native form classes also require `@tailwindcss/forms`. No icon dependency is needed. Mount a component in a page or copy its contents into `+page.svelte`.
 
 - [State, callbacks, and snippets](#state-callbacks-and-snippets)
 - [Tabs: controlled local panels](#tabs-controlled-local-panels)
 - [Accordion: collapsible FAQ](#accordion-collapsible-faq)
 - [Switch and native inputs: one state model, two APIs](#switch-and-native-inputs-one-state-model-two-apis)
 - [Floating help: tooltip](#floating-help-tooltip)
-- [Dialog strategy: Modal, including drawer styling](#dialog-strategy-modal-including-drawer-styling)
+- [Dialog strategy: Dialog, including drawer styling](#dialog-strategy-dialog-including-drawer-styling)
 - [Toast strategy: create a store and mount a renderer](#toast-strategy-create-a-store-and-mount-a-renderer)
 - [Combobox: searchable local selection](#combobox-searchable-local-selection)
 - [Pagination: controlled local table](#pagination-controlled-local-table)
 
 ## State, callbacks, and snippets
 
-The controls used below (`Tabs`, `Accordion`, `Switch`, `Tooltip`, `Modal`, `Combobox`, `Pagination`) use ordinary props and callback props; their **1.5.3** declarations expose no bindable state props. This is not a rule for every Skeleton component or version. Update a controlled prop from its callback; otherwise the UI retains the supplied state. Use `defaultValue`, `defaultChecked`, or `defaultOpen` instead where the inherited primitive supports them and application-owned state is unnecessary.
+The recipe controls use props and callbacks; their 5.0.1 state props are not bindable. Native inputs still use Svelte bindings. Composition is ordinary children plus named anatomy, not the old wrapper snippet props.
 
-| Component | Controlled prop | Callback payload | Content composition |
-| --- | --- | --- | --- |
-| `Tabs` | `value: string` | `onValueChange(e)` → `e.value: string` | `list()` and `content()`; controls/panels contain ordinary children |
-| `Accordion` | `value: string[]` | `onValueChange(e)` → `e.value: string[]` | `.Item` requires `control()`; optional `panel()` and `lead()` |
-| `Switch` | `checked: boolean` | `onCheckedChange(e)` → `e.checked: boolean` | ordinary children become its label |
-| `Popover`, `Tooltip`, `Modal` | `open: boolean` | `onOpenChange(e)` → `e.open: boolean` | `trigger()` and `content()`; the component creates the trigger button |
-| `Combobox` | `value: string[]` | `onValueChange(e)` → `e.value: string[]` | visible `label` prop; optional `item(option)` |
-| `Pagination` | `page: number`, `pageSize: number` | `onPageChange(e)` → `e.page`; `onPageSizeChange(e)` → `e.pageSize` | optional no-argument button-label snippets; rows rendered by the consumer |
+| Component | Controlled prop | Callback payload |
+| --- | --- | --- |
+| Tabs | `value: string` | `onValueChange(e)` → `e.value` |
+| Accordion | `value: string[]` | `onValueChange(e)` → `e.value` |
+| Switch | `checked: boolean` | `onCheckedChange(e)` → `e.checked` |
+| Tooltip, Popover, Dialog | `open: boolean` | `onOpenChange(e)` → `e.open` |
+| Combobox | `value: string[]` | `onValueChange(e)` → `e.value` |
+| Pagination | `page: number`, `pageSize: number` | `onPageChange(e)` → `e.page`/`e.pageSize`; `onPageSizeChange(e)` → `e.pageSize` |
 
-Named snippets declared directly inside a component are passed as props of the same name. They are not legacy `slot="..."` elements. No-argument `Snippet` takes `()`; `Combobox`'s `item: Snippet<[T]>` takes one data item, and `Slider`'s `mark: Snippet<[number]>` takes a numeric marker. Native inputs still use normal Svelte `bind:value`, `bind:checked`, or `bind:group`.
+Use `.Context` with `children(api)` for API access; `api` is a getter. Toast.Group is different: its children snippet receives a toast record. An `element(attributes)` snippet replaces an internal element and must spread all attributes onto a semantically valid replacement. Never nest a button inside a trigger.
 
-Skeleton/Zag supplies generated roles, IDs, keyboard handlers, positioning, and supported focus behavior. The application supplies names, meaningful content, contrasting colors, controlled state updates, validation, persistence, and data fetching. Initial markup can render during SSR, but Zag starts machine effects on client mount: keyboard interaction, focus trapping, dismissal, and portals are not server behavior. Keep server and client initial props consistent; these examples start floating surfaces closed and perform no server mutations. Local state resets when its component is recreated.
+Skeleton/Zag supplies supported keyboard/focus behavior and generated IDs. Keep names, state updates, contrast, persistence, validation, and fetching application-owned. Machine effects and portals start on the client, not during SSR. Keep initial state consistent across server/client. Roots generate hydration-stable IDs; custom associations use `$props.id()`. These examples are instance-owned, start floating surfaces closed, and make no server mutations. Local state resets when the component is recreated.
 
-Sources: [published Skeleton types](https://unpkg.com/@skeletonlabs/skeleton-svelte@1.5.3/dist/components/), [Tabs bindable metadata](https://unpkg.com/@skeletonlabs/skeleton-svelte@1.5.3/dist/components/Tabs/Tabs.svelte.d.ts), [Switch bindable metadata](https://unpkg.com/@skeletonlabs/skeleton-svelte@1.5.3/dist/components/Switch/Switch.svelte.d.ts), [Tabs inherited types](https://unpkg.com/@zag-js/tabs@1.18.3/dist/index.d.ts), [Accordion inherited types](https://unpkg.com/@zag-js/accordion@1.18.3/dist/index.d.ts), [Switch inherited types](https://unpkg.com/@zag-js/switch@1.18.3/dist/index.d.ts), [Zag Svelte mount lifecycle](https://unpkg.com/@zag-js/svelte@1.18.3/dist/machine.svelte.js).
+Sources: [fundamentals](https://www.skeleton.dev/docs/svelte/get-started/fundamentals.md), [5.0.1 declarations](https://unpkg.com/@skeletonlabs/skeleton-svelte@5.0.1/dist/index.d.ts), [shipped components](https://unpkg.com/@skeletonlabs/skeleton-svelte@5.0.1/dist/components/).
 
 ## Tabs: controlled local panels
 
-**File: `TabsExample.svelte` — complete component.** `list` holds controls; `content` holds panels with matching values. Tabs root accepts `translations.listLabel` to name its tablist; do not pass unsupported root HTML attributes. These are local panels, not route links.
+Matching trigger/content values establish panel associations. These are local panels, not route links.
 
+**File: `TabsExample.svelte`**
 ```svelte
 <script lang="ts">
   import { Tabs } from '@skeletonlabs/skeleton-svelte';
@@ -43,32 +44,28 @@ Sources: [published Skeleton types](https://unpkg.com/@skeletonlabs/skeleton-sve
 
 <section class="space-y-4">
   <h2 class="h2">Project details</h2>
-  <Tabs
-    value={selected}
-    onValueChange={(e) => (selected = e.value)}
-    translations={{ listLabel: 'Project details' }}
-  >
-    {#snippet list()}
-      <Tabs.Control value="overview">Overview</Tabs.Control>
-      <Tabs.Control value="activity">Activity</Tabs.Control>
-    {/snippet}
-    {#snippet content()}
-      <Tabs.Panel value="overview"><p>Project overview.</p></Tabs.Panel>
-      <Tabs.Panel value="activity"><p>Recent project activity.</p></Tabs.Panel>
-    {/snippet}
+  <Tabs value={selected} onValueChange={(e) => (selected = e.value)}>
+    <Tabs.List aria-label="Project details">
+      <Tabs.Trigger value="overview">Overview</Tabs.Trigger>
+      <Tabs.Trigger value="activity">Activity</Tabs.Trigger>
+      <Tabs.Indicator />
+    </Tabs.List>
+    <Tabs.Content value="overview"><p>Project overview.</p></Tabs.Content>
+    <Tabs.Content value="activity"><p>Recent project activity.</p></Tabs.Content>
   </Tabs>
   <p>Selected panel: {selected}</p>
 </section>
 ```
 
-Interaction contract: click Activity to show its panel. Focus a tab and use the Left and Right arrows; default automatic activation selects the tab as focus moves. Home and End move to the first and last tabs. For manual activation, use the supported `activationMode="manual"`; Enter or Space then activates the focused tab. Keep `.Control` as the interactive element; do not nest buttons or links inside it or replace generated keyboard handlers.
+Click Activity to select its panel. Left/Right move focus and, by default, automatically activate tabs; Home/End move to the first/last. With `activationMode="manual"`, Enter/Space activates the focused tab. Preserve the generated trigger roles/handlers and test duplicate instances without cross-associations.
 
-Sources: [archived Tabs example](https://v3.skeleton.dev/docs/components/tabs/svelte), [1.5.3 Tabs types](https://unpkg.com/@skeletonlabs/skeleton-svelte@1.5.3/dist/components/Tabs/types.d.ts), [Zag 1.18.3 contract](https://unpkg.com/@zag-js/tabs@1.18.3/dist/index.d.ts), [pinned keyboard implementation](https://unpkg.com/@zag-js/tabs@1.18.3/dist/index.js), [ARIA Tabs pattern](https://www.w3.org/WAI/ARIA/apg/patterns/tabs/).
+Sources: [Tabs](https://www.skeleton.dev/docs/svelte/framework-components/tabs.md), [5.0.1 anatomy](https://unpkg.com/@skeletonlabs/skeleton-svelte@5.0.1/dist/components/tabs/modules/anatomy.d.ts), [ARIA Tabs pattern](https://www.w3.org/WAI/ARIA/apg/patterns/tabs/).
 
 ## Accordion: collapsible FAQ
 
-**File: `AccordionExample.svelte` — complete component.** Set `headingLevel` to fit the document outline; the item creates the heading and a real trigger button.
+Use actual headings at the correct document level; the trigger itself remains the button.
 
+**File: `AccordionExample.svelte`**
 ```svelte
 <script lang="ts">
   import { Accordion } from '@skeletonlabs/skeleton-svelte';
@@ -78,27 +75,30 @@ Sources: [archived Tabs example](https://v3.skeleton.dev/docs/components/tabs/sv
 <section class="space-y-4">
   <h2 class="h2">Frequently asked questions</h2>
   <Accordion value={expanded} onValueChange={(e) => (expanded = e.value)} collapsible>
-    <Accordion.Item value="billing" headingLevel={3}>
-      {#snippet control()}When am I billed?{/snippet}
-      {#snippet panel()}<p>Billing occurs on the first day of each month.</p>{/snippet}
+    <Accordion.Item value="billing">
+      <h3><Accordion.ItemTrigger>When am I billed?</Accordion.ItemTrigger></h3>
+      <Accordion.ItemContent><p>Billing occurs on the first day of each month.</p></Accordion.ItemContent>
     </Accordion.Item>
-    <Accordion.Item value="cancel" headingLevel={3}>
-      {#snippet control()}Can I cancel?{/snippet}
-      {#snippet panel()}<p>You can cancel from your account settings.</p>{/snippet}
+    <Accordion.Item value="cancel">
+      <h3><Accordion.ItemTrigger>Can I cancel?</Accordion.ItemTrigger></h3>
+      <Accordion.ItemContent><p>You can cancel from your account settings.</p></Accordion.ItemContent>
     </Accordion.Item>
   </Accordion>
   <p>Expanded sections: {expanded.join(', ') || 'none'}</p>
 </section>
 ```
 
-Enter or Space toggles a focused header; Up/Down, Home, and End move between headers without expanding them. `collapsible` allows an empty array; add `multiple` to let both panels stay open. Closed panels are unmounted by this wrapper, so component-local state inside them does not survive closing; keep state above the item when needed. Do not wrap `control()` in another button or add a competing click handler.
+Enter/Space toggles a header; Up/Down and Home/End move between headers. `collapsible` allows `[]`; add `multiple` for independent expansion. Plain ItemContent stays mounted and hidden when closed, retaining child state. A conditional element snippet can intentionally unmount content for transitions; see [composition patterns](components.md#six-supported-composition-patterns).
 
-Sources: [archived Accordion](https://v3.skeleton.dev/docs/components/accordion/svelte), [1.5.3 item types](https://unpkg.com/@skeletonlabs/skeleton-svelte@1.5.3/dist/components/Accordion/types.d.ts), [conditional panel source](https://unpkg.com/@skeletonlabs/skeleton-svelte@1.5.3/dist/components/Accordion/AccordionItem.svelte), [pinned keyboard implementation](https://unpkg.com/@zag-js/accordion@1.18.3/dist/index.js), [ARIA Accordion pattern](https://www.w3.org/WAI/ARIA/apg/patterns/accordion/).
+For simple disclosures, prefer native `<details class="disclosure">` with `<summary>` and `.disclosure-content`. Exclusive native groups use `.disclosure-group` and a shared `name` derived from `$props.id()` for each group instance; do not reuse a global group name across unrelated instances. Browser support governs native grouping and optional animations.
+
+Sources: [Accordion](https://www.skeleton.dev/docs/svelte/framework-components/accordion.md), [5.0.1 content source](https://unpkg.com/@skeletonlabs/skeleton-svelte@5.0.1/dist/components/accordion/anatomy/item-content.svelte), [native disclosures](https://www.skeleton.dev/docs/svelte/tailwind-components/disclosures.md).
 
 ## Switch and native inputs: one state model, two APIs
 
-**File: `PreferencesForm.svelte` — complete component.** Native binding and Skeleton callback state can coexist. The Switch's children supply its visible accessible label, and its `name` reaches the hidden form input. Unchecked checkbox-like controls are omitted from native `FormData`.
+Switch is already a label. Its explicit HiddenInput retains native form participation; unchecked controls are omitted from FormData.
 
+**File: `PreferencesForm.svelte`**
 ```svelte
 <script lang="ts">
   import { onMount } from 'svelte';
@@ -112,29 +112,28 @@ Sources: [archived Accordion](https://v3.skeleton.dev/docs/components/accordion/
 
   function submit(event: SubmitEvent) {
     event.preventDefault();
-    const form = event.currentTarget as HTMLFormElement;
-    const data = new FormData(form);
+    const data = new FormData(event.currentTarget as HTMLFormElement);
     submitted = `${data.get('displayName')} / ${data.get('frequency')} / notifications: ${data.has('notifications')}`;
   }
 </script>
 
 <form class="max-w-md space-y-4" onsubmit={submit}>
   <label class="label">
-    <span class="label-text">Display name</span>
+    <span>Display name</span>
     <input class="input" name="displayName" required bind:value={displayName} />
   </label>
   <label class="label">
-    <span class="label-text">Summary frequency</span>
+    <span>Summary frequency</span>
     <select class="select" name="frequency" bind:value={frequency}>
       <option value="daily">Daily</option>
       <option value="weekly">Weekly</option>
     </select>
   </label>
-  <Switch
-    name="notifications"
-    checked={notifications}
-    onCheckedChange={(e) => (notifications = e.checked)}
-  >Enable notifications</Switch>
+  <Switch name="notifications" checked={notifications} onCheckedChange={(e) => (notifications = e.checked)}>
+    <Switch.Control><Switch.Thumb /></Switch.Control>
+    <Switch.Label>Enable notifications</Switch.Label>
+    <Switch.HiddenInput />
+  </Switch>
   <p>Notifications: {notifications ? 'on' : 'off'}</p>
   <button type="submit" disabled={!ready} class="btn preset-filled-primary-500">Review preferences</button>
   <p role="status">{submitted}</p>
@@ -142,169 +141,194 @@ Sources: [archived Accordion](https://v3.skeleton.dev/docs/components/accordion/
 </form>
 ```
 
-Tab to the switch and press Space: the boolean and displayed state must change together. Do not put an extra `<label>` around Switch (it already renders one), use `bind:checked` on Switch, or simulate it with a clickable div. Review preferences stays disabled until mount so the unenhanced local form cannot submit its values through a native GET. The submit handler only reviews local form data; replace it with a real SvelteKit form action when persistence is needed.
+Click the label or press Space on the switch: state and submitted FormData must agree. Do not wrap Switch in another label or use `bind:checked` on it. Review preferences remains disabled until mount, preventing this local form from leaking values through an unenhanced GET. Replace the local handler with a real SvelteKit action for persistence; keep native validation and server error handling.
 
-Sources: [archived Switch](https://v3.skeleton.dev/docs/components/switch/svelte), [published Switch source](https://unpkg.com/@skeletonlabs/skeleton-svelte@1.5.3/dist/components/Switch/Switch.svelte), [archived forms](https://v3.skeleton.dev/docs/tailwind/forms), [Svelte bindings](https://svelte.dev/docs/svelte/bind).
+Sources: [Switch](https://www.skeleton.dev/docs/svelte/framework-components/switch.md), [5.0.1 hidden input](https://unpkg.com/@skeletonlabs/skeleton-svelte@5.0.1/dist/components/switch/anatomy/hidden-input.svelte), [native forms](https://www.skeleton.dev/docs/svelte/tailwind-components/forms.md), [Svelte bindings](https://svelte.dev/docs/svelte/bind).
 
 ## Floating help: tooltip
 
-**File: `FloatingHelp.svelte` — complete component.** Tooltip supplies supplemental, noninteractive text. It creates its own trigger button: the snippet holds button **contents**, not another button.
+Tooltip contains supplemental, noninteractive text. Style its actual anatomy; Portal keeps its positioner outside clipping ancestors.
 
+**File: `FloatingHelp.svelte`**
 ```svelte
 <script lang="ts">
-  import { Tooltip } from '@skeletonlabs/skeleton-svelte';
+  import { Portal, Tooltip } from '@skeletonlabs/skeleton-svelte';
 </script>
 
-<Tooltip
-  triggerAriaLabel="Keyboard shortcuts help"
-  triggerBase="btn preset-tonal-primary"
-  contentBase="card bg-surface-100-900 p-3 shadow-xl"
-  positioning={{ placement: 'top' }}
-  openDelay={200}
-  zIndex="50"
->
-  {#snippet trigger()}Keyboard shortcuts{/snippet}
-  {#snippet content()}Press Tab to move between controls.{/snippet}
+<Tooltip positioning={{ placement: 'top' }} openDelay={200}>
+  <Tooltip.Trigger type="button" class="btn preset-tonal-primary" aria-label="Keyboard shortcuts help">
+    Keyboard shortcuts
+  </Tooltip.Trigger>
+  <Portal>
+    <Tooltip.Positioner class="z-50">
+      <Tooltip.Content class="card preset-filled-surface-100-900 p-3 shadow-xl">
+        Press Tab to move between controls.
+      </Tooltip.Content>
+    </Tooltip.Positioner>
+  </Portal>
 </Tooltip>
 ```
 
-Hover or focus the trigger to reveal help; Escape dismisses it. Do not add `<Portal>`: no such export exists, and Tooltip renders its positioner in place. An ancestor's overflow can clip Tooltip; inspect the actual surrounding layout rather than assuming a wrapper API exists.
+Hover/focus shows help; Escape dismisses it. Keep the trigger's accessible name and focus treatment. Essential instructions stay visible outside the tooltip. For interactive click-triggered content use Popover with its Title/Description and explicit Portal, or Dialog; do not place controls in a tooltip.
 
-For click-triggered, interactive floating content, v3 also exports `Popover` with `trigger()` and `content()`, `open` plus `onOpenChange(e.open)`, and internal portalling. Do not assume title and description IDs alone name its generated dialog: the pinned Zag popover checks for those elements on machine entry, while Skeleton mounts content only when open. For a reliably named interactive surface, use the Modal recipe below or an appropriate separately installed headless primitive that explicitly supports title and description composition. Do not put interactive controls in Tooltip to bypass that limitation.
+Sources: [Tooltip](https://www.skeleton.dev/docs/svelte/framework-components/tooltip.md), [Popover](https://www.skeleton.dev/docs/svelte/framework-components/popover.md), [5.0.1 tooltip anatomy](https://unpkg.com/@skeletonlabs/skeleton-svelte@5.0.1/dist/components/tooltip/modules/anatomy.d.ts).
 
-Sources: [archived floating integration](https://v3.skeleton.dev/docs/integrations/popover/svelte), [Tooltip source](https://unpkg.com/@skeletonlabs/skeleton-svelte@1.5.3/dist/components/Tooltip/Tooltip.svelte), [Popover source](https://unpkg.com/@skeletonlabs/skeleton-svelte@1.5.3/dist/components/Popover/Popover.svelte), [pinned Zag popover implementation](https://unpkg.com/@zag-js/popover@1.18.3/dist/index.js).
+## Dialog strategy: Dialog, including drawer styling
 
-## Dialog strategy: Modal, including drawer styling
+Title and Description anatomy supply associations. This headless Dialog explicitly supplies backdrop, position, surface, viewport limits, and stacking; it adds no motion.
 
-**File: `ConfirmModal.svelte` — complete component.** Use the exported `Modal`, not an invented `Dialog` import. Controlled state drives both built-in and application dismissals. Title and description IDs are supplied because a plain heading snippet does not automatically become the primitive's title element. This example disables the wrapper's default JavaScript fly/fade transitions for motion-free feedback.
-
+**File: `ConfirmDialog.svelte`**
 ```svelte
 <script lang="ts">
-  import { Modal } from '@skeletonlabs/skeleton-svelte';
-  const uid = $props.id();
+  import { Dialog, Portal } from '@skeletonlabs/skeleton-svelte';
   let open = $state(false);
   let archived = $state(false);
 </script>
 
-<Modal
-  {open}
-  onOpenChange={(e) => (open = e.open)}
-  ids={{ title: `${uid}-title`, description: `${uid}-description` }}
-  triggerAriaLabel="Archive project confirmation"
-  triggerBase="btn preset-tonal-primary"
-  contentBase="card bg-surface-100-900 p-6 space-y-4 shadow-xl w-full max-w-md"
-  transitionsBackdropIn={{ duration: 0 }}
-  transitionsBackdropOut={{ duration: 0 }}
-  transitionsPositionerIn={{ duration: 0 }}
-  transitionsPositionerOut={{ duration: 0 }}
->
-  {#snippet trigger()}Archive project{/snippet}
-  {#snippet content()}
-    <h2 id={`${uid}-title`} class="h2">Archive this project?</h2>
-    <p id={`${uid}-description`}>This example changes local state only.</p>
-    <div class="flex justify-end gap-3">
-      <button type="button" class="btn preset-tonal-primary" onclick={() => (open = false)}>
-        Cancel
-      </button>
-      <button
-        type="button"
-        class="btn preset-filled-primary-500"
-        onclick={() => { archived = true; open = false; }}
-      >Confirm archive</button>
-    </div>
-  {/snippet}
-</Modal>
+<Dialog {open} onOpenChange={(e) => (open = e.open)}>
+  <Dialog.Trigger type="button" class="btn preset-tonal-primary">Archive project</Dialog.Trigger>
+  <Portal>
+    <Dialog.Backdrop class="fixed inset-0 z-50 bg-black/50" />
+    <Dialog.Positioner class="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto p-4">
+      <Dialog.Content class="card preset-filled-surface-100-900 max-h-[calc(100dvh-2rem)] w-full max-w-md space-y-4 overflow-y-auto p-6 shadow-xl">
+        <Dialog.Title class="h2">Archive this project?</Dialog.Title>
+        <Dialog.Description>This example changes local state only.</Dialog.Description>
+        <div class="flex flex-wrap justify-end gap-3">
+          <Dialog.CloseTrigger type="button" class="btn preset-tonal-primary">Cancel</Dialog.CloseTrigger>
+          <button type="button" class="btn preset-filled-primary-500" onclick={() => { archived = true; open = false; }}>
+            Confirm archive
+          </button>
+        </div>
+      </Dialog.Content>
+    </Dialog.Positioner>
+  </Portal>
+</Dialog>
 <p role="status">{archived ? 'Project archived in this example.' : 'Project is active.'}</p>
 ```
 
-The inherited dialog defaults trap focus, prevent background interaction and scrolling, close on Escape or outside interaction, and restore focus. Preserve them unless the interaction specification explicitly requires otherwise. Open with the keyboard, cycle Tab and Shift+Tab inside, dismiss with Escape, and confirm focus returns to the trigger. For a real mutation, await the result and show success only after it succeeds.
+Preserve default modal focus containment, scroll prevention, Escape/outside dismissal, and focus restoration. Open by keyboard, cycle Tab/Shift+Tab, close with Cancel/Escape/confirmation, and check focus returns to the trigger. For destructive real mutations, choose an appropriate initial focus target, await the server result, and announce success only after success.
 
-The v3 docs implement **drawers using Modal**: set `positionerJustify="justify-start"`, clear `positionerAlign`/`positionerPadding`, and give `contentBase` a sidebar width and full-screen height. Retain dialog naming, close controls, and focus behavior. Optional drawer motion uses `transitionsPositionerIn/Out` with an `x` offset matching the sidebar width. Keep zero duration until the browser preference is known and whenever reduced motion is requested; subscribe and clean up as in [browser-only work](sveltekit.md#browser-only-work-and-cleanup). A CSS media rule alone does not configure these JavaScript transitions. No separate `Drawer` export is needed. For interfaces this wrapper cannot express, the archive also documents separately installed headless Svelte integrations; do not assume their current APIs are part of Skeleton.
+A drawer is styled Dialog, not a Drawer export: align Positioner to the start, use a constrained sidebar width and `100dvh` height, and retain naming, close controls, viewport fit, and focus behavior. Keep it motion-free by default; optional JavaScript transitions must subscribe to reduced-motion preferences after mount and clean up.
 
-Sources: [archived Modal/drawer examples](https://v3.skeleton.dev/docs/integrations/popover/svelte#modal), [Modal source](https://unpkg.com/@skeletonlabs/skeleton-svelte@1.5.3/dist/components/Modal/Modal.svelte), [dialog 1.18.3 types](https://unpkg.com/@zag-js/dialog@1.18.3/dist/index.d.ts), [pinned dialog naming and focus implementation](https://unpkg.com/@zag-js/dialog@1.18.3/dist/index.js), [archived Bits UI integration](https://v3.skeleton.dev/docs/headless/bits-ui).
+For simpler modal requirements, native `<dialog class="dialog">` with `showModal()`/`close()` already provides top-layer/modal behavior. Use `$props.id()`-prefixed `aria-labelledby`/`aria-describedby` targets and a real close control. Invoker commands and newer light-dismiss features are support-dependent enhancements, not a reason to invent framework APIs.
+
+Sources: [Dialog](https://www.skeleton.dev/docs/svelte/framework-components/dialog.md), [5.0.1 anatomy](https://unpkg.com/@skeletonlabs/skeleton-svelte@5.0.1/dist/components/dialog/modules/anatomy.d.ts), [native dialogs](https://www.skeleton.dev/docs/svelte/tailwind-components/dialogs.md).
 
 ## Toast strategy: create a store and mount a renderer
 
-**File: `ToastExample.svelte` — complete component.** The store is intentionally scoped to this component instance; this is a local notification demonstration, not a server-shared mutable singleton.
+The store belongs to this component instance. Toast.Group's snippet receives a toast record, not an API getter.
 
+**File: `ToastExample.svelte`**
 ```svelte
 <script lang="ts">
-  import { Toaster, createToaster } from '@skeletonlabs/skeleton-svelte';
+  import { Portal, Toast, createToaster } from '@skeletonlabs/skeleton-svelte';
   const toaster = createToaster({ placement: 'bottom-end' });
 </script>
 
-<Toaster {toaster} />
-<button
-  type="button"
-  class="btn preset-filled-primary-500"
-  onclick={() => toaster.info({
-    title: 'Notification example',
-    description: 'Triggered by the notification button.'
-  })}
->Show notification</button>
+<Portal>
+  <Toast.Group {toaster} class="z-[60]">
+    {#snippet children(toast)}
+      <Toast {toast} class="card preset-filled-surface-100-900 flex max-w-sm items-start gap-4 p-4 shadow-xl">
+        <Toast.Message>
+          <Toast.Title class="font-bold">{toast.title}</Toast.Title>
+          <Toast.Description>{toast.description}</Toast.Description>
+        </Toast.Message>
+        <Toast.CloseTrigger type="button" class="btn preset-tonal-primary" aria-label="Dismiss notification">Close</Toast.CloseTrigger>
+      </Toast>
+    {/snippet}
+  </Toast.Group>
+</Portal>
+<button type="button" class="btn preset-filled-primary-500" onclick={() => toaster.info({
+  title: 'Notification example',
+  description: 'Triggered by the notification button.'
+})}>Show notification</button>
 ```
 
-The official reusable pattern is a `createToaster()` reference shared by client consumers and **one `<Toaster {toaster}>` in the root layout**. For a SvelteKit app, keep user-specific notification state out of request-shared server modules; a layout-owned store distributed via Svelte context is an option when SSR isolation matters. Trigger notifications from client event handlers. Use `.success`, `.warning`, `.error`, `.info`, or `.create({ type, title, description })`; no `<Toast.Root>` or external Portal is required. Keep permanent errors and actionable details inline as well, rather than relying solely on a temporary toast.
+Each click creates a message; Close dismisses it. `.info`, `.success`, `.warning`, `.error`, and `.create` are supported; `duration: Infinity` prevents automatic expiry. Use Toast.ActionTrigger when providing an action, and keep permanent errors/actionable details inline too.
 
-Sources: [archived toast setup and methods](https://v3.skeleton.dev/docs/components/toast/svelte), [Toaster props](https://unpkg.com/@skeletonlabs/skeleton-svelte@1.5.3/dist/components/Toast/types.d.ts), [SvelteKit shared-state guidance](https://svelte.dev/docs/kit/state-management#Avoid-shared-state-on-the-server).
+Each `createToaster()` call creates independent mutable state; it is not an enforced singleton. For app-wide messages, create one store in a layout instance, distribute it through Svelte context, and render one group for that store. Never mutate a request-shared server-module store with user-specific notifications. Trigger notifications from client interactions, not SSR.
+
+Sources: [Toast](https://www.skeleton.dev/docs/svelte/framework-components/toast.md), [5.0.1 group source](https://unpkg.com/@skeletonlabs/skeleton-svelte@5.0.1/dist/components/toast/anatomy/group.svelte), [Zag store](https://unpkg.com/@zag-js/toast@1.43.0/dist/toast.store.js), [SSR state isolation](https://svelte.dev/docs/kit/state-management#Avoid-shared-state-on-the-server).
 
 ## Combobox: searchable local selection
 
-**File: `SearchableCombobox.svelte` — complete component.** The root wrapper builds the collection and filters labels case-insensitively. Keep its `onInputValueChange` and `onOpenChange` unassigned to retain that built-in behavior; supplying either callback replaces the corresponding wrapper handler rather than composing with it. Labels are unique because the shipped option loop is keyed by label.
+Application-owned filtering creates a real empty result. Stable values, not labels, identify options. Selected-record lookup uses the complete data, independent of the currently filtered collection.
 
+**File: `SearchableCombobox.svelte`**
 ```svelte
 <script lang="ts">
-  import { Combobox } from '@skeletonlabs/skeleton-svelte';
-
+  import { Combobox, Portal, useListCollection } from '@skeletonlabs/skeleton-svelte';
   const projects = [
     { label: 'Atlas design system', value: 'atlas', category: 'Design' },
     { label: 'Beacon dashboard', value: 'beacon', category: 'Analytics' },
     { label: 'Cedar documentation', value: 'cedar', category: 'Content' },
     { label: 'Delta storefront', value: 'delta', category: 'Commerce' }
   ];
+  let items = $state(projects);
   let selected = $state<string[]>([]);
+  const collection = $derived(useListCollection({
+    items,
+    itemToString: (item) => item.label,
+    itemToValue: (item) => item.value
+  }));
   const selectedProject = $derived(projects.find((project) => project.value === selected[0]));
 </script>
 
 <section class="max-w-md space-y-4">
   <h2 class="h2">Choose a project</h2>
   <Combobox
-    data={projects}
-    label="Project"
-    placeholder="Search projects"
+    {collection}
     value={selected}
     onValueChange={(e) => (selected = e.value)}
-    translations={{ triggerLabel: 'Show project options' }}
+    onInputValueChange={(e) => {
+      const query = e.inputValue.trim().toLowerCase();
+      items = projects.filter((project) => project.label.toLowerCase().includes(query));
+    }}
+    onOpenChange={(e) => { if (e.open && e.reason !== 'input-change') items = projects; }}
     positioning={{ placement: 'bottom-start', sameWidth: true }}
-    zIndex="50"
   >
-    {#snippet item(project)}
-      <span class="flex w-full items-center justify-between gap-3">
-        <span>{project.label}</span>
-        <span class="text-sm">{project.category}</span>
-      </span>
-    {/snippet}
+    <Combobox.Label>Project</Combobox.Label>
+    <Combobox.Control class="grid grid-cols-[minmax(0,1fr)_auto_auto] items-center gap-2">
+      <Combobox.Input class="input min-w-0 w-full" placeholder="Search projects" />
+      <Combobox.Trigger type="button" class="btn static inset-auto h-auto w-auto transform-none preset-tonal-primary" aria-label="Show project options">Show</Combobox.Trigger>
+      <Combobox.ClearTrigger type="button" class="btn h-auto w-auto preset-tonal-primary" aria-label="Clear project selection">Clear</Combobox.ClearTrigger>
+    </Combobox.Control>
+    <Portal>
+      <Combobox.Positioner class="z-50 max-w-[var(--available-width)]">
+        <Combobox.Content class="card preset-filled-surface-100-900 max-h-72 overflow-y-auto p-2 shadow-xl">
+          {#each items as project (project.value)}
+            <Combobox.Item item={project} class="flex items-center justify-between gap-3 rounded-base p-2 data-[highlighted]:preset-tonal-primary">
+              <Combobox.ItemText>{project.label}</Combobox.ItemText>
+              <span class="text-sm">{project.category}</span>
+              <Combobox.ItemIndicator>Selected</Combobox.ItemIndicator>
+            </Combobox.Item>
+          {:else}
+            <p role="status" class="p-2">No matching projects.</p>
+          {/each}
+        </Combobox.Content>
+      </Combobox.Positioner>
+    </Portal>
   </Combobox>
-  <p role="status">
-    Selected project: {selectedProject ? `${selectedProject.label} (${selectedProject.value})` : 'none'}
-  </p>
+  <p role="status">Selected project: {selectedProject ? `${selectedProject.label} (${selectedProject.value})` : 'none'}</p>
 </section>
 ```
 
-Focus the named Project input and type `bea`: only Beacon dashboard remains. Use Arrow Down to highlight it and Enter to select it; the input value and visible selected-project status update together. Escape closes the popup without submitting a form. The dropdown trigger opens the full list again. Selection remains a string array even in single-select mode; typed search text is not itself a selected value. With no matches the shipped wrapper shows no option list; clearing the query restores options. It positions in place, so avoid clipping ancestors rather than adding an invented Portal.
+Type `bea`, then ArrowDown/Enter to select Beacon. Escape closes without submitting; Clear clears selection; reopening displays the full list. An unmatched query displays no options and a truthful empty message. Selection remains a string array; typed text is not itself a selected value. Duplicate labels are valid when values differ. Keep category text readable in normal/highlighted/selected states and both schemes; verify composited contrast instead of lowering metadata opacity blindly.
 
-Category text inherits the option foreground at full opacity; avoid `opacity-60` on readable metadata unless its composited contrast is verified against normal, highlighted, and selected backgrounds in both color schemes. Small text needs at least 4.5:1 contrast. This recipe selects local data only: it does not fetch remote results or submit a selected value. For remote search, the application must provide filtering/loading/error behavior when overriding the wrapper callbacks.
+Skeleton 5.0.1's common CSS absolutely positions Trigger inside the input and gives it square icon-button dimensions. This text-button layout resets its position, inset, transform, width, and height. Separate grid columns keep Show and Clear apart; `minmax(0,1fr)` and `min-w-0` let the input shrink. The positioner's `--available-width` cap keeps its reference-width popup within the viewport's collision padding, including while closed.
 
-Sources: [archived Combobox integration](https://v3.skeleton.dev/docs/integrations/popover/svelte#combobox), [1.5.3 props](https://unpkg.com/@skeletonlabs/skeleton-svelte@1.5.3/dist/components/Combobox/types.d.ts), [shipped filtering and label markup](https://unpkg.com/@skeletonlabs/skeleton-svelte@1.5.3/dist/components/Combobox/Combobox.svelte), [Zag 1.18.3 selection contract](https://unpkg.com/@zag-js/combobox@1.18.3/dist/index.d.ts), [pinned keyboard implementation](https://unpkg.com/@zag-js/combobox@1.18.3/dist/index.js), [WCAG contrast guidance](https://www.w3.org/WAI/WCAG22/Understanding/contrast-minimum.html).
+This recipe only selects local data. Remote search requires application-owned loading/error/filtering behavior, not an invented built-in fetch or filter API. When collections change, keep the selected record/label available from full data and exercise selection retention; do not derive submitted identity solely from visible options.
+
+Sources: [Combobox](https://www.skeleton.dev/docs/svelte/framework-components/combobox.md), [5.0.1 default styles](https://unpkg.com/@skeletonlabs/skeleton-common@5.0.1/src/components/combobox.css), [5.0.1 collection helper](https://unpkg.com/@skeletonlabs/skeleton-svelte@5.0.1/dist/hooks/use-list-collection.js), [5.0.1 root](https://unpkg.com/@skeletonlabs/skeleton-svelte@5.0.1/dist/components/combobox/anatomy/root.svelte), [contrast guidance](https://www.w3.org/WAI/WCAG22/Understanding/contrast-minimum.html).
 
 ## Pagination: controlled local table
 
-**File: `PaginatedProjects.svelte` — complete component.** Pass the entire local data array to Pagination, not the current slice. Page numbers are one-based; array slice offsets are zero-based. This example resets to page 1 whenever the page size changes, so a formerly valid last page cannot become an empty out-of-range page.
+Pass the complete count, render the current slice yourself, and reset/clamp the page when size/count changes. The 23-row example includes explicit zero-result and boundary handling.
 
+**File: `PaginatedProjects.svelte`**
 ```svelte
 <script lang="ts">
   import { Pagination } from '@skeletonlabs/skeleton-svelte';
-
   const projects = Array.from({ length: 23 }, (_, index) => ({
     id: index + 1,
     name: `Project ${String(index + 1).padStart(2, '0')}`,
@@ -312,9 +336,10 @@ Sources: [archived Combobox integration](https://v3.skeleton.dev/docs/integratio
   }));
   let page = $state(1);
   let pageSize = $state(5);
-  const start = $derived((page - 1) * pageSize);
+  const totalPages = $derived(Math.max(1, Math.ceil(projects.length / pageSize)));
+  const currentPage = $derived(Math.min(Math.max(1, page), totalPages));
+  const start = $derived((currentPage - 1) * pageSize);
   const visibleProjects = $derived(projects.slice(start, start + pageSize));
-  const totalPages = $derived(Math.ceil(projects.length / pageSize));
 
   function changePageSize(size: number) {
     pageSize = size;
@@ -327,52 +352,61 @@ Sources: [archived Combobox integration](https://v3.skeleton.dev/docs/integratio
   <div class="table-wrap">
     <table class="table">
       <caption class="p-3 text-start">Local projects</caption>
-      <thead>
-        <tr><th scope="col">ID</th><th scope="col">Project</th><th scope="col">Status</th></tr>
-      </thead>
+      <thead><tr><th scope="col">ID</th><th scope="col">Project</th><th scope="col">Status</th></tr></thead>
       <tbody>
         {#each visibleProjects as project (project.id)}
           <tr><td>{project.id}</td><td>{project.name}</td><td>{project.status}</td></tr>
+        {:else}
+          <tr><td colspan="3">No projects.</td></tr>
         {/each}
       </tbody>
     </table>
   </div>
   <div class="flex flex-wrap items-center justify-between gap-4">
     <label class="label">
-      <span class="label-text">Rows per page</span>
-      <select
-        class="select w-fit"
-        value={String(pageSize)}
-        onchange={(e) => changePageSize(Number(e.currentTarget.value))}
-      >
-        <option value="5">5</option>
-        <option value="10">10</option>
-        <option value="20">20</option>
+      <span>Rows per page</span>
+      <select class="select w-fit" value={String(pageSize)} onchange={(e) => changePageSize(Number(e.currentTarget.value))}>
+        <option value="5">5</option><option value="10">10</option><option value="20">20</option>
       </select>
     </label>
     <Pagination
-      data={projects}
-      {page}
+      count={projects.length}
+      page={currentPage}
       {pageSize}
       onPageChange={(e) => (page = e.page)}
       onPageSizeChange={(e) => changePageSize(e.pageSize)}
       translations={{ rootLabel: 'Project pages' }}
-      showFirstLastButtons
-      titleFirst="First page"
-      titleLast="Last page"
+      class="flex flex-wrap gap-2"
     >
-      {#snippet labelFirst()}First{/snippet}
-      {#snippet labelPrevious()}Previous{/snippet}
-      {#snippet labelNext()}Next{/snippet}
-      {#snippet labelLast()}Last{/snippet}
+      <Pagination.FirstTrigger type="button" disabled={currentPage <= 1} class="btn preset-tonal-primary">First</Pagination.FirstTrigger>
+      <Pagination.PrevTrigger type="button" disabled={currentPage <= 1} class="btn preset-tonal-primary">Previous</Pagination.PrevTrigger>
+      <Pagination.Context>
+        {#snippet children(api)}
+          {#each api().pages as entry, index}
+            {#if entry.type === 'page'}
+              <button {...api().getItemProps(entry)} type="button" class="btn preset-tonal-primary data-[selected]:preset-filled-primary-500">{entry.value}</button>
+            {:else}
+              <Pagination.Ellipsis {index}>…</Pagination.Ellipsis>
+            {/if}
+          {/each}
+        {/snippet}
+      </Pagination.Context>
+      <Pagination.NextTrigger type="button" disabled={currentPage >= totalPages} class="btn preset-tonal-primary">Next</Pagination.NextTrigger>
+      <Pagination.LastTrigger type="button" disabled={currentPage >= totalPages} class="btn preset-tonal-primary">Last</Pagination.LastTrigger>
     </Pagination>
   </div>
   <p role="status">
-    Page {page} of {totalPages}: rows {start + 1}–{start + visibleProjects.length} of {projects.length}
+    {#if projects.length === 0}
+      0 results
+    {:else}
+      Page {currentPage} of {totalPages}: rows {start + 1}–{start + visibleProjects.length} of {projects.length}
+    {/if}
   </p>
 </section>
 ```
 
-Initially IDs 1–5 render. Activate Next with Enter or Space to show IDs 6–10. Activate Last to show IDs 21–23 on page 5. Change Rows per page to 20: page resets to 1, IDs 1–20 render, and Last shows IDs 21–23 on page 2. Previous/Next and First/Last disable at their respective boundaries. Pagination uses individually tabbable buttons, not a roving arrow-key list. The wrapper renders no controls when there is only one page; the consumer still renders its data and status. Its `onPageSizeChange` contract is wired, but this wrapper has no size picker: the native select performs the actual size change.
+Initially IDs 1–5 render. Next shows 6–10; Last shows 21–23 on page 5. Changing size to 20 resets to page 1; Last then shows 21–23 on page 2. `currentPage` clamps the supplied page and slice after a count reduction, including zero rows. If adapting this to mutable data, commit the clamped page when replacing the data so a later count increase does not restore an old requested page. Empty status says “0 results”, never “rows 1–0”. Controls remain visible for one/zero pages with boundaries disabled; hide them explicitly if that is the product policy.
 
-Sources: [archived Pagination](https://v3.skeleton.dev/docs/components/pagination/svelte), [1.5.3 props](https://unpkg.com/@skeletonlabs/skeleton-svelte@1.5.3/dist/components/Pagination/types.d.ts), [shipped controls and data count](https://unpkg.com/@skeletonlabs/skeleton-svelte@1.5.3/dist/components/Pagination/Pagination.svelte), [Zag 1.18.3 callbacks and page range](https://unpkg.com/@zag-js/pagination@1.18.3/dist/index.d.ts).
+Controls are individually tabbable, not a roving arrow-key list. Page entries retain the `type: 'page'` discriminant passed to `api().getItemProps(entry)`; `type="button"` belongs on the rendered native button. In 5.0.1 `Pagination.Item` defaults to an anchor without `href`, and its element snippet is anchor-typed. This recipe uses the public Context API's generated item attributes on a real button, preserving ARIA and events without casting anchor event handlers. FirstTrigger/LastTrigger attach click handlers without supplying button type or disabled boundaries; those props are explicit here to prevent parent-form submission and invalid boundary actions. The native select owns size selection; Pagination's callback does not create a picker or fetch rows.
+
+Sources: [Pagination](https://www.skeleton.dev/docs/svelte/framework-components/pagination.md), [5.0.1 anatomy](https://unpkg.com/@skeletonlabs/skeleton-svelte@5.0.1/dist/components/pagination/modules/anatomy.d.ts), [Item source](https://unpkg.com/@skeletonlabs/skeleton-svelte@5.0.1/dist/components/pagination/anatomy/item.svelte), [FirstTrigger source](https://unpkg.com/@skeletonlabs/skeleton-svelte@5.0.1/dist/components/pagination/anatomy/first-trigger.svelte), [LastTrigger source](https://unpkg.com/@skeletonlabs/skeleton-svelte@5.0.1/dist/components/pagination/anatomy/last-trigger.svelte), [Zag 1.43.0 pagination types](https://unpkg.com/@zag-js/pagination@1.43.0/dist/pagination.types.d.ts).

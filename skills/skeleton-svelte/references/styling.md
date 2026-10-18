@@ -1,69 +1,72 @@
-# Styling and themes — Skeleton v3
+# Styling and themes — Skeleton v5
 
-Use the framework-agnostic CSS from `@skeletonlabs/skeleton@3.2.2`; these are native-element utilities, not Svelte component imports. Its [package exports](https://unpkg.com/@skeletonlabs/skeleton@3.2.2/package.json) resolve to CSS, and its [core stylesheet](https://unpkg.com/@skeletonlabs/skeleton@3.2.2/dist/index.css) defines the utilities below. Prefer this pinned source over current Skeleton docs; use the [archived v3 documentation](https://v3.skeleton.dev/docs/get-started/core-api) for context. Tailwind's version number is separate: Skeleton v3 uses Tailwind CSS v4.
+Use the framework-agnostic CSS from `@skeletonlabs/skeleton@5.0.1` with Tailwind CSS 4.3.3. Native-element utilities are distinct from the optional Svelte components in `@skeletonlabs/skeleton-svelte@5.0.1`. The [package exports](https://unpkg.com/@skeletonlabs/skeleton@5.0.1/package.json) and [core stylesheet](https://unpkg.com/@skeletonlabs/skeleton@5.0.1/src/index.css) define this reference's versioned contract; consult the [current Core API](https://www.skeleton.dev/docs/svelte/get-started/core-api) for usage. An ordinary styling task does not require migrating an existing compatible SvelteKit 2 application.
 
 ## Theme registration and activation
 
 A theme is a set of CSS custom properties scoped by `[data-theme='name']`. Import its stylesheet **and** activate its exact name on the root HTML element. Importing alone does not select it. Register only themes the application uses; each import adds CSS.
 
-Global stylesheet example (`src/app.css`; component source path is relative to this file):
+Global stylesheet example (`src/app.css`):
 
 ```css
 @import 'tailwindcss';
 @import '@skeletonlabs/skeleton';
-@import '@skeletonlabs/skeleton/optional/presets';
+@import '@skeletonlabs/skeleton-svelte';
 @import '@skeletonlabs/skeleton/themes/cerberus';
+
 @plugin '@tailwindcss/forms';
-@source '../node_modules/@skeletonlabs/skeleton-svelte/dist';
 ```
 
-The forms plugin requires the installed `@tailwindcss/forms` package. Keep **all imports before** `@plugin`, `@source`, variants, and style rules; this preserves [CSS import ordering](https://developer.mozilla.org/en-US/docs/Web/CSS/@import). The archived Forms page places the plugin immediately after Tailwind; the ordering above retains that plugin without interleaving imports and other directives. Presets are optional for Skeleton itself but required for the `preset-*` classes in this reference. Load this global stylesheet through the root layout. Set `data-theme="cerberus"` on the existing `<html>` element in `src/app.html`; preserve SvelteKit's head and body placeholders.
+The forms plugin requires the installed `@tailwindcss/forms` package and is required for Skeleton's documented native form utilities, not for every use of Skeleton CSS. Keep **all imports before** `@plugin`, application `@source` directives, variants, and style rules. Presets are included in the core import; the framework CSS import supplies component styles without a Skeleton `node_modules` source scan. Shared application packages outside automatic detection can still need `@source`; paths are stylesheet-relative. Load this global stylesheet through the root layout. Set `data-theme="cerberus"` on the existing `<html>` element in `src/app.html`; preserve language, metadata, CSP, and SvelteKit's head and body placeholders.
 
 For a custom theme:
 
-1. Open the generator linked by the [v3 Themes page](https://v3.skeleton.dev/docs/design/themes) at [themes.skeleton.dev](https://themes.skeleton.dev/).
-2. Give the theme a unique name; customize palette, contrast colors, typography, spacing, and radii. Open its code view and copy the CSS.
-3. Check the output against the [3.2.2 theme shape](https://unpkg.com/@skeletonlabs/skeleton@3.2.2/dist/themes/cerberus.css) before importing it: the hosted generator can evolve independently of the archive. V3 expects a `[data-theme='name']` block with the properties below, not a v2 configuration object or plugin registration.
-4. Save the exported stylesheet, for example `src/acme.css`. Add `@import './acme.css';` after the imported Skeleton theme and before `@plugin`/`@source` or style rules. Set `data-theme="acme"` on `<html>` to match the exported selector, not necessarily the file name.
+1. Open the [Theme Generator](https://themes.skeleton.dev/), linked from [Themes](https://www.skeleton.dev/docs/svelte/design/themes).
+2. Give the theme a unique name; customize palette, independently assigned contrast colors, brand, typography, spacing, and radii. Export its CSS.
+3. Compare output with the [5.0.1 theme shape](https://unpkg.com/@skeletonlabs/skeleton@5.0.1/src/themes/cerberus.css). For an existing custom theme, use the [import workflow](https://themes.skeleton.dev/themes/import) recommended by the [migration guide](https://www.skeleton.dev/docs/svelte/get-started/migrate-from-v4). Import accepts CSS/TS/JS, but strips custom fonts: restore them through Typography controls and load their assets. Do not assume lossless legacy conversion.
+4. Save the exported stylesheet, for example `src/acme.css`. Add `@import './acme.css';` after the imported Skeleton theme and before directives or style rules. Set `data-theme="acme"` on `<html>` to match the exported selector, not necessarily the file name. Inspect current tokens, font loading, and both modes.
 5. If switching at runtime, change `document.documentElement.dataset.theme` in browser-only code to one of your imported theme names. Ensure the initial server theme and any theme-dependent rendered text agree.
 
-Core v3 tokens include:
+Core v5 tokens include (double hyphens inside typography names are significant):
 
 | Purpose | Properties |
 | --- | --- |
 | Palette | `--color-{primary,secondary,tertiary,success,warning,error,surface}-{50,100,200,300,400,500,600,700,800,900,950}` |
-| Foreground for each shade | `--color-primary-contrast-500` and equivalent colors and shades; the theme also defines `--color-primary-contrast-light` and `--color-primary-contrast-dark` |
-| Body background | `--body-background-color`, `--body-background-color-dark` |
-| Text | `--base-font-family`, `--base-font-color`, `--base-font-color-dark`, `--heading-font-family`, `--heading-font-weight`, `--heading-font-color`, `--heading-font-color-dark`, `--anchor-font-color`, `--anchor-font-color-dark` |
-| Scale and shape | `--text-scaling`, `--spacing`, `--radius-base`, `--radius-container`, `--default-border-width`, `--default-ring-width` |
+| Foreground for each shade | `--color-primary-contrast-500` and equivalent palettes/shades; `--color-primary-contrast-light` and `--color-primary-contrast-dark` are theme-authored foreground choices |
+| Independent brand emphasis | `--color-brand-light`, `--color-brand-dark`, `--color-brand-contrast-light`, `--color-brand-contrast-dark` |
+| Root background | `--color-root-bg-light`, `--color-root-bg-dark` |
+| Typography | `--typo-base--font-family`, `--typo-base--color-light`, `--typo-base--color-dark`; corresponding `--typo-heading--*` and `--typo-anchor--*` properties |
+| Density and element size | `--spacing`; `--spacing-elem-{xs,sm,base,lg,xl,2xl…9xl}` |
+| Type scale and shape | `--text-scaling`, `--radius-base`, `--radius-container`, `--corner-shape-base`, `--corner-shape-container` |
+| Edge widths | `--default-border-width`, `--default-ring-width`, `--default-outline-width` |
 
 Override a token after the imported theme; scope it to the theme rather than globally altering every palette:
 
 ```css
 [data-theme='cerberus'] {
   --radius-container: 0.75rem;
-  --heading-font-family: system-ui, sans-serif;
-  --base-font-family: system-ui, sans-serif;
-  --body-background-color: var(--color-surface-50);
-  --body-background-color-dark: var(--color-surface-950);
+  --typo-heading--font-family: system-ui, sans-serif;
+  --typo-base--font-family: system-ui, sans-serif;
+  --color-root-bg-light: var(--color-surface-50);
+  --color-root-bg-dark: var(--color-surface-950);
 }
 ```
 
-Use the smallest override that expresses the brief. `--radius-base` shapes buttons and controls; `--radius-container` shapes cards. Body type uses the `--base-*` tokens, while `h1`–`h6` classes consume the heading tokens; an unclassed heading does not acquire that styling. The recipe's custom `.page-title` consumes the heading family but explicitly sets weight and size, so change those local declarations if that title needs a different treatment.
+Use the smallest override that expresses the brief. `--radius-base` shapes buttons and controls; `--radius-container` shapes cards. Body type uses `--typo-base--*`, while `h1`–`h6` classes consume heading tokens; an unclassed heading does not acquire that styling. The recipe's custom `.page-title` consumes the heading family but explicitly sets weight and size, so change those local declarations if that title needs a different treatment. Corner-shape tokens require explicit utilities or application selectors; they do not automatically reshape every button/card.
 
 Keep `--spacing` stable for a local density change: adjust card padding, row gaps, and control sizing instead. `--text-scaling` changes the core's Tailwind text sizes **and their line-height values**, not arbitrary `clamp()` sizes or browser zoom. When recoloring a palette, update its full shade ramp and per-shade contrast assignments together; changing only `--color-primary-500` neither rebuilds the ramp nor recomputes foreground contrast. Compare the title, body, metadata, action, form, and card in both modes before propagating the choice.
 
-Sources: [v3 Themes](https://v3.skeleton.dev/docs/design/themes), [v3 installation](https://v3.skeleton.dev/docs/get-started/installation/sveltekit), [pinned core CSS](https://unpkg.com/@skeletonlabs/skeleton@3.2.2/dist/index.css), [pinned Cerberus theme](https://unpkg.com/@skeletonlabs/skeleton@3.2.2/dist/themes/cerberus.css), [v3 Forms prerequisites](https://v3.skeleton.dev/docs/tailwind/forms), [CSS import ordering](https://developer.mozilla.org/en-US/docs/Web/CSS/@import).
+Sources: [Themes](https://www.skeleton.dev/docs/svelte/design/themes), [installation](https://www.skeleton.dev/docs/svelte/get-started/installation/sveltekit), [pinned core CSS](https://unpkg.com/@skeletonlabs/skeleton@5.0.1/src/index.css), [pinned Cerberus theme](https://unpkg.com/@skeletonlabs/skeleton@5.0.1/src/themes/cerberus.css), [Forms prerequisites](https://www.skeleton.dev/docs/svelte/tailwind-components/forms), [CSS import ordering](https://developer.mozilla.org/en-US/docs/Web/CSS/@import).
 
 ## Colors, pairings, and presets
 
-Use semantic palettes instead of hardcoded colors: `primary` for a brand action, `surface` for neutral containers, and `success`, `warning`, or `error` for status accompanied by text. Standard utilities include `bg-primary-500`, `text-surface-950`, `border-secondary-600`, and `ring-primary-500`.
+Use semantic palettes instead of hardcoded colors: `surface` for neutral containers and `success`, `warning`, or `error` for status accompanied by text. Use independent brand tokens/presets for an adaptable principal action; intentional `primary`-palette styling remains valid. Brand light/dark may select different palettes or shades, and their contrast values are assigned independently, not computed from the background. Standard utilities include `bg-primary-500`, `text-surface-950`, `border-secondary-600`, and `ring-primary-500`.
 
 A single shade does **not** automatically invert in dark mode. Pairings use `{property}-{color}-{lightShade}-{darkShade}`; for example `bg-surface-100-900` selects 100 in a light color scheme and 900 in a dark color scheme. Supported pairs are `50-950`, `100-900`, `200-800`, `300-700`, `400-600`, and their reverses. Pairing values use CSS `light-dark()`, so check the computed `color-scheme`, not just the presence of a `.dark` class.
 
 Match a filled background with its contrast token, such as `bg-primary-500 text-primary-contrast-500`, or `bg-secondary-200-800 text-secondary-contrast-200-800`. These are theme-supplied values, not a runtime contrast calculator. Recheck contrast after theme edits, opacity, gradients, or translucent backgrounds.
 
-The preset styles have **different rules** in [3.2.2's actual CSS](https://unpkg.com/@skeletonlabs/skeleton@3.2.2/dist/optional/presets.css):
+The preset styles have **different rules** in [5.0.1's actual CSS](https://unpkg.com/@skeletonlabs/skeleton@5.0.1/src/utilities/presets.css):
 
 | Class example | What it sets |
 | --- | --- |
@@ -73,38 +76,72 @@ The preset styles have **different rules** in [3.2.2's actual CSS](https://unpkg
 | `preset-outlined-primary-500` | A 1px primary-500 border only; does **not** assign a matching text color or filled background. |
 | `preset-outlined-primary-200-800` | A 1px primary 200/800 border only. Supply foreground/background as needed. |
 | `preset-filled` | Neutral surface 950/50 background with surface 50/950 text. |
-| `preset-tonal` | A 5% surface 950/50 mixed with transparent background; foreground is inherited. |
+| `preset-tonal` | A **10%** surface 950/50 mix with transparent; explicit surface 950/50 text. |
 | `preset-outlined` | Neutral 1px surface 950/50 border; foreground/background are inherited. |
+| `preset-filled-brand` | Mode-specific brand background and independent brand contrast foreground. |
+| `preset-tonal-brand` | A **25%** mode-specific brand mix with transparent; explicit surface 950/50 text. |
+| `preset-outlined-brand` | A 1px mode-specific brand border only; supply foreground/background as needed. |
 
 Do not invent `preset-tonal-primary-500`, arbitrary filled shade suffixes, or a uniform “all presets use 500” rule. Separate shape (`btn`, `card`) from paint (`preset-*`) and layout (`p-4`, `gap-4`).
 
-Sources: [v3 Colors](https://v3.skeleton.dev/docs/design/colors), [v3 Presets](https://v3.skeleton.dev/docs/design/presets), [pinned pairing definitions](https://unpkg.com/@skeletonlabs/skeleton@3.2.2/dist/index.css), [pinned preset CSS](https://unpkg.com/@skeletonlabs/skeleton@3.2.2/dist/optional/presets.css).
+Slash opacity modifiers such as `bg-primary-500/20` change the composite color through color mixing; remeasure contrast over the actual backing surface. Neither OKLCH palettes nor contrast token names certify WCAG compliance.
+
+Optional strict palette clearing is advanced Tailwind configuration, **not** a Skeleton prerequisite. A wildcard reset such as `--color-*: initial` clears intended semantic colors too if placed after their declarations. Do not append it to the working recipe. In an intentionally rebuilt theme layer, order the reset **before** the complete definitions to retain, then restore all required semantic shades, contrast colors, brand and derived color mappings; retain any other deliberately used colors. Review import/layer order and generated utilities before adoption. It does not prohibit arbitrary CSS colors.
+
+Sources: [Colors](https://www.skeleton.dev/docs/svelte/design/colors), [Presets](https://www.skeleton.dev/docs/svelte/tailwind-utilities/presets), [pinned pairing definitions](https://unpkg.com/@skeletonlabs/skeleton@5.0.1/src/base/theme.css), [pinned preset CSS](https://unpkg.com/@skeletonlabs/skeleton@5.0.1/src/utilities/presets.css), [Tailwind custom palette](https://tailwindcss.com/docs/colors#using-a-custom-palette).
 
 ## Typography, spacing, and responsive layout
 
-Typography is opt-in: use `h1`–`h6`, `anchor`, `blockquote`, `code`, `pre`, and `kbd` classes on appropriate semantic elements. A visual class is not a semantic heading level: `<h2 class="h3">` remains a level-two heading. Choose levels from document structure and visual size separately. Theme `--text-scaling` affects Tailwind text sizes; font-family tokens select fonts, which must also be loaded unless they are system fonts.
+Most typography treatments are opt-in: use `h1`–`h6`, `anchor`, `blockquote`, `pre`, `kbd`, `abbr`, `cite`, `quote` (on `<q>`), `sub`, `sup`, and `time` classes on appropriate semantic elements; `ins`, `del`, and `mark` are also available. Inline `<code>` instead receives base element styling in 5.0.1, with resets inside `<pre>` and `.ec-line`; it is not an opt-in `code` utility. Preserve semantic code markup rather than treating a migration-tool warning as grounds to delete working styling. A visual class is not a semantic heading level: `<h2 class="h3">` remains a level-two heading. Choose levels from document structure and visual size separately. Font-family tokens select fonts, which must also be loaded unless they are system fonts.
+
+The pipeline is **theme token → Tailwind theme token → utility**. For example, `--typo-base--font-family` maps through `--font-typo-base` to `font-typo-base`; `--typo-base--line-height` through `--leading-typo-base` to `leading-typo-base`; and `--radius-container` to `rounded-container`. Palette `--color-primary-500` enables `bg-primary-500`, `text-primary-500`, `outline-primary-500`, and other color properties. Not every theme property has a dedicated utility: consume unmapped values directly, for example `[font-style:var(--typo-heading--font-style)]`.
+
+Base, heading, and anchor typography cover family, weight, style, stretch, kerning, letter/word spacing, text shadow, hyphenation, transform, and light/dark colors. Base and anchor also expose font-size/line-height; headings derive size/leading from the typographic scale, not separate heading-size tokens. Anchor decoration has line, color, style, thickness, underline offset/position and hover/active/focus state properties such as `--typo-anchor--hover--text-decoration-line`. Use the [Core API](https://www.skeleton.dev/docs/svelte/get-started/core-api) for exact names. Dividers use the default border width. Preserve visible focus outlines when adjusting any edge-width token; CSS does not enforce an accessible minimum.
 
 Use the theme's spacing scale with `p-4`, `gap-4`, `space-y-4`, and related Tailwind utilities. Changing `--spacing` affects many dimensions, not only padding: review widths, heights, gaps, and hit targets after altering it. Use a small spacing vocabulary consistently rather than arbitrary pixel offsets.
 
 Start with one column, `w-full`, and readable maximum widths; add `md:grid-cols-2` or `lg:grid-cols-3` only when content benefits. Use `min-w-0` for grid and flex children that must shrink, allow labels to wrap, and use horizontal overflow for wide data tables rather than squeezing cells or changing their semantics. Keep visual order consistent with keyboard and reading order. Check narrow widths and zoom in real browsers.
 
-Sources: [v3 Typography](https://v3.skeleton.dev/docs/design/typography), [v3 Spacing](https://v3.skeleton.dev/docs/design/spacing), [v3 layout guidance](https://v3.skeleton.dev/docs/guides/layouts).
+Sources: [Typography](https://www.skeleton.dev/docs/svelte/design/typography), [exact typography CSS](https://unpkg.com/@skeletonlabs/skeleton@5.0.1/src/utilities/typography.css), [Spacing](https://www.skeleton.dev/docs/svelte/design/spacing), [Core API mappings](https://www.skeleton.dev/docs/svelte/get-started/core-api).
 
 For visual direction, hierarchy, density, and a complete responsive shell, see [design.md](design.md). These utilities implement a design; they do not choose one.
 
 ## Native button, form, card, and table classes
 
-| Native markup | V3 utility classes | Preserve behavior |
+| Native markup | V5 utility classes | Preserve behavior |
 | --- | --- | --- |
-| `<button>` / navigation `<a>` | `btn`, `btn-sm`, `btn-base`, `btn-lg`, `btn-icon`; add a preset | Use a button for an action, anchor with `href` for navigation. Set button `type`; use native `disabled` on buttons. Name icon-only buttons. |
-| `<label>` + controls | `label`, `label-text`, `input`, `textarea`, `select`, `checkbox`, `radio` | Install/enable the forms plugin. Preserve input type, label association, `name`, required state, and native keyboard behavior. |
-| `<article>` / `<section>` / container | `card`, optionally `card-hover`; add a preset and padding | A card does not create an interaction. Use a real link/button; avoid clickable `div`s and nested interactive elements inside a card link. |
-| `<table>` in a wrapper | `table-wrap`, `table` | Use caption, header cells and scope. Actions belong in a cell as links/buttons, not row click handlers. |
+| `<button>` / navigation `<a>` | `btn`, `btn-{size}`, `btn-icon`, `btn-icon-{size}`; add a preset | Use a button for an action, anchor with `href` for navigation. Set button `type`; use native `disabled`. Name icon-only buttons. |
+| `<label>` + controls | `label`, `label-text`, `input`, `textarea`, `select`, `checkbox`, `radio`; `field-{size}` | Enable the forms plugin. Preserve type, label association, `name`, required state, and native keyboard behavior. |
+| `<fieldset>` / `<legend>` | `fieldset`, `legend` | Group related controls semantically; a visual field group is not a replacement. |
+| `<meter>` | `meter` | Represent a bounded scalar measurement, not task progress. Supply an accessible label, correct bounds/value, and useful textual value. |
+| Adjacent field controls | `field-group`, with explicit grid columns | Keep each input/select/button named; visual prefixes do not necessarily label a field. |
+| `<article>` / `<section>` / container | `card`; add a preset and padding | `card` adds hover treatment automatically on actual anchors/buttons, not ordinary containers. Use real links/buttons; avoid nested interactive elements inside a card link. |
+| `<table>` in a wrapper | `table-wrap`, `table` | Use caption, header cells and scope. Actions belong in cells, not row click handlers. |
+| Native `<dialog>` | `dialog`, optional `dialog-fullscreen`, `animate-dialog`; add paint | CSS does not create modality; use `showModal()` and the interaction contract below. |
+| `<details>` / `<summary>` | `disclosure`, inner `disclosure-content`; optional `disclosure-group` wrapper | Preserve native toggling, marker, accessible summary, and document flow. |
 
-Standalone local example content; no network dependency. Svelte 5.20+ supplies an instance ID that stays consistent through SSR hydration.
+Element sizes `xs`, `sm`, `base`, `lg`, `xl`, `2xl` through `9xl` expose `--spacing-elem-*` and spacing utilities such as `size-elem-xl`, `w-elem-lg`, and `h-elem-sm`. Control variants remain separate: coordinate `field-xl` with `btn-xl`; there is no group-size variant. Direct SVG children of supported controls auto-size, not every arbitrary nested icon format. Neither size names nor density tokens certify minimum hit targets.
+
+`field-group` is a grid with small gaps and joined logical corner radii. Set one track per child; use `minmax(0,1fr)` for a shrinking input. Migrate legacy group wrappers to `field-group`, prefix cells to semantic `label`/appropriate `span` with `label label-text`, and use ordinary `input`, `select`, and `btn` children. Independently name currency selects and icon-only actions.
+
+Standalone grouped field; compose into a real form when submission is needed:
+
+**File: `UsernameField.svelte`**
+```svelte
+<script lang="ts">
+  const uid = $props.id();
+</script>
+
+<div class="field-group grid-cols-[auto_minmax(0,1fr)]">
+  <label class="label label-text" for={`${uid}-username`}>Username</label>
+  <input id={`${uid}-username`} class="input field-xl min-w-0"
+    type="text" name="username" autocomplete="username" required />
+</div>
+```
+
+Standalone local example content; no network dependency. Svelte supplies an instance ID that stays consistent through SSR hydration.
 
 **File: `Summary.svelte`**
-
 ```svelte
 <script lang="ts">
   const uid = $props.id();
@@ -132,11 +169,23 @@ Standalone local example content; no network dependency. Svelte 5.20+ supplies a
 
 Each instance owns its heading ID, label association, and real fragment target; callers do not need to allocate IDs. Do not replace `$props.id()` with random values or a shared module counter. See [accessibility.md](accessibility.md) for a local-only form recipe and interaction checks.
 
-Sources: [Buttons](https://v3.skeleton.dev/docs/tailwind/buttons), [Forms](https://v3.skeleton.dev/docs/tailwind/forms), [Cards](https://v3.skeleton.dev/docs/tailwind/cards), [Tables](https://v3.skeleton.dev/docs/tailwind/tables), [Svelte hydration-safe instance IDs](https://svelte.dev/docs/svelte/$props#%24props.id()).
+Sources: [Buttons](https://www.skeleton.dev/docs/svelte/tailwind-components/buttons), [Forms](https://www.skeleton.dev/docs/svelte/tailwind-components/forms), [Cards](https://www.skeleton.dev/docs/svelte/tailwind-components/cards), [Tables](https://www.skeleton.dev/docs/svelte/tailwind-components/tables), [Svelte hydration-safe instance IDs](https://svelte.dev/docs/svelte/$props#%24props.id()).
+
+### Native dialogs, disclosures, and decorative geometry
+
+`dialog` CSS exposes `--dialog-top`, `--dialog-left`, `--dialog-translate`, `--dialog-width`, `--dialog-height`, `--dialog-max-width`, `--dialog-radius`, and `--dialog-backdrop`. `showModal()` supplies top-layer modality and background inertness; `show()` is nonmodal. Close with `close()` or a `method="dialog"` form. Provide a name, deliberate initial focus, explicit close/cancel, Escape behavior, and focus restoration. Newer `closedby="any"` light-dismiss and `command`/`commandfor` invoker controls have separate browser support; do not assume them from basic dialog support. See [accessibility.md](accessibility.md#modal-and-tooltip-interaction-contracts).
+
+For native disclosure styling, use `details.disclosure > summary` followed by a `div.disclosure-content`. A shared `name` enables exclusive native grouping where supported; keep group names unique across unrelated component instances. Its intrinsic-size animation uses `::details-content` and `interpolate-size: allow-keywords`; unsupported browsers retain instant native toggling. `animate-dialog` uses `--anim-duration`, discrete display/overlay transitions, and `@starting-style`. These animations still need an application reduced-motion policy.
+
+Optional `mask mask-circle`, `mask mask-squircle`, `mask mask-hexagon`, and other documented shapes are decorative. `mask-custom` requires user-authored CSS. Mask only a decorative layer, never essential content or the focusable control itself: unsupported masking and a failed supported mask resource differ, and an empty/failed/unsupported-format resource can hide the element entirely. Keep meaningful media/text and accessible names outside the mask.
+
+Optional corner utilities (`corner-shape-bevel`, `corner-shape-squircle`, documented side/corner/logical variants or arbitrary values) need a nonzero `rounded-*` radius. `corner-shape-base`/`corner-shape-container` consume their theme tokens only when applied. Preserve useful rounded geometry where unsupported; shape must not carry essential meaning or clip focus indicators. See the [corner catalog](https://www.skeleton.dev/docs/svelte/tailwind-utilities/corner-shapes) rather than inventing class names.
+
+Sources: [Dialogs](https://www.skeleton.dev/docs/svelte/tailwind-components/dialogs), [Disclosures](https://www.skeleton.dev/docs/svelte/tailwind-components/disclosures), [Masks](https://www.skeleton.dev/docs/svelte/tailwind-utilities/masks), [mask resource failure](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/mask-image).
 
 ## Dark mode, initial paint, and hydration
 
-Media strategy is the default: CSS follows `prefers-color-scheme`. In [core 3.2.2](https://unpkg.com/@skeletonlabs/skeleton@3.2.2/dist/index.css), `:root` sets `color-scheme: light` and switches to `dark` through `@variant dark`; body background/text also use that variant. Pairings use `light-dark()` and inherit the computed scheme. For an explicit class-based choice, define this after imports in the global stylesheet and toggle `.dark` on `<html>`:
+Media strategy is the default: CSS follows `prefers-color-scheme`. In [core 5.0.1](https://unpkg.com/@skeletonlabs/skeleton@5.0.1/src/base/globals.css), `:root` sets `color-scheme: light` and switches to `dark` through `@variant dark`. The `html` background uses `light-dark(var(--color-root-bg-light), var(--color-root-bg-dark))`; body foreground uses `light-dark(var(--typo-base--color-light), var(--typo-base--color-dark))`. Pairings likewise inherit the computed scheme. For an explicit class-based choice, define this after imports in the global stylesheet and toggle `.dark` on `<html>`:
 
 ```css
 @custom-variant dark (&:where(.dark, .dark *));
@@ -148,21 +197,21 @@ Alternatively, choose the attribute strategy instead:
 @custom-variant dark (&:where([data-mode=dark], [data-mode=dark] *));
 ```
 
-Then set `data-mode="dark"` on `<html>`. Choose **one** strategy; changing `data-mode` does nothing to a `.dark`-configured variant. `data-theme` chooses a theme, not light or dark mode. Tailwind's `scheme-light` and `scheme-dark` locally force `color-scheme` and thus pairing colors and native control appearance; they do not activate the global `dark:` selector or replace Skeleton's variant-controlled body background/text.
+Then set `data-mode="dark"` on `<html>`. Choose **one** strategy; changing `data-mode` does nothing to a `.dark`-configured variant. `data-theme` chooses a theme, not light or dark mode. Tailwind's `scheme-light` and `scheme-dark` locally force `color-scheme` and thus `light-dark()` colors and native control appearance; they do not change which `dark:` selectors match. For theme-scoped rules use ordinary `[data-theme='name']` selectors, optionally with `@variant dark` inside.
 
-For an SSR app, choose the initial mode deliberately. CSS media mode needs no browser JavaScript to determine the initial color scheme. Render a persisted explicit choice server-side from a cookie, or apply it with a small pre-paint browser script consistent with the selected CSS strategy. The server cannot read `localStorage` or `matchMedia`. Reading preferences only in `onMount` is browser-safe but occurs after mount, so the default theme or mode may visibly flash. A head script must respect the application's CSP and handle unavailable storage. Do not copy the archive's Astro navigation hooks into SvelteKit.
+For an SSR app, choose the initial mode deliberately. CSS media mode needs no browser JavaScript to determine the initial color scheme. Render a persisted explicit choice server-side from a cookie, or apply it with a small pre-paint browser script consistent with the selected CSS strategy. The server cannot read `localStorage` or `matchMedia`. Reading preferences only in `onMount` is browser-safe but occurs after mount, so the default theme or mode may visibly flash. A head script must respect the application's CSP and handle unavailable storage. Preserve per-request preference isolation and cookie-aware cache behavior.
 
 Keep server and client initial component markup deterministic. If an early script changes the root mode, do not render a different mode label or icon during hydration from a separately initialized client preference. Establish one source of truth; render mode-dependent controls consistently, then update after mount when necessary. CSS-only color changes do not justify suppressing hydration warnings.
 
-Sources: [pinned root/body/pairing CSS](https://unpkg.com/@skeletonlabs/skeleton@3.2.2/dist/index.css), [v3 Dark Mode](https://v3.skeleton.dev/docs/guides/mode), [Tailwind color scheme](https://tailwindcss.com/docs/color-scheme), [Tailwind dark-mode initial-paint guidance](https://tailwindcss.com/docs/dark-mode), [Svelte lifecycle hooks](https://svelte.dev/docs/svelte/lifecycle-hooks).
+Sources: [pinned root/body CSS](https://unpkg.com/@skeletonlabs/skeleton@5.0.1/src/base/globals.css), [Mode](https://www.skeleton.dev/docs/svelte/guides/mode), [Tailwind color scheme](https://tailwindcss.com/docs/color-scheme), [Tailwind initial-paint guidance](https://tailwindcss.com/docs/dark-mode), [Svelte lifecycle hooks](https://svelte.dev/docs/svelte/lifecycle-hooks).
 
 ## Styling debugging checklist
 
 1. Inspect `<html>` in the browser. Confirm the correct imported `data-theme`, chosen mode selector, and computed `color-scheme`. Check ancestor `scheme-light` and `scheme-dark` overrides when pairings appear stuck.
 2. Inspect computed styles and CSS rules. Check whether theme tokens resolve or are unset or overridden. For outlined presets, inspect the border separately from inherited text and background.
-3. If `preset-*` does nothing, confirm `optional/presets` is imported globally. If forms differ, confirm the forms plugin import and installed dependency.
-4. If utilities are missing, confirm Tailwind processing, the app's source detection, and the correct component-package `@source` path relative to the stylesheet. Keep complete class strings visible to Tailwind; do not build names as `"bg-" + color + "-500"`. Map choices to full literal classes.
+3. If `preset-*` does nothing, confirm the core stylesheet is imported globally. If forms differ, confirm `@plugin '@tailwindcss/forms'` and its installed dependency.
+4. If utilities are missing, confirm Tailwind processing, the framework CSS import, and source detection for application/shared packages. Keep complete class strings visible to Tailwind; do not build names as `"bg-" + color + "-500"`. Map choices to full literal classes.
 5. Compare both schemes for every active theme in actual target browsers: pairing colors use modern `light-dark()`; native form rendering varies by platform. A screenshot from one browser is insufficient.
 6. Reload with JavaScript delayed and disabled, and with a persisted opposite-mode preference. Observe first paint, hydration console warnings, and navigation consistency. Use the interaction checklist in [accessibility.md](accessibility.md) before shipping.
 
-Sources: [v3 installation](https://v3.skeleton.dev/docs/get-started/installation/sveltekit), [v3 Mode](https://v3.skeleton.dev/docs/guides/mode), [Tailwind class detection](https://tailwindcss.com/docs/detecting-classes-in-source-files), [v3 Forms browser support](https://v3.skeleton.dev/docs/tailwind/forms).
+Sources: [installation](https://www.skeleton.dev/docs/svelte/get-started/installation/sveltekit), [Mode](https://www.skeleton.dev/docs/svelte/guides/mode), [Tailwind class detection](https://tailwindcss.com/docs/detecting-classes-in-source-files), [Forms browser support](https://www.skeleton.dev/docs/svelte/tailwind-components/forms).

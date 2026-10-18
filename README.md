@@ -2,7 +2,7 @@
 
 # Skeleton UI for Svelte — Agent Skill
 
-An unofficial, version-qualified [Agent Skill](https://agentskills.io) for coding agents building with **Skeleton UI v3, Svelte 5, and SvelteKit 3**.
+An unofficial, version-qualified [Agent Skill](https://agentskills.io) for coding agents building with **Skeleton UI 5, Svelte 5, and SvelteKit**. Its reproducible greenfield baseline uses stable **SvelteKit 3.1.0**; compatible existing Kit 2 applications remain in scope without an unrequested migration.
 
 Give a new agent session the API contracts, complete examples, and integration guidance it needs without relying on prior conversation context or mixing incompatible documentation versions.
 
@@ -11,7 +11,7 @@ Give a new agent session the API contracts, complete examples, and integration g
 - **Task-based navigation:** a compact `SKILL.md` routes agents to the references needed for each task.
 - **Version-aware implementation:** exact package pins, a runtime export catalog, and installed-type inspection help prevent invented APIs and mixed-major examples.
 - **Complete examples:** eight standalone Skeleton component recipes, a responsive app-shell recipe, and Svelte and native form examples.
-- **Application integration:** Kit 3 `#lib` configuration, Svelte runes and native bindings, SSR, hydration, request isolation, instance-safe associations, and native or enhanced server forms with raw failed-value preservation.
+- **Application integration:** conditional Kit 3 `#lib` configuration, Svelte runes and native bindings, SSR, hydration, request isolation, instance-safe associations, and native or enhanced server forms with raw failed-value preservation.
 - **Visual composition:** existing-style calibration before markup, hierarchy, spacing, density, realistic content states, and narrow/wide screenshot review for polished pages.
 - **Practical verification:** keyboard, focus, responsive layout, and accessibility checks, with explicit limits on the recorded evidence.
 
@@ -43,24 +43,24 @@ The frozen reference baseline is:
 
 | Package | Version |
 | --- | --- |
-| `@skeletonlabs/skeleton` | `3.2.2` |
-| `@skeletonlabs/skeleton-svelte` | `1.5.3` |
+| `@skeletonlabs/skeleton` | `5.0.1` |
+| `@skeletonlabs/skeleton-svelte` | `5.0.1` |
 | `svelte` | `5.57.2` |
-| `@sveltejs/kit` | `3.0.1` |
+| `@sveltejs/kit` | `3.1.0` |
 | `tailwindcss` | `4.3.3` |
 
-Skeleton's core and Svelte component packages use independent version numbers. Skeleton v3 does **not** mean component package version `3`.
+Both Skeleton packages are pinned to `5.0.1`; use current v5 CSS imports, compound anatomy, providers, and callback contracts rather than older APIs.
 
-See [setup](skills/skeleton-svelte/references/setup.md) for the complete toolchain, Node and peer requirements, and configuration. Preserve an existing application's working versions. For a different Skeleton major or API, use matching documentation or an explicitly agreed migration; do not upgrade or downgrade merely to fit this skill.
+See [setup](skills/skeleton-svelte/references/setup.md) for the complete pinned toolchain, Node and peer requirements, and configuration. Skeleton 5 does not itself require Kit 3. Preserve an existing application's compatible versions, adapter, and conventions. For different versions, inspect matching documentation and installed packages; do not upgrade or downgrade merely to fit this skill.
 
 ## Reference guide
 
 | Reference | Contents |
 | --- | --- |
-| [Setup](skills/skeleton-svelte/references/setup.md) | Exact pins, scaffolding, Kit 3 configuration and `#lib/*` mapping, global CSS, and source scanning |
-| [Migration](skills/skeleton-svelte/references/migration.md) | v2-to-v3 cutover, explicit Kit 3 import/configuration migration, removed APIs, and offline inspection |
-| [Components](skills/skeleton-svelte/references/components.md) | Runtime exports, API shapes, declaration links, and styled native alternatives |
-| [Recipes](skills/skeleton-svelte/references/recipes.md) | Complete tabs, accordion, switch, tooltip, modal, toast, combobox, and pagination examples |
+| [Setup](skills/skeleton-svelte/references/setup.md) | Exact pins, existing-app and greenfield paths, conditional Kit 3 configuration, current CSS imports, and shared-source detection |
+| [Migration](skills/skeleton-svelte/references/migration.md) | Staged Skeleton 2/3-to-4-to-5 cutover, v4.15.2 starting point, CLI limits, and separately requested Kit 3 migration |
+| [Components](skills/skeleton-svelte/references/components.md) | Current runtime exports, compound anatomy, providers, declaration links, and native-first alternatives |
+| [Recipes](skills/skeleton-svelte/references/recipes.md) | Complete tabs, accordion, switch, tooltip, dialog, toast, combobox, and pagination examples |
 | [Styling](skills/skeleton-svelte/references/styling.md) | Themes, tokens, presets, responsive layout, dark mode, and motion |
 | [Design](skills/skeleton-svelte/references/design.md) | Visual brief, composition, responsive app-shell recipe, and screenshot review |
 | [Accessibility](skills/skeleton-svelte/references/accessibility.md) | Instance-safe semantics, local-only/no-JavaScript preview limits, validation feedback, and keyboard/focus checks |
@@ -69,9 +69,11 @@ See [setup](skills/skeleton-svelte/references/setup.md) for the complete toolcha
 
 ## Evidence and limits
 
-The current [third-pass verification](skills/skeleton-svelte/references/sources.md#third-pass-verification) records exact-target installation without forced peers, type checking of 273 files with 0 errors and 0 warnings, client/server production builds, skill validation, and structural checks. Real Chromium interactions covered all eight Skeleton recipes, repeated instance associations, native bindings, local previews, native/enhanced server-form value preservation, no-JavaScript behavior, theme changes, and the responsive app shell at 320, 375, 768, and 1280 CSS pixels. The [second-pass authoring checks](skills/skeleton-svelte/references/sources.md#exact-compatibility-baseline-and-observed-smoke) remain historical evidence; neither record automatically covers future edits.
+The [current baseline and observed evidence](skills/skeleton-svelte/references/sources.md#exact-compatibility-baseline-and-observed-evidence) records an isolated exact-version installation of 130 packages without forced peers. Eighteen complete documented components were extracted; `npm run check` checked 945 files with 0 errors and 0 warnings, and client/server production builds passed. `skills-ref validate` passed, as did structural checks of 99 local links and 45 fences across 11 Markdown files. A consumer type proof accepted 31 components, 200 listed anatomy members, and 30 helper exports.
 
-Coverage is limited to one Chromium version, not an exhaustive component catalog or a full contrast, forced-colors, text-zoom, or screen-reader audit. No deployment/adapter target, file-upload/monorepo runtime, or concurrent authenticated-session verification is claimed. The successful build reported no supported production adapter target; visual checks do not certify accessibility. Agents must verify the application they change and report only checks they actually performed.
+Chromium **155.0.8059.84** production-preview checks exercised all eight recipes, providers, repeated-instance associations, native utilities, and native/enhanced forms—including exact failed-value preservation and no-JavaScript behavior. The responsive shell had no overflow at **320, 375, 768, and 1280 CSS px**; narrow/wide screenshots, theme/motion changes, and stable Kit 3 shallow-navigation/state persistence were checked. Browser-discovered Combobox overlap/viewport overflow and inaccessible default pagination anchors were corrected and reverified. See the linked evidence for exact scenarios and limits.
+
+These checks are not exhaustive browser coverage or a full accessibility audit. No deployment or production-adapter verification is recorded: `adapter-auto` found no production target, and the build emitted an environmental `NO_COLOR`/`FORCE_COLOR` warning. Compilation and local interaction do not certify accessibility, server persistence, or SSR request isolation. Follow the [re-verification workflow](skills/skeleton-svelte/references/sources.md#maintenance-and-future-re-verification) for the application being changed and report only actual results.
 
 ## Contribute
 

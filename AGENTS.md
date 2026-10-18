@@ -1,4 +1,4 @@
-# Unofficial Skeleton UI v3 Toolkit SKILLs
+# Unofficial Skeleton UI v5 Toolkit SKILLs
 
 We'll focus on implementing the Svelete version for now.
 See: /skills/skeleton-svelte

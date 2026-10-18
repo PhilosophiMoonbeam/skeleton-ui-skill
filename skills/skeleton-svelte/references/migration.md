@@ -2,107 +2,179 @@
 
 ## Identify the installed generation first
 
-Inspect the application's manifest **and resolved lockfile**, not just the repository name or docs title. This skill targets core `@skeletonlabs/skeleton@3.2.2` plus `@skeletonlabs/skeleton-svelte@1.5.3`. The [component package metadata](https://registry.npmjs.org/@skeletonlabs/skeleton-svelte/1.5.3) explicitly develops against core `3.2.2`; its `1.x` version is not evidence that the application uses Skeleton v1. Select component `1.5.3` from the [published releases](https://registry.npmjs.org/@skeletonlabs/skeleton-svelte), not a version inferred from core's major.
+Inspect the application's manifest **and resolved lockfile**. This skill targets `@skeletonlabs/skeleton@5.0.1` and `@skeletonlabs/skeleton-svelte@5.0.1`. Core exports CSS; framework components come from the Svelte package root. Historical names below are migration sources, not current recommendations.
 
 | Signal | Interpretation/action |
 | --- | --- |
-| Components and store helpers imported from `@skeletonlabs/skeleton` | Likely v2-era code. In this pinned v3 pair, core exports CSS, while components come from `@skeletonlabs/skeleton-svelte`. |
-| `initializeStores`, `getModalStore`, `getToastStore`, `getDrawerStore`, `AppShell`, `variant-*`, a Skeleton Tailwind plugin | Inventory legacy features before changing dependencies. They are not a v3 setup recipe. |
-| Core `3.2.2`, component package `1.5.3`, Tailwind 4 CSS imports | Correct version family; still inspect component props and the actual import subpath. |
-| Core/component `4.x` or `5.x`; unversioned `skeleton.dev` examples | Not this skill's pinned API. Use archived `v3.skeleton.dev` plus exact package declarations. |
+| Components/store helpers imported from core; `initializeStores`, `getModalStore`, `getToastStore`, `getDrawerStore`, `AppShell`, `variant-*`, Skeleton Tailwind plugin | Historical v2 integration: inventory every caller before removal. |
+| Core `3.x` plus component `1.x` | Historical v3 pair; unequal majors were intentional. Follow the archived v3-to-v4 guide first. |
+| Core/component `4.x` | Establish a functional `4.15.2` pair before v5. |
+| Both packages `5.0.1`, framework CSS import | Target generation; still inspect component contracts and all local wrappers. |
 
-Sources: [core CSS exports](https://registry.npmjs.org/@skeletonlabs/skeleton/3.2.2), [v2-to-v3 migration](https://v3.skeleton.dev/docs/get-started/migrate-from-v2), [v2 modal stores](https://v2.skeleton.dev/utilities/modals), [v2 toast stores](https://v2.skeleton.dev/utilities/toasts). A store **name alone** is a search clue; confirm its import and use before removing unrelated application stores.
+Sources: [core 5.0.1 metadata](https://registry.npmjs.org/@skeletonlabs/skeleton/5.0.1), [component 5.0.1 metadata](https://registry.npmjs.org/@skeletonlabs/skeleton-svelte/5.0.1), [current v5 migration](https://www.skeleton.dev/docs/svelte/get-started/migrate-from-v4). A store name alone is only a clue: confirm its import and usage before removing application state.
 
 ## Separate framework upgrades from Skeleton migration
 
-Work on a migration branch and preserve existing changes. The archived guide describes a major rewrite, not a prop-compatible update, and explicitly leaves component props and many utility migrations to manual work.
+Use a dedicated migration branch, preserving existing user changes. A Skeleton migration does **not** require upgrading a compatible Kit 2 app to Kit 3. Skeleton 5 core requires Tailwind `^4.0.0`; its Svelte package requires Svelte `^5.40.0`. Check existing Vite, Node and adapter peers independently.
 
-**Skeleton-only migration:** retain a supported existing toolchain. The [archived installation baseline](https://v3.skeleton.dev/docs/get-started/installation/sveltekit) is Kit 2 or later, Svelte 5, and Tailwind 4; the pinned component package requires Svelte `^5.20.0`, and core requires Tailwind `^4.0.0`. Check the installed framework, Vite integration, Node, and adapter peers. These minimums do not require Kit 3, Svelte `5.57.2`, or the other greenfield pins.
+1. Inventory imports, providers/hosts, wrappers, stores, themes, utility classes, Tailwind/PostCSS configuration and every affected callsite, including shared packages.
+2. For **v2**, follow the [archived v2-to-v4 guide](https://v4.skeleton.dev/docs/svelte/get-started/migrate-from-v2), including `skeleton-3` then `skeleton-4` transformations. For **v3**, follow the [archived v3-to-v4 guide](https://v4.skeleton.dev/docs/svelte/get-started/migrate-from-v3). Complete manual component/prop conversion and establish a working v4 app, not merely a changed manifest.
+3. Finish the intermediate stage at **both Skeleton packages `4.15.2`**. Use exact intermediate pins, not archived `@latest` or release-candidate instructions:
 
-1. Inventory legacy imports, root-level providers, Tailwind and PostCSS configuration, theme registration, custom CSS classes, and each affected component callsite.
-2. If a prerequisite is missing, migrate only what is required within the requested scope. Use the [Svelte 5 migration guide](https://svelte.dev/docs/svelte/v5-migration-guide) for a Svelte 4 app and the [Tailwind 4 upgrade guide](https://tailwindcss.com/docs/upgrade-guide) for Tailwind 3. Existing legacy Svelte syntax can still work; removed Skeleton APIs cannot.
-3. Install core `3.2.2` and components `1.5.3` as in [existing-project setup](setup.md#existing-project); preserve compatible framework and Tailwind/Vite releases. Integrate CSS, themes, and source scanning.
-4. Remove the v2 integration described below and migrate every affected component and store caller. Do not change unrelated application state or deployment conventions.
+```sh
+npm install -D --save-exact @skeletonlabs/skeleton@4.15.2 @skeletonlabs/skeleton-svelte@4.15.2
+```
 
-**Optional exact-target migration:** only when the user requests Svelte `5.57.2` / Kit `3.0.1`, apply the [complete target pins](setup.md#version-contract) and [Kit 3 migration guide](https://svelte.dev/docs/kit/migrating-to-sveltekit-3). Coordinate Node, Vite, the Svelte Vite plugin, optional TypeScript, and the existing deployment adapter. Move supported `svelte.config.*` options into `sveltekit({...})`, flattening the old `kit` options, then remove the obsolete file. Merge the [Kit 3 tsconfig](setup.md#typescript-configuration) with existing source paths and compiler options. Add the application's [package-import mapping](setup.md#kit-3-package-imports-and-environment); migrate every `$lib` import/re-export to `#lib` with explicit file extensions and every `$app/environment` caller to `$app/env`. Remove obsolete alias configuration, not just failing imports, and review other changed modules and options in the Kit guide. Do not apply those Kit 3 changes to a retained Kit 2 project.
+4. From the functional intermediate app, follow the [v4-to-v5 guide](https://www.skeleton.dev/docs/svelte/get-started/migrate-from-v4). Raise Svelte to a release satisfying `^5.40.0` if needed; the CLI does not perform that peer bump. Preserve compatible framework/toolchain versions. Install the destination pair using [existing-project setup](setup.md#existing-project), integrate its CSS and finish the manual changes below.
+5. Import custom themes into the [Theme Generator](https://themes.skeleton.dev/themes/import), inspect converted CSS and restore custom fonts through typography controls: theme import strips them. Preserve local font loading and assets. Register the converted theme and activate the same name on `<html>`.
 
-The archived guide describes `npx skeleton migrate skeleton-3`. Do not blindly run this unpinned historical CLI against a modern project: the guide says it changes dependencies, imports, names, and classes but **does not update component props or most v2 utilities**. Migrate manually to avoid letting a current CLI silently choose newer packages. If using automation, inspect its exact version, help, and resulting diff, then restore the target pins; no CLI invocation substitutes for the manual steps here.
+For an authorized automated application migration, the pinned CLI supports these commands; run only the stages appropriate to the starting version:
+
+```sh
+npx skeleton@5.0.1 migrate skeleton-3
+npx skeleton@5.0.1 migrate skeleton-4
+npx skeleton@5.0.1 migrate skeleton-5
+```
+
+**CLI version is not output dependency version.** These commands mutate files and install dependencies. CLI `5.0.1`'s `skeleton-3` resolves core `>=3.0.0-0 <4.0.0` and components `>=1.0.0-0 <2.0.0`; `skeleton-4` writes `^4.0.0`; `skeleton-5` writes `^5.0.0`. Restore exact intermediate/destination pins and the chosen package manager's lockfile after each applicable stage. Review every diff. The v3-to-v4 conversion still requires manual composition/prop work; automated renames are not component conversion.
+
+The v5 scanner selects source folders and includes `.svelte`, `.css`, `.pcss`, `.postcss`, `.jsx`, `.tsx`, `.js`, `.mjs`, `.cjs`; it **omits `.ts` and `.html`**. Manually inspect those files and all callers outside selected folders, including themes, generated class strings, shared libraries and tests. Package/token/class automation does not cover semantic Field Group markup or every removed utility. Exact CLI source: [skeleton@5.0.1](https://unpkg.com/skeleton@5.0.1/dist/index.mjs).
+
+**Optional framework migration:** only when requested, apply [the exact Kit 3.1.0 baseline](setup.md#version-contract). Official Kit guidance recommends latest Kit 2 first to expose deprecations, then `npx sv migrate sveltekit-3` (not `sv@next`). Coordinate Node, Vite, the Svelte plugin, optional TypeScript and the existing deployment adapter. Move supported configuration into `sveltekit({...})`, remove obsolete `svelte.config.*`, merge [tsconfig](setup.md#typescript-configuration), and migrate every `$lib` import/re-export to `#lib` with explicit extensions. Use `$app/env`; `$app/environment` is deprecated, not absent, in exact Kit 3.1.0. Replace removed `$app/stores` with read-only rune-reactive `$app/state`. See [Kit's migration guide](https://svelte.dev/docs/kit/migrating-to-sveltekit-3) and [Kit integration](sveltekit.md).
 
 ## Remove Tailwind 3 and v2 plugin assumptions
 
-Follow the [archived prerequisites](https://v3.skeleton.dev/docs/get-started/migrate-from-v2#migrate-core-technologies) and [Tailwind 4 upgrade guide](https://tailwindcss.com/docs/upgrade-guide):
+These are historical-source cleanup steps, not v5 installation APIs:
 
-- Remove the Skeleton plugin from `tailwind.config.*` and its import from `@skeletonlabs/tw-plugin`; remove that dependency when no callers remain. The [legacy plugin metadata](https://registry.npmjs.org/@skeletonlabs/tw-plugin/0.4.0) identifies this separate package.
-- Remove `vite-plugin-tailwind-purgecss` from Vite and dependencies if installed.
-- Rename an old `app.postcss` or `app.pcss` global stylesheet to `app.css` and update every import. Replace old Tailwind layer directives with the Tailwind 4 import and the v3 CSS imports in [setup](setup.md#global-css-and-dependency-scanning).
-- Add the Tailwind Vite plugin before `sveltekit(...)`. Remove the old Tailwind PostCSS processing path. Delete a PostCSS configuration or its dependencies only if they are now unused; preserve unrelated CSS transforms.
-- Move relevant Tailwind configuration to CSS. Tailwind 4 does not automatically detect a JavaScript config; if temporarily retaining necessary non-Skeleton configuration, explicitly load it with `@config` and check the upgrade guide's unsupported options. Do not preserve the old Skeleton plugin this way.
-- Replace each legacy `variant-*` class with the documented v3 `preset-*` equivalent rather than mechanically guessing suffixes. Register the optional presets stylesheet when using these classes.
-- Replace v2 custom themes with v3 CSS-format themes. The archived migration guide offers a theme-import tool, but verify generated CSS against the pinned v3 variables rather than assuming today's generator emits that version. Import the resulting theme and activate its matching name on `<html>`, not only `<body>`.
-- Review `@apply` uses against removed or changed utilities. Prefer documented CSS variables and Tailwind 4 directives over restoring removed classes.
+- Remove the old Skeleton Tailwind plugin/import from `@skeletonlabs/tw-plugin` and its dependency after all callers migrate. Remove `vite-plugin-tailwind-purgecss` integration if present.
+- Rename historical `app.postcss`/`app.pcss` to `app.css` if appropriate and update every import. Replace old Tailwind directives with the [current CSS recipe](setup.md#global-css-and-dependency-scanning): Tailwind, core, Svelte framework CSS, then theme imports. Presets are included in core; remove the historical optional-presets import and manual Skeleton `dist` source scan.
+- Put the Tailwind Vite plugin before framework plugins. Remove only obsolete Tailwind PostCSS processing; delete PostCSS configuration/dependencies only if unused. **Retain unrelated transforms.**
+- Move necessary Tailwind configuration to CSS. If retaining non-Skeleton JavaScript configuration temporarily, load it explicitly with `@config` and review [Tailwind 4's unsupported options](https://tailwindcss.com/docs/upgrade-guide). Do not preserve the old Skeleton plugin through it.
+- Map historical `variant-*` classes through the archived guides, then inspect the final v5 `preset-*` contract. Do not mechanically guess suffixes. Preserve application `@source` registrations outside automatic scanning and stylesheet-relative ordering.
+- Review every `@apply`, theme override and literal/generated class string. Theme import and theme activation remain separate requirements.
 
 ## Remove legacy store wiring and migrate every caller
 
-The v2 [modal](https://v2.skeleton.dev/utilities/modals) and [toast](https://v2.skeleton.dev/utilities/toasts) guides require `initializeStores()` in the root layout and helpers such as `getModalStore()` and `getToastStore()`. The [pinned v3 component index](https://unpkg.com/@skeletonlabs/skeleton-svelte@1.5.3/dist/index.d.ts) does not export those functions, and v3 core is CSS-only.
+Historical v2 modal/toast/drawer stores and `initializeStores()` have no v5 compatibility API. Replace behavior, not just imports:
 
-Search both imports and usage sites, including wrappers and shared helpers:
-
-- Remove `initializeStores()` and the legacy Skeleton helper imports **after replacing their callers**; do not just silence import errors.
-- Replace old `modalStore.trigger(...)`, `drawerStore.open(...)`, and their global queue hosts with the appropriate v3 integration or application-owned dialog state. The root v3 package exports `Modal` and `Popover`, not a v2-compatible queue store or a `Drawer` export. The [archived popover integration](https://v3.skeleton.dev/docs/integrations/popover/svelte) covers modal, popover, tooltip, and combobox APIs.
-- Replace v2 `Toast`/`getToastStore()` wiring with the v3 `Toaster`/`createToaster` API documented on the [archived toast page](https://v3.skeleton.dev/docs/components/toast/svelte). Do not rename a store variable and assume its method signatures survived.
-- Replace `AppShell` with semantic HTML and Tailwind layouts. Replace a v2 component `Table` with the documented styled HTML table rather than looking for a root `Table` export.
-- Remove leftover obsolete imports, hosts, type aliases, dependencies, and wrapper functions once all callers have migrated. Do not add compatibility shims to this skill's examples.
-
-Skeleton's removal of its persisted-store utility does **not** mean Svelte's `svelte/store` is unsupported; do not remove unrelated application stores. The [archived unsupported-features list](https://v3.skeleton.dev/docs/get-started/migrate-from-v2#replace-unsupported-features) is the authority for those Skeleton utilities.
+- Replace each modal/drawer trigger and global host with current `Dialog` composition or a documented native dialog/application-owned implementation; a drawer is a layout/interaction design, not a renamed v2 queue store. Preserve dismissal, focus return, labels and state ownership. See [Dialog](https://www.skeleton.dev/docs/svelte/framework-components/dialog).
+- Replace historical toast stores/hosts with current `Toast`, `createToaster` and `Toast.Group` integration. Translate payloads, dismissal and queue behavior using the [current Toast contract](https://www.skeleton.dev/docs/svelte/framework-components/toast); do not retain historical `Toaster` wrappers as shims.
+- Replace `AppShell` with semantic HTML and responsive Tailwind layouts. Replace historical component `Table` with a styled native table. Preserve mobile navigation, landmarks and domain behavior.
+- After every caller has migrated, remove obsolete Skeleton initialization, helpers, hosts, aliases, wrappers and dependencies. Never delete unrelated `svelte/store` state or disable SSR to conceal a migration error. User/request state must remain per component/layout/request, not mutable server singletons.
 
 ## Components are not a rename-only migration
 
-Selected mappings from the [official archived component migration table](https://v3.skeleton.dev/docs/get-started/migrate-from-v2#migrating-components):
+This table identifies historical source families and final v5 destinations; the intermediate v4 stage still applies.
 
-| v2 | v3 | Required review |
+| Historical source | v5 destination | Required review |
 | --- | --- | --- |
-| `RangeSlider` | `Slider` | Array-valued `value`, callback payload, markers, accessibility |
-| `SlideToggle` | `Switch` | Checked state and change callbacks |
-| `TabGroup` | `Tabs` | Root/item composition and snippets |
-| `InputChip` | `TagsInput` | Values, input behavior, callbacks |
-| `FileButton`, `FileDropzone` | `FileUpload` | Combined upload behavior and props |
-| `ProgressBar`, `ProgressRadial` | `Progress`, `ProgressRing` | Value/indeterminate semantics and style props |
-| `AppRail` | `Navigation` | Changed navigation composition |
+| `RangeSlider` | `Slider` | Array-valued value, labels, markers and `onValueChange` payload |
+| `SlideToggle` | `Switch` | `checked` / `onCheckedChange`, `e.checked`, control/thumb/label/hidden input |
+| `TabGroup` or old Tabs snippets | `Tabs` | `Tabs.List`, `Tabs.Trigger`, `Tabs.Content`, optional indicator |
+| `InputChip` | `TagsInput` | Values, input behavior and callbacks |
+| `FileButton`, `FileDropzone` | `FileUpload` | Upload composition, files and validation |
+| `ProgressBar`, `ProgressRadial`, `ProgressRing` | `Progress` | Linear/circular composition and determinate/indeterminate semantics |
+| `AppRail`, historical `Navigation` | Semantic navigation | Responsive layout and active-route semantics |
+| Historical ratings/radio-group/QR integrations | `RatingGroup`, `SegmentedControl`, `QrCode` where appropriate | Compare exact purpose and declarations; these are not blind renames |
 
-For example, the archived guide changes a bound scalar `RangeSlider` value into a `$state([15])` array passed to `Slider`, with `onValueChange={(e) => (value = e.value)}`. Read the target component's declarations before translating event names or accessing `.detail`: v3 callbacks are not automatically Svelte-dispatched events. Preserve labels, keyboard behavior, state ownership, and domain logic while changing UI contracts.
+Read [current components](components.md) and exact installed declarations. `Accordion` uses `value: string[]` / `onValueChange` / `e.value`. Props are input and callbacks are output; do not assume library props support `bind:` or callbacks use `.detail`. Preserve labels, keyboard behavior, SSR-safe IDs (`$props.id()`), state ownership and domain logic. Custom element snippets must spread supplied attributes; conditional transitions must respect hidden state.
 
 ## Avoid v4/v5 compound-API traps
 
-The root [v3 exports](https://unpkg.com/@skeletonlabs/skeleton-svelte@1.5.3/dist/index.d.ts) are the offline catalog. They include `Avatar`, `Accordion`, `Tabs`, `Navigation`, `Modal`, `Toaster`, and `createToaster`; they do **not** export `Portal`, `useListCollection`, `Dialog`, `Select`, `Checkbox`, `Clipboard`, or `PinInput`. Do not infer v3 support from a current component catalog or install Skeleton 5 just to make a copied example compile.
+This heading is retained for existing links; **v5 compound APIs are now the target**, not an API to avoid. Import them from `@skeletonlabs/skeleton-svelte`. Historical v3 root components, alpha `/composed` components and v4 examples are migration sources only. There is no public `/composed` entrypoint in 5.0.1.
 
-**v3 itself has some compound APIs**. Its root Accordion supports `Accordion.Item`, and its separate `@skeletonlabs/skeleton-svelte/composed` export contains experimental Accordion and Avatar APIs. The [composed export index](https://unpkg.com/@skeletonlabs/skeleton-svelte@1.5.3/dist/composed/index.d.ts) exposes only those two families, and the [archived composed Avatar page](https://v3.skeleton.dev/docs/components-composed/avatar/svelte) explicitly warns that this alpha API is not intended for production.
+Use callable roots such as `<Avatar>`, `<Switch>`, `<Accordion>` and `<Tabs>`, with their declared children. Root names alone do not establish compatibility: historical `Tabs.Control`/`Tabs.Panel` and old list snippets are not current `Tabs.List`/`Tabs.Trigger`/`Tabs.Content`. Inspect child exports, required props and callback payloads. Do not combine old single-component props with current compound children or invent missing exports.
 
-Consequently, `Avatar.Image` or `Avatar.Fallback` does not by itself prove a snippet is v5: check the **import subpath**. Root v3 `Avatar` is a single component, whereas `/composed` has a different API. Never blend root props or snippets with composed or current-doc child components. Prefer the supported root API unless the user explicitly requests the v3 alpha path.
+### Theme token and utility cutover
 
-Treat current `skeleton.dev` documentation and version-ambiguous Context7 results as discovery leads, not v3 authority. A result containing `Portal`, `useListCollection`, or an unavailable export should trigger an installed-types comparison. Do not claim every component in later documentation belongs to v3, or that all dotted component names are later-version-only.
+Apply these historical v4 → v5 replacements everywhere, including files omitted by the CLI:
+
+| Historical token | v5 token |
+| --- | --- |
+| `--base-font-family`, `--base-font-size` | `--typo-base--font-family`, `--typo-base--font-size` |
+| `--base-font-color`, `--base-font-color-dark` | `--typo-base--color-light`, `--typo-base--color-dark` |
+| `--base-line-height`, `--base-font-weight`, `--base-font-style`, `--base-letter-spacing` | `--typo-base--line-height`, `--typo-base--font-weight`, `--typo-base--font-style`, `--typo-base--letter-spacing` |
+| `--heading-font-family` | `--typo-heading--font-family` |
+| `--heading-font-color`, `--heading-font-color-dark` | `--typo-heading--color-light`, `--typo-heading--color-dark` |
+| `--heading-font-weight`, `--heading-font-style`, `--heading-letter-spacing` | `--typo-heading--font-weight`, `--typo-heading--font-style`, `--typo-heading--letter-spacing` |
+| `--anchor-font-family`, `--anchor-font-size` | `--typo-anchor--font-family`, `--typo-anchor--font-size` |
+| `--anchor-font-color`, `--anchor-font-color-dark` | `--typo-anchor--color-light`, `--typo-anchor--color-dark` |
+| `--anchor-line-height`, `--anchor-font-weight`, `--anchor-font-style`, `--anchor-letter-spacing` | `--typo-anchor--line-height`, `--typo-anchor--font-weight`, `--typo-anchor--font-style`, `--typo-anchor--letter-spacing` |
+| `--anchor-text-decoration` | `--typo-anchor--text-decoration-line` |
+| `--anchor-text-decoration-hover`, `--anchor-text-decoration-active`, `--anchor-text-decoration-focus` | `--typo-anchor--hover--text-decoration-line`, `--typo-anchor--active--text-decoration-line`, `--typo-anchor--focus--text-decoration-line` |
+| `--body-background-color`, `--body-background-color-dark` | `--color-root-bg-light`, `--color-root-bg-dark` |
+
+Remove `--heading-font-size` and `--heading-line-height`; use the typographic scale. Remove `--default-divide-width`; division derives from `--default-border-width`. New typography controls add stretch, kerning, text shadow, word spacing, hyphens and text transform; anchor decoration controls add color/style/thickness/underline offset/position, including hover/active/focus variants. Review converted theme defaults rather than copying removed tokens.
+
+Review new brand tokens `--color-brand-light/dark` and `--color-brand-contrast-light/dark`, plus `preset-filled-brand`, `preset-tonal-brand`, `preset-outlined-brand`. Brand is the default accent for several controls; most themes use primary 500, while nouveau varies by mode. Review resulting light/dark contrast; tokens alone do not guarantee accessibility. Preserve visible focus outlines (`--default-outline-width`).
+
+| Historical utility | v5 replacement |
+| --- | --- |
+| `card-hover` | `card` automatically applies hover styles on anchors/buttons; use semantic interactive elements |
+| `@variant theme-[name]` | Removed; target `[data-theme='name']` with ordinary CSS |
+| `input-group` | `field-group`, with semantic label/input markup |
+| `ig-cell` | `label label-text` on a label/span appropriate to its meaning |
+| `ig-input`, `ig-select`, `ig-btn` | `input`, `select`, `btn` |
+
+Do not just rename Input Group classes: create associated visible labels and match grid tracks to actual children. Complete native field group below; it performs no submission or persistence and requires the forms plugin from setup.
+
+`MigrationFieldGroup.svelte`
+
+```svelte
+<script lang="ts">
+  const id = $props.id();
+</script>
+
+<div class="field-group grid-cols-[auto_1fr]">
+  <label class="label label-text preset-tonal" for={id}>Website URL</label>
+  <input class="input" id={id} name="website" type="url" placeholder="https://example.com" />
+</div>
+```
+
+Review historical typography/theme-variant classes reported by the CLI; choose current semantic typography, explicit styles or the appropriate current preset instead of retaining dead classes. Use `--spacing-elem-{size}` via `size-elem-*`, `w-elem-*`, `h-elem-*`, spacing utilities, `btn-{size}` and `field-{size}` (`xs`, `sm`, `base`, `lg`, `xl`, `2xl`–`9xl`). Existing `btn-sm/base/lg` remain; new sizes do not require changing every control. Nested control SVG sizing is automatic where documented; remove conflicting manual sizes only when appropriate. See [official migration](https://www.skeleton.dev/docs/svelte/get-started/migrate-from-v4), [core API](https://www.skeleton.dev/docs/svelte/get-started/core-api), [typography](https://www.skeleton.dev/docs/svelte/design/typography) and [forms](https://www.skeleton.dev/docs/svelte/tailwind-components/forms).
+
+Typography utility names also change independently of token names:
+
+| Historical utility | v5 utility |
+| --- | --- |
+| `base-font-family`, `base-font-size` | `font-typo-base`, `text-typo-base` |
+| `base-line-height`, `base-letter-spacing` | `leading-typo-base`, `tracking-typo-base` |
+| `base-font-color`, `base-font-color-dark` | `text-typo-base-light`, `text-typo-base-dark` |
+| `heading-font-family`, `heading-letter-spacing` | `font-typo-heading`, `tracking-typo-heading` |
+| `heading-font-color`, `heading-font-color-dark` | `text-typo-heading-light`, `text-typo-heading-dark` |
+| `anchor-font-family`, `anchor-font-size` | `font-typo-anchor`, `text-typo-anchor` |
+| `anchor-line-height`, `anchor-letter-spacing` | `leading-typo-anchor`, `tracking-typo-anchor` |
+| `anchor-font-color`, `anchor-font-color-dark` | `text-typo-anchor-light`, `text-typo-anchor-dark` |
+| `body-background-color`, `body-background-color-dark` | `bg-root-bg-light`, `bg-root-bg-dark` |
+| `heading-font-size`, `heading-line-height` | Choose current `text-*` / `leading-*` scale utilities |
+| `base-font-weight`, `heading-font-weight`, `anchor-font-weight` | Choose `font-*` weight or consume matching typography token |
+| `base-font-style`, `heading-font-style`, `anchor-font-style` | `italic` / `not-italic`, or consume matching typography token directly |
+| `anchor-text-decoration` and `-hover`/`-active`/`-focus` suffixes | Explicit decoration utilities/state variants or matching anchor tokens |
+
+The historical `code` utility class is not shipped in 5.0.1. Remove that redundant class while preserving semantic `<code>` markup: core CSS styles the native element. Add explicit application styles only where additional presentation is needed; do not remove semantic code markup to satisfy the CLI warning.
 
 ## Offline inspection fallback
 
 When web research is unavailable or mixes versions:
 
-1. Read the resolved versions from the workspace lockfile and installed packages' `package.json`. Distinguish a manifest range from the version actually installed.
-2. Locate `@skeletonlabs/skeleton-svelte` through the app's actual dependency directory or symlink. Read `dist/index.d.ts` for root exports and `dist/composed/index.d.ts` only if that subpath is being used. The package's `exports` map identifies the public entrypoints; do not infer public imports from arbitrary internal files.
-3. Follow the declaration's relative path to the component `.svelte.d.ts` and its `types.d.ts` or `types.js` target. Read required props, snippet signatures, callback payloads, and whether the exported value has child components. Inspect the paired `.svelte` source for details declarations cannot explain.
-4. Read core `dist/index.css`, `dist/optional/presets.css`, and the chosen `dist/themes/*.css` to identify real classes and CSS variables; keep theme activation separate from import registration.
-5. Use these references' known v3 patterns. If no matching public export exists, choose a documented styled HTML element, an application-owned implementation, or an explicitly approved dependency; do not invent a missing component or prop.
+1. Read resolved versions from the workspace lockfile and installed `package.json`; distinguish ranges from actual versions.
+2. Resolve the app's actual dependency directory/symlink. Read the Svelte package's `exports` and `dist/index.d.ts`; follow declared relative paths to component declarations and paired sources. Internal files do not establish public entrypoints.
+3. Inspect required props, child exports, snippet attributes, callback payloads and bindability before translating a caller.
+4. Core CSS is **`src/index.css`**, themes are **`src/themes/*.css`**; presets are included through core's CSS. Framework CSS is **`dist/index.css`** in the Svelte package. Do not restore historical core `dist/index.css`, optional-presets or `/composed` paths.
+5. If no public export matches, use documented native HTML or an application-owned implementation preserving the behavior; never fabricate a prop/component.
 
-For online confirmation, use version-qualified metadata, for example `npm view @skeletonlabs/skeleton-svelte@1.5.3 peerDependencies exports --json`, or read its [exact registry document](https://registry.npmjs.org/@skeletonlabs/skeleton-svelte/1.5.3). Do not replace an offline inspection with an unpinned package install.
+Exact source links: [core index](https://unpkg.com/@skeletonlabs/skeleton@5.0.1/src/index.css), [Cerberus](https://unpkg.com/@skeletonlabs/skeleton@5.0.1/src/themes/cerberus.css), [framework CSS](https://unpkg.com/@skeletonlabs/skeleton-svelte@5.0.1/dist/index.css), [framework declarations](https://unpkg.com/@skeletonlabs/skeleton-svelte@5.0.1/dist/index.d.ts). Metadata query: `npm view @skeletonlabs/skeleton-svelte@5.0.1 peerDependencies exports --json`. Do not replace inspection with an unpinned install.
 
 ## Diagnose the failing layer
 
 | Failure | Targeted next step |
 | --- | --- |
-| `initializeStores` or `get*Store` is not exported | Finish the v2 store migration; no store-initialization workaround exists in this pinned core CSS package. |
-| `Avatar.Image` missing from root import | Check root versus alpha `/composed` APIs; use supported root Avatar props instead of copying newer docs. |
-| `Portal`, `Dialog`, `useListCollection` import failure | Compare `dist/index.d.ts`; rewrite for the available v3 integration/API, not a newer package version. |
-| `value`/callback type error after rename | Compare component declarations and archived examples; preserve the new value shape and read callback payload directly. |
-| Theme/preset utilities disappeared | Fix v3 CSS imports, active theme, class names, and component source scan; don't re-enable the Tailwind 3 Skeleton plugin. |
-| Kit fails before rendering | Inspect the installed Kit generation, configuration, modules, adapter, and peers. Use [setup](setup.md) for an approved Kit 3 migration; do not force that upgrade or blame the Skeleton API. |
-| Styling vanishes only in monorepo builds | Resolve `@source` relative to the actual stylesheet and check Tailwind's scan base path. |
+| Historical `initializeStores`/`get*Store` import fails | Complete caller/host migration; no initialization workaround exists in CSS core. |
+| Compound child or prop missing | Compare root 5.0.1 declarations; remove historical subpath/snippet assumptions. |
+| Value/callback type error after rename | Check value shape and callback payload directly; do not assume `.detail` or bindability. |
+| Theme/preset utilities disappear | Fix current CSS imports, theme activation and class names, not the old Tailwind plugin. |
+| CLI leaves classes/tokens unchanged | Inspect `.ts`, `.html`, unselected/shared folders and dynamic class construction manually. |
+| Kit fails before rendering | Inspect installed Kit generation, configuration, modules, adapter and peers; do not force a Kit upgrade to solve a Skeleton issue. |
+| Styling vanishes in monorepo builds | Resolve application `@source` paths relative to the stylesheet and inspect the scan base. |
 
-After migration, the integrating agent should run existing checks and the build, then verify real component interactions, overlays, keyboard behavior, focus behavior, and themed styling. Report only exercised checks. API consistency, type consistency, and published peers are evidence, not a substitute for runtime verification.
+The integrating agent should run existing checks/build, then exercise real component interactions, overlays, keyboard/focus behavior, themed styling and SSR/hydration isolation. Report only exercised checks; metadata/types are not runtime certification.

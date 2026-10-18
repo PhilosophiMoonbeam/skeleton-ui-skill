@@ -21,7 +21,7 @@ Adapt the existing app before introducing a new look: retain its active theme, l
 
 | Decision | Recommended starting point | Avoid |
 | --- | --- | --- |
-| Palette | Neutral `surface` canvas and containers; `primary` for the principal action or selected emphasis. Reserve status palettes for labeled status. | Every card in a different brand color; gradients behind body text; translucent surfaces with unmeasured contrast. |
+| Palette | Neutral `surface` canvas and containers; `preset-filled-brand` for mode-adaptable principal emphasis, or intentional `primary` palette styling. Reserve status palettes for labeled status. | Every card in a different brand color; gradients behind body text; translucent surfaces with unmeasured contrast. |
 | Type | One loaded or system font family; clear page title, section heading, body, and metadata roles. Use weight and spacing as well as size. Keep prose around 45–75 characters per line. | A wall of equally bold labels; tiny low-contrast metadata; all-uppercase paragraphs; fonts that were named but not loaded. |
 | Spacing | Use a repeated vocabulary, for example `gap-2`, `gap-4`, `gap-6`, `p-4`, `p-6`. Section gaps should exceed the gaps within their content. | A different offset for every element; changing global `--spacing` to fix one crowded control. |
 | Surfaces | Canvas, content surface, and one highlighted surface. A subtle border and consistent radius can distinguish cards without shadows. | Nested cards around every sentence; many competing shadow strengths; every surface floating equally high. |
@@ -33,6 +33,14 @@ These are starting points, not fixed ratios or a prescribed brand. Modify theme 
 Calibrate one representative screen with real-length content before repeating components. Choose a canvas, a content surface, one accent treatment, four type roles, and comfortable or compact density; use the token override pattern in [styling.md](styling.md). If everything competes, remove accents, borders, and bold weights before adding decoration. If hierarchy is weak, increase section spacing and distinguish the title before enlarging every card. If content feels sparse, improve grouping and column widths rather than inventing metrics.
 
 Adapt the recipe to the task: keep the editorial introduction for a collection or reading experience; shorten it to a title and explanation for frequent operational work. Use a list or table when users compare the same fields across many records; retain cards when descriptions and next steps need reading space. Change grid breakpoints when the actual labels and controls stop fitting, not to reach a preferred column count.
+
+Optional effects belong to the brief, not to a mandatory redesign:
+
+- **Glass:** author application CSS using an opaque surface/foreground fallback, then opt into a translucent `color-mix()` background and `backdrop-filter` inside a support query. Keep blur modest and localized. Test the actual backdrop; a named contrast token does not certify text over transparency.
+- **Gradient or mesh:** author a linear gradient or a few static radial gradients over a solid fallback. Keep essential reading areas opaque, and remove decorative layers in forced colors if they obscure boundaries. Theme tokens can follow theme changes, but static `*-500` endpoints do not automatically change with dark mode; choose explicit light/dark values or pairing tokens and measure both schemes.
+- **Typography:** define a small application-owned display/title/body/caption vocabulary if repeated compositions need it. Use the current `--typo-*--*` tokens where appropriate, load the chosen font, keep semantic heading order, and test long titles, text enlargement, and fallback fonts. An oversized or animated title is optional; it must not displace the primary task.
+
+Names such as `preset-glass-*`, `preset-gradient-*`, `preset-input-success/error`, and `preset-typo-*` in upstream user-generated examples are **user-authored CSS**, not shipped Skeleton utilities. Validation paint still needs real validation and text errors. No custom effect guarantees contrast or dark-mode readability. Prefer static decoration; if movement is requested, provide a meaningful still fallback and reduced-motion handling, including any JavaScript animation. The shell below intentionally needs none of these effects.
 
 ## Compose from narrow to wide
 
@@ -52,10 +60,11 @@ Prefer text labels when an icon adds no information. If icons are useful, use on
 
 ## Complete responsive app-shell recipe
 
-**File: `src/routes/+page.svelte`** — complete SvelteKit page; mount as the page itself, not inside another `main` landmark.
+Prerequisite: the global Tailwind/Skeleton core and framework CSS imports, Cerberus theme activation, and required forms plugin in [styling.md](styling.md). No Svelte library component import, icon dependency, server route, fetch, or asset is needed. This is an explicitly local example dataset, not a connected studio workspace. Search and status filtering apply on submission; reset restores all four briefs. The disclosure navigation and section links work without JavaScript. Filters remain honestly disabled until mount; initial SSR and client data, state, and markup agree.
 
-Prerequisite: the global Tailwind/Skeleton CSS, Cerberus theme activation, optional presets, and forms plugin in [styling.md](styling.md). No component library import, icon dependency, server route, fetch, or asset is needed. This is an explicitly local example dataset, not a connected studio workspace. Search and status filtering apply on submission; reset restores all four briefs. The disclosure navigation and section links work without JavaScript. Filters remain honestly disabled until mount; initial SSR and client data, state, and markup agree.
+Complete page content; use as the page itself, not inside another `main` landmark. If installed as a Kit route, place its contents in that route's `+page.svelte`.
 
+**File: `ResponsiveAppShell.svelte`**
 ```svelte
 <script lang="ts">
   import { onMount } from 'svelte';
@@ -217,7 +226,7 @@ Prerequisite: the global Tailwind/Skeleton CSS, Cerberus theme activation, optio
   .sidebar { display: none; padding: 2rem 1.25rem; }
   main { padding: 2rem 1.25rem; }
   .intro { display: grid; gap: 2rem; align-items: start; }
-  .page-title { font-family: var(--heading-font-family); font-size: clamp(2.25rem, 5vw, 4rem); font-weight: 700; line-height: 1.08; letter-spacing: -0.035em; }
+  .page-title { font-family: var(--typo-heading--font-family); font-size: clamp(2.25rem, 5vw, 4rem); font-weight: 700; line-height: 1.08; letter-spacing: -0.035em; }
   .section-links { display: grid; gap: 0.5rem; }
   .section-links a { padding: 0.75rem; border-radius: var(--radius-base); font-weight: 500; }
   .section-links a:hover { background: var(--color-surface-100-900); }
@@ -266,4 +275,4 @@ These are **checks to perform**, not a claim of tested screenshots or accessible
 
 For real data, replace the local filter with the application's supported route/load flow and implement genuine pending/error/retry states. Do not carry a “local only” claim into a persisted feature or add fake success feedback to this recipe.
 
-Sources: [core 3.2.2 CSS and pairings](https://unpkg.com/@skeletonlabs/skeleton@3.2.2/dist/index.css), [exact optional presets](https://unpkg.com/@skeletonlabs/skeleton@3.2.2/dist/optional/presets.css), [Cerberus tokens](https://unpkg.com/@skeletonlabs/skeleton@3.2.2/dist/themes/cerberus.css), [v3 Forms prerequisites](https://v3.skeleton.dev/docs/tailwind/forms), [Svelte runes](https://svelte.dev/docs/svelte/what-are-runes), [Svelte lifecycle](https://svelte.dev/docs/svelte/lifecycle-hooks), [native disclosure behavior](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/details).
+Sources: [core 5.0.1 CSS and pairings](https://unpkg.com/@skeletonlabs/skeleton@5.0.1/src/base/theme.css), [included presets](https://unpkg.com/@skeletonlabs/skeleton@5.0.1/src/utilities/presets.css), [Cerberus tokens](https://unpkg.com/@skeletonlabs/skeleton@5.0.1/src/themes/cerberus.css), [Forms prerequisites](https://www.skeleton.dev/docs/svelte/tailwind-components/forms), [user-generated presets](https://www.skeleton.dev/docs/svelte/tailwind-utilities/presets#user-generated), [semantic typography examples](https://www.skeleton.dev/docs/svelte/design/typography#semantic-typography), [Svelte runes](https://svelte.dev/docs/svelte/what-are-runes), [Svelte lifecycle](https://svelte.dev/docs/svelte/lifecycle-hooks), [native disclosure behavior](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/details).
