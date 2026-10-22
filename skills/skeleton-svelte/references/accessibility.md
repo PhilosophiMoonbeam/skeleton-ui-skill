@@ -16,6 +16,20 @@ Skeleton's [core 5.0.1 CSS](https://unpkg.com/@skeletonlabs/skeleton@5.0.1/src/i
 
 Sources: [WAI Labeling Controls](https://www.w3.org/WAI/tutorials/forms/labels/), [Buttons](https://www.skeleton.dev/docs/svelte/tailwind-components/buttons), [Typography](https://www.skeleton.dev/docs/svelte/design/typography), [Tables](https://www.skeleton.dev/docs/svelte/tailwind-components/tables), [native disabled appearance](https://unpkg.com/@skeletonlabs/skeleton@5.0.1/src/base/globals.css).
 
+## Lucide icons and control names
+
+Prefer Lucide when an icon improves recognition; labels remain the primary explanation. Apply these rules to the actual rendered SVG and control:
+
+- **Labeled button or link:** keep the icon decorative with `aria-hidden="true"` and retain the visible action/destination text. For an icon-only control, put its accessible name on the button or link, not the SVG; use specific wording such as “Close settings.” A tooltip is supplementary, not the only name. Do not move control state or relationships such as `aria-expanded` or `aria-controls` onto the icon.
+- **Default hiding is conditional:** in `@lucide/svelte@1.61.0`, automatic `aria-hidden="true"` applies only with no child snippet and no `aria-*`, `role`, or `title` prop. Adding any of these suppresses that inference; it does not establish a useful name or role by itself. Keep decorative icons explicitly hidden when adding attributes or children. `focusable="false"` may be used to keep SVG itself out of focus, but it neither names nor disables the enclosing control.
+- **Standalone meaningful icon:** use `role="img"` with an explicit `aria-label`, or associate a nested `<title>` through `aria-labelledby`. Name its contextual meaning, not its shape. A `title` string attribute is not a nested `<title>` element. Prefer visible text if meaning would otherwise be ambiguous.
+- **IDs only for associations:** `aria-label` needs no ID. If using `aria-labelledby`, generate a unique, hydration-stable title ID with `$props.id()` in component instance initialization and reference that exact ID. Never reuse a fixed title ID across repeated icons.
+- **Rendering and interaction:** check meaningful icon contrast, forced colors, focus visibility, and the actual button/link target size, not just SVG dimensions. Keep status understandable without color alone. Static icons need no motion machinery; if an icon is animated, preserve its meaning in a static reduced-motion alternative.
+
+See [complete accessible icon examples](lucide.md#accessible-icons-and-controls), [styling precedence](lucide.md#props-and-styling), and [icon verification](lucide.md#verification). Inspect names and roles in the accessibility tree, then exercise the flow with the supported screen reader/browser combinations; SVG defaults do not certify announcements.
+
+Sources: [Lucide Svelte accessibility](https://lucide.dev/guide/svelte/advanced/accessibility), [pinned default-hidden inference](https://unpkg.com/@lucide/svelte@1.61.0/dist/utils/hasA11yProp.js), [pinned icon rendering](https://unpkg.com/@lucide/svelte@1.61.0/dist/Icon.svelte), [Svelte instance IDs](https://svelte.dev/docs/svelte/$props#$props.id()).
+
 ## Validation, errors, and status
 
 Validate on the server for persisted operations; client constraints improve interaction but are not a trust boundary. Keep submitted values when returning errors. Associate field help and error text through `aria-describedby`; set `aria-invalid="true"` only when validation finds an error, not on every untouched required field.

@@ -1,37 +1,44 @@
 ---
 name: skeleton-svelte
 description: >-
-  Build, style, debug, or migrate Skeleton UI 5 apps exclusively on SvelteKit 3.1+.
-  Use for Skeleton components, themes, native controls, responsive composition,
-  progressive motion, SSR, and server forms. Tested examples use Skeleton 5.0.1,
-  Svelte 5.57.2, SvelteKit 3.1.0, and Tailwind CSS 4.3.3. Older framework
-  conventions appear only as migration or avoidance context. Not for React.
+  Build, style, debug, or migrate Skeleton UI 5 apps exclusively on SvelteKit 3.1+,
+  with Svelte 5, Tailwind CSS 4, and Lucide for useful icons. Use for components,
+  themes, icon imports and accessible icon controls, responsive composition,
+  progressive motion, SSR, and server forms. Exact framework baseline:
+  Skeleton 5.0.1, Svelte 5.57.2, Kit 3.1.0, Tailwind 4.3.3; optional
+  @lucide/svelte 1.61.0. Older conventions are migration context only. Not React.
 compatibility: >-
-  Baseline: Skeleton core and Svelte components 5.0.1, Svelte 5.57.2,
-  SvelteKit 3.1.0, Tailwind CSS 4.3.3. Targets Kit 3.1+ exclusively with a
-  compatible Node/Vite/adapter toolchain; later releases need matching API checks.
-  Bundled guidance and installed packages support offline inspection;
-  dependency installation requires registry or cache access.
+  Skeleton core and Svelte components 5.0.1, Svelte 5.57.2, SvelteKit 3.1.0,
+  Tailwind CSS 4.3.3; optional @lucide/svelte 1.61.0 (Svelte ^5 peer).
+  Targets Kit 3.1+ exclusively with compatible Node/Vite/adapter tooling;
+  later releases need matching API checks. Bundled guidance and installed
+  packages support offline inspection; installation requires registry/cache access.
 metadata:
-  version: "3.0"
+  version: "3.1"
   skeleton-core: "5.0.1"
   skeleton-svelte: "5.0.1"
   svelte: "5.57.2"
   sveltekit: "3.1.0"
   tailwindcss: "4.3.3"
+  lucide: "1.61.0"
 ---
 
-# Skeleton 5 for Svelte
+# Skeleton + SvelteKit + Tailwind CSS + Lucide
 
 Create coherent UI using Skeleton's theme vocabulary and the application's
 visual language. Prefer styled native HTML for simple controls; use a verified
-framework component when managed interaction requires it. React is out of scope.
+framework component when managed interaction requires it. Prefer Lucide when an
+icon improves comprehension, not as mandatory decoration. React is out of scope.
 
 ## Version boundary: inspect before using examples
 
 The exact reference baseline is **`@skeletonlabs/skeleton@5.0.1`** (CSS),
 **`@skeletonlabs/skeleton-svelte@5.0.1`**, **Svelte `5.57.2`**,
 **SvelteKit `3.1.0`**, and **Tailwind CSS `4.3.3`**.
+
+The independently observed icon pin is **`@lucide/svelte@1.61.0`**, with a
+Svelte `^5` peer. Install it only where icons are used; existing dependency-free
+recipes do not require it.
 
 - **Existing app:** require SvelteKit 3.1 or later. Inspect resolved versions;
   preserve compatible tooling, adapter, application conventions, and unrelated work.
@@ -53,6 +60,12 @@ Read the relevant sections, not the full reference set.
 | Explicit Skeleton 2/3/4-to-5 or Kit 3 migration; mixed-major APIs | [Migration](references/migration.md): staged migration, affected configuration and every caller |
 | Choose a control; verify exports, props, callbacks, anatomy | [Components](references/components.md): functional inventory, native alternatives, installed-types lookup |
 | Implement a functional control; customize providers/elements | [Recipes](references/recipes.md) for complete controls; [Components](references/components.md#six-supported-composition-patterns) for provider/element patterns |
+| Find an icon or confirm its installed export | [Discover and verify an icon](references/lucide.md#discover-and-verify-an-icon); catalog names must match the resolved package |
+| Import icons; style SVGs or label icon controls | [Lucide imports](references/lucide.md#imports-and-package-boundary), [props and styling](references/lucide.md#props-and-styling), and [accessible icons and controls](references/lucide.md#accessible-icons-and-controls) |
+| Lucide export, SVG/CSS, accessibility, or context failure; work offline | [Troubleshooting](references/lucide.md#troubleshooting) and [offline package inspection](references/lucide.md#offline-package-inspection) |
+| Finite runtime icon selection or static subtree defaults | [Finite runtime selection](references/lucide.md#finite-runtime-selection) and [subtree defaults](references/lucide.md#subtree-defaults) |
+| Typed icon consumer with reactive runtime props | [Reactive consumer](references/lucide-patterns.md#reactive-consumer); validate external string keys before selecting component values |
+| Fill/shape composition, RTL, custom data, or optional Lucide Lab | [Fill and composition](references/lucide-patterns.md#fill-and-composition), [directional icons](references/lucide-patterns.md#directional-icons), or [custom icon data and Lab](references/lucide-patterns.md#custom-icon-data-and-lab) |
 | Theme, tokens, brand presets, native classes, dark mode | [Styling](references/styling.md): theme registration, colors/presets, mode, diagnosis |
 | Page composition, visual refinement, or performance | [Design](references/design.md): brief, visual system, purposeful feedback, performance constraints; app-shell recipe when useful |
 | Labels, errors, keyboard/focus, contrast, continuous motion | [Accessibility](references/accessibility.md): relevant interaction contract and browser checks |
@@ -61,9 +74,10 @@ Read the relevant sections, not the full reference set.
 | Conflicting documentation, offline inspection, evidence | [Sources](references/sources.md): authority hierarchy, primary-source map, verification limits |
 
 For a page refresh, combine **design + styling** and relevant accessibility
-checks. Add **components + the selected recipe** for interaction, or **SvelteKit**
-for server data/forms. An explicit migration needs **migration + setup** and each
-affected control's contract. Do not copy the app shell merely to restyle a page.
+checks. Add **components + the selected recipe** for interaction, **Lucide** when
+icons help, or **SvelteKit** for server data/forms. An explicit migration needs
+**migration + setup** and each affected control's contract. Do not copy the app
+shell merely to restyle a page.
 
 ## Blind-session workflow
 
@@ -116,6 +130,11 @@ relevant versions; setup or migration needs the full toolchain/configuration.
   Skeleton distribution scan. Retain `@source` for other shared UI when needed.
   Styled native form utilities require `@tailwindcss/forms`. CSS alone does not
   make a dialog modal or a styled disabled control semantically disabled.
+- **Lucide is a Svelte SVG component library.** Prefer canonical per-icon default
+  imports from `@lucide/svelte/icons/<slug>`; root named imports remain public and
+  valid. No icon stylesheet, Tailwind plugin, scanner, or client-only workaround
+  is required. Name the actual button/link and keep its icon decorative.
+  See [Lucide verification](references/lucide.md#verification) for affected checks.
 - **Motion decorates real state.** Accessible values and success messages must
   report actual work, not animated interpolation. Honor reduced motion in CSS
   and JavaScript; preserve static feedback and normal-navigation fallbacks.
@@ -138,6 +157,7 @@ and supplemental research are discovery/secondary evidence, not proof against
 shipped declarations.
 
 Offline, follow [components' installed-types lookup](references/components.md#offline-installed-types-lookup)
+or [Lucide's package inspection](references/lucide.md#offline-package-inspection)
 through the actual dependency layout. [Sources](references/sources.md) records
 primary links, research corrections, and evidence limits. If evidence is missing,
 name the unknown contract rather than inventing an API or claiming verification.

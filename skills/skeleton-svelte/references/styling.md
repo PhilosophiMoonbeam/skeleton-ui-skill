@@ -90,6 +90,18 @@ Optional strict palette clearing is advanced Tailwind configuration, **not** a S
 
 Sources: [Colors](https://www.skeleton.dev/docs/svelte/design/colors), [Presets](https://www.skeleton.dev/docs/svelte/tailwind-utilities/presets), [pinned pairing definitions](https://unpkg.com/@skeletonlabs/skeleton@5.0.1/src/base/theme.css), [pinned preset CSS](https://unpkg.com/@skeletonlabs/skeleton@5.0.1/src/utilities/presets.css), [Tailwind custom palette](https://tailwindcss.com/docs/colors#using-a-custom-palette).
 
+## Lucide icon styling
+
+When icons carry meaning, prefer the coherent Lucide family from `@lucide/svelte@1.61.0`; keep icon-free recipes dependency-free. See [imports and package boundaries](lucide.md#imports-and-package-boundary). Lucide renders inline SVG: it needs no icon stylesheet, Tailwind plugin, package `@source` scan, or DOM initialization.
+
+The default stroke is `currentColor`, so icons inherit the surrounding foreground, including Skeleton preset contrast colors and theme changes. Prefer inherited color or a local semantic `text-*` utility to hardcoded icon colors; an explicit `color` prop sets the SVG stroke and replaces that inheritance. Check the actual foreground in both schemes rather than assuming every palette shade adapts.
+
+Keep the rendered SVG a **direct child** of a Skeleton `btn` or `btn-icon`. Their `> :where(svg)` rules size it from `--btn-size`, including the selected button-size variant; a wrapper breaks that automatic sizing. Use those defaults for ordinary controls. An explicit Tailwind `size-4` on the icon overrides the default dimensions; the glyph size is not the button's hit-target size.
+
+Choose one owner for each property: component `size`/`strokeWidth` props or deliberate local CSS. CSS width/height and `stroke-width` declarations override SVG presentation attributes, so `size-4` or `stroke-1` can win over `size` or `strokeWidth` props. Avoid blanket global `.lucide` rules that silently override per-icon or subtree defaults. See [props and styling](lucide.md#props-and-styling), [subtree defaults](lucide.md#subtree-defaults), and [accessible controls](lucide.md#accessible-icons-and-controls) for complete examples.
+
+Sources: [Lucide Svelte styling](https://lucide.dev/guide/svelte/advanced/global-styling), [pinned SVG rendering](https://unpkg.com/@lucide/svelte@1.61.0/dist/Icon.svelte), [pinned SVG attribute generation](https://unpkg.com/@lucide/svelte@1.61.0/dist/utils/buildLucideIconNode.js), [Skeleton button sizing](https://unpkg.com/@skeletonlabs/skeleton@5.0.1/src/utilities/buttons.css), [Tailwind stroke width](https://tailwindcss.com/docs/stroke-width).
+
 ## Typography, spacing, and responsive layout
 
 Most typography treatments are opt-in: use `h1`–`h6`, `anchor`, `blockquote`, `pre`, `kbd`, `abbr`, `cite`, `quote` (on `<q>`), `sub`, `sup`, and `time` classes on appropriate semantic elements; `ins`, `del`, and `mark` are also available. Inline `<code>` instead receives base element styling in 5.0.1, with resets inside `<pre>` and `.ec-line`; it is not an opt-in `code` utility. Preserve semantic code markup rather than treating a migration-tool warning as grounds to delete working styling. A visual class is not a semantic heading level: `<h2 class="h3">` remains a level-two heading. Choose levels from document structure and visual size separately. Font-family tokens select fonts, which must also be loaded unless they are system fonts.

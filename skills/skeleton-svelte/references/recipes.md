@@ -11,6 +11,9 @@ Targets core and component packages **5.0.1**, Svelte **5.57.2**, Tailwind **4.3
 - [Toast strategy: create a store and mount a renderer](#toast-strategy-create-a-store-and-mount-a-renderer)
 - [Combobox: searchable local selection](#combobox-searchable-local-selection)
 - [Pagination: controlled local table](#pagination-controlled-local-table)
+- [Optional Lucide icons and icon triggers](lucide.md#accessible-icons-and-controls)
+
+For icon tasks, use the [Lucide reference](lucide.md): install/import boundaries, accessible controls, finite runtime selection, subtree defaults, and custom icons. Its complete `IconTooltip.svelte` demonstrates a Skeleton element-snippet icon trigger. The eight recipes below remain usable without an icon dependency.
 
 ## State, callbacks, and snippets
 

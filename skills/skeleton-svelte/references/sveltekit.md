@@ -5,6 +5,7 @@ Use this reference for application behavior around Skeleton 5.0.1 on SvelteKit 3
 - [Verify the project before changing it](#verify-the-project-before-changing-it)
 - [Runes, props, snippets and events](#runes-props-snippets-and-events)
 - [Page state and request isolation](#page-state-and-request-isolation)
+- [Lucide rendering and subtree scope](#lucide-rendering-and-subtree-scope)
 - [Browser-only work and cleanup](#browser-only-work-and-cleanup)
 - [Purposeful motion](#purposeful-motion)
 - [Load, secrets and serialization](#load-secrets-and-serialization)
@@ -134,6 +135,47 @@ If the application requires authentication, authenticate from the request's cook
 During SSR, read `$app/state` in component rendering, not a server utility or `load`; those have their own request event. Avoid child-to-parent context writes during SSR that change already-rendered markup.
 
 Sources: [request isolation and context](https://svelte.dev/docs/kit/state-management), [application state](https://svelte.dev/docs/kit/$app-state), [navigation](https://svelte.dev/docs/kit/$app-navigation), [shallow routing](https://svelte.dev/docs/kit/shallow-routing), [exact Kit 3.1.0 declarations](https://unpkg.com/@sveltejs/kit@3.1.0/types/index.d.ts), [removed stores](https://svelte.dev/docs/kit/migrating-to-sveltekit-3#$app-stores-(removed)).
+
+## Lucide rendering and subtree scope
+
+Static public imports from `@lucide/svelte/icons/<slug>` render inline SVG
+during SSR and hydrate as ordinary Svelte 5 components. Root named imports are
+also valid. Do **not** add a browser guard, move these imports into `onMount`,
+disable SSR with `ssr: false`, scan `data-lucide`, or initialize `createIcons`.
+Lucide needs no CSS import, Tailwind plugin or icon-specific `@source`.
+Browser-only lifecycle remains appropriate for actual browser APIs and local
+JavaScript-only controls, not for displaying an imported icon. See
+[imports and package boundary](lucide.md#imports-and-package-boundary).
+
+For navigation/status data, store **component values** in a finite statically
+imported list or whitelist typed with `LucideIcon` from `@lucide/svelte`.
+In a Svelte 5 each block, use `{@const SelectedIcon = item.icon}` and render
+`<SelectedIcon aria-hidden="true" />` beside the real text. This is a component
+reference, not an icon-name string or DOM lookup. Do not recommend legacy
+`<svelte:component>`, an all-icon namespace catalog or arbitrary runtime import
+paths. Validate external keys against the finite map and provide explicit text
+or a deliberate fallback for unknown keys. Component functions belong in
+component code; do not return them through serialized server `load` data.
+See the complete [finite runtime selection](lucide.md#finite-runtime-selection)
+example rather than duplicating an icon catalog in each route.
+
+For initial subtree defaults, import `setLucideProps` from
+`@lucide/svelte/context` and call it with a **props object** during the parent
+component's instance initialization, before rendering descendants. This is
+Svelte context, not a Skeleton provider factory: there is no getter/factory
+argument contract. Do not call it in `load`, a module script, a global mutable
+singleton, `onMount`, or an event handler. Keep user/request-specific values
+instance-owned. Icons capture the context object during initialization; do not
+promise live propagation from replacing or mutating defaults. Use explicit
+per-icon props for runtime changes and overrides. See
+[subtree defaults](lucide.md#subtree-defaults) for the parent/child pattern.
+
+Sources: [official Lucide Svelte guide](https://lucide.dev/guide/svelte/),
+[1.61.0 exports](https://unpkg.com/@lucide/svelte@1.61.0/package.json),
+[component types](https://unpkg.com/@lucide/svelte@1.61.0/dist/types.d.ts),
+[Icon implementation](https://unpkg.com/@lucide/svelte@1.61.0/dist/Icon.svelte),
+[context implementation](https://unpkg.com/@lucide/svelte@1.61.0/dist/context.js),
+[Svelte context](https://svelte.dev/docs/svelte/context).
 
 ## Browser-only work and cleanup
 

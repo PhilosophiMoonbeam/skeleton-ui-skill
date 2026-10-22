@@ -64,6 +64,63 @@ Historical v2 modal/toast/drawer stores and `initializeStores()` have no v5 comp
 - Replace `AppShell` with semantic HTML and responsive Tailwind layouts. Replace historical component `Table` with a styled native table. Preserve mobile navigation, landmarks and domain behavior.
 - After every caller has migrated, remove obsolete Skeleton initialization, helpers, hosts, aliases, wrappers and dependencies. Never delete unrelated `svelte/store` state or disable SSR to conceal a migration error. User/request state must remain per component/layout/request, not mutable server singletons.
 
+## Migrate Lucide to the current Svelte package
+
+For icons in the supported Svelte 5 / Kit 3.1+ application, cut over from
+deprecated `lucide-svelte` to independently versioned **`@lucide/svelte@1.61.0`**
+(peer `svelte: ^5`). Keep the existing stack pins, package manager and lockfile.
+An application without icons does not need this dependency.
+
+1. Inventory every old package import, icon wrapper/re-export, type alias,
+   generated icon map and dependency declaration, including shared packages.
+   Add the exact current package and migrate every caller; then remove the old
+   package and obsolete aliases/wrappers. Do not keep compatibility shims.
+2. Prefer canonical public per-icon default imports, for example
+   `import House from '@lucide/svelte/icons/house'` and
+   `import CircleAlert from '@lucide/svelte/icons/circle-alert'`.
+   Root named imports such as `import { Camera } from '@lucide/svelte'` remain
+   supported; changing their spelling is not required to make tree-shaking
+   possible. Never replace them with an all-icon runtime namespace or internal
+   `dist` imports. See [imports and package boundary](lucide.md#imports-and-package-boundary).
+3. Replace deprecated names with canonical ones throughout imports and markup:
+   `Home` → `House`, `AlertCircle` → `CircleAlert`, and
+   `HelpCircle` / `CircleHelp` → `CircleQuestionMark`. Their deprecated aliases
+   can still resolve in 1.61.0; they are not removed exports. Check the shipped
+   alias declarations for other names rather than guessing replacements.
+4. Replace deprecated `absoluteStrokeWidth` usage with the intended
+   `nonScalingStroke` behavior and review the actual rendered stroke at relevant
+   sizes. The old prop is **still present**, not removed: its numeric resize
+   formula and the new per-shape SVG non-scaling vector effect are different
+   mechanisms. Keep `strokeWidth` for the ordinary component prop.
+5. Replace legacy component-class types (`SvelteComponentTyped`, old
+   `ComponentType` icon wrappers) and general icon-map `typeof Icon` aliases
+   with `import type { LucideIcon } from '@lucide/svelte'`.
+   `LucideIcon` is `Component<LucideProps>` for generated icon component values.
+   Generic custom `Icon` is a different contract requiring `icon` or `iconNode`;
+   the issue is that contract, not whether the import uses `import type`.
+   Render finite component values directly in Svelte 5, not through legacy
+   `<svelte:component>`. See [finite runtime selection](lucide.md#finite-runtime-selection).
+6. Brand icons were **removed in Lucide 1.x**. Replace uses such as `Github`,
+   `Gitlab` or `Facebook` with the respective brand's official SVG (or a
+   separately chosen brand library and its own license/contract). Do not invent
+   a new Lucide brand name or substitute an unrelated symbol.
+7. Remove old iconfont assets, `data-lucide` DOM scanning or initialization only
+   when they belong to the migrated implementation. Imported Svelte icons render
+   inline SVG during SSR and hydration; no `createIcons`, `onMount`, browser guard
+   or `ssr: false` workaround is needed. Preserve unrelated browser-only work.
+
+Recheck [control names and decorative SVG semantics](lucide.md#accessible-icons-and-controls)
+when wrappers change; a tooltip is not the control's only accessible name.
+For shared defaults, use [component-instance subtree context](lucide.md#subtree-defaults),
+not a module singleton or a getter-shaped API copied from Skeleton providers.
+
+Sources: [official Svelte guide](https://lucide.dev/guide/svelte/),
+[v1 brand removal](https://lucide.dev/guide/svelte/migration),
+[old package deprecation](https://registry.npmjs.org/lucide-svelte/1.0.1),
+[current metadata](https://registry.npmjs.org/@lucide/svelte/1.61.0),
+[exact aliases](https://unpkg.com/@lucide/svelte@1.61.0/dist/aliases/aliases.d.ts),
+[exact types](https://unpkg.com/@lucide/svelte@1.61.0/dist/types.d.ts).
+
 ## Components are not a rename-only migration
 
 This table identifies historical source families and final v5 destinations; the intermediate v4 stage still applies.

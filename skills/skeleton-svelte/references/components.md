@@ -108,6 +108,15 @@ The following complete example combines provider and element replacement without
 <p>Help is {tooltip().open ? 'open' : 'closed'}.</p>
 ```
 
+### Lucide inside a concrete trigger
+
+Lucide icons belong inside the trigger's actual button, not a nested control.
+Keep the SVG a direct child for Skeleton sizing; forward all trigger attributes,
+name the control once, and keep its icon decorative. The complete
+[`IconTooltip.svelte` example](lucide.md#accessible-icons-and-controls) implements
+this pattern with hydration gating for the JavaScript-only tooltip, not for
+Lucide's SSR rendering. The text-only provider example above needs no icon dependency.
+
 ## If the desired component is absent
 
 There is no `Drawer`, `Stepper`, `Select`, `Checkbox`, `Radio`, `Alert`, `Clipboard`, or `PinInput` root export. Use native HTML where suitable, styled Dialog for a drawer, or a separately installed library with its own verified version. Names are `QrCode`, `Steps`, `SegmentedControl`, `RatingGroup`, `Dialog`, and `Toast`; linear and circular progress both use `Progress`.

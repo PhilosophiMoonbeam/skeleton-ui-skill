@@ -2,19 +2,22 @@
 
 Reference baseline as of **2026-10-18**: Skeleton core and Svelte components
 **5.0.1**, Svelte **5.57.2**, SvelteKit **3.1.0**, Tailwind CSS **4.3.3**.
+Lucide is independently pinned to **`@lucide/svelte@1.61.0`** (Svelte peer **`^5`**)
+when icons are useful; it does not change the existing stack pins or become a
+dependency of recipes that use no icons.
 Exact packages establish API and dependency contracts, not upstream certification
 of every application, deployment, or accessibility requirement.
 
 ## Exclusive framework scope
 
-Skill version **3.0** targets **SvelteKit 3.1+ exclusively**. The supported
+Skill version **3.1** targets **SvelteKit 3.1+ exclusively**. The supported
 implementation path uses modern configuration, imports, state, navigation and
 forms. Older framework references identify migration inputs or patterns to
 replace; they are not alternative recipes. This policy supersedes earlier
 legacy-framework preservation guidance without relabeling historical test runs.
 
-The scope cutover changed instructions, not executable examples or dependency
-pins. A fresh exact-baseline fixture passed `npm run check` (**173 files,
+The earlier Kit-only scope cutover changed instructions, not executable examples
+or the then-existing dependency pins. A fresh exact-baseline fixture passed `npm run check` (**173 files,
 0 errors, 0 warnings**) and client/server production builds. Production preview
 returned SSR HTML and exercised native HTML POSTs: whitespace failure returned
 400 with the exact raw value; valid input returned 200 with its greeting.
@@ -50,6 +53,10 @@ future releases nor a production deployment.
 | Migrate older Skeleton applications | Official [v4-to-v5 migration](https://www.skeleton.dev/docs/svelte/get-started/migrate-from-v4.md); archived [v3-to-v4](https://v4.skeleton.dev/docs/svelte/get-started/migrate-from-v3) and [v2-to-v4](https://v4.skeleton.dev/docs/svelte/get-started/migrate-from-v2); exact [CLI source](https://unpkg.com/skeleton@5.0.1/dist/index.mjs) | Reach functional v4.15.2 before v5. CLI transformations do not replace manual component, Svelte-peer, field-group, and caller migration. See [migration](migration.md). |
 | Select exports and component anatomy | Exact [package metadata](https://unpkg.com/@skeletonlabs/skeleton-svelte@5.0.1/package.json), [runtime index](https://unpkg.com/@skeletonlabs/skeleton-svelte@5.0.1/dist/index.js), [declarations](https://unpkg.com/@skeletonlabs/skeleton-svelte@5.0.1/dist/index.d.ts); official [fundamentals](https://www.skeleton.dev/docs/svelte/get-started/fundamentals.md) and [Svelte documentation index](https://www.skeleton.dev/llms-svelte.txt) | Follow public exports into their declarations/source. Root is the public component entrypoint; `/composed` is not exported. See [components](components.md). |
 | Resolve state, callbacks, and floating anatomy | Official [Tabs](https://www.skeleton.dev/docs/svelte/framework-components/tabs.md), [Accordion](https://www.skeleton.dev/docs/svelte/framework-components/accordion.md), [Switch](https://www.skeleton.dev/docs/svelte/framework-components/switch.md), [Tooltip](https://www.skeleton.dev/docs/svelte/framework-components/tooltip.md), [Dialog](https://www.skeleton.dev/docs/svelte/framework-components/dialog.md), [Toast](https://www.skeleton.dev/docs/svelte/framework-components/toast.md) | Verify callbacks, bindability, providers, and element snippets against shipped declarations. See [recipes](recipes.md). |
+| Integrate Lucide components | Official [Svelte guide](https://lucide.dev/guide/svelte/), [getting started](https://lucide.dev/guide/svelte/getting-started), [migration](https://lucide.dev/guide/svelte/migration), and [GitHub source](https://github.com/lucide-icons/lucide/tree/main/packages/svelte); exact [1.61.0 metadata](https://registry.npmjs.org/@lucide/svelte/1.61.0), [public declarations](https://unpkg.com/@lucide/svelte@1.61.0/dist/lucide-svelte.d.ts), [prop/component types](https://unpkg.com/@lucide/svelte@1.61.0/dist/types.d.ts), [Icon implementation](https://unpkg.com/@lucide/svelte@1.61.0/dist/Icon.svelte), and [context implementation](https://unpkg.com/@lucide/svelte@1.61.0/dist/context.js) | Package exports/types determine the API; rolling docs explain intent. See [Lucide](lucide.md) and the [package cutover](migration.md#migrate-lucide-to-the-current-svelte-package). |
+| Discover and verify an icon | Official [icon catalog](https://lucide.dev/icons/); exact [1.61.0 metadata](https://registry.npmjs.org/@lucide/svelte/1.61.0) and [public declarations](https://unpkg.com/@lucide/svelte@1.61.0/dist/lucide-svelte.d.ts) | Search visually or by meaning, then verify canonical slug, public subpath and named export in the resolved package; the rolling catalog is not a frozen availability list. See [discovery](lucide.md#discover-and-verify-an-icon) and [offline inspection](lucide.md#offline-package-inspection). |
+| Apply deeper Lucide patterns | Official Svelte [TypeScript](https://lucide.dev/guide/svelte/advanced/typescript), [filled icons](https://lucide.dev/guide/svelte/advanced/filled-icons), [combining icons](https://lucide.dev/guide/svelte/advanced/combining-icons), and [global styling](https://lucide.dev/guide/svelte/advanced/global-styling); exact [types](https://unpkg.com/@lucide/svelte@1.61.0/dist/types.d.ts), [Icon implementation](https://unpkg.com/@lucide/svelte@1.61.0/dist/Icon.svelte), and [context implementation](https://unpkg.com/@lucide/svelte@1.61.0/dist/context.js) | Rolling examples need exact-package checks, especially custom-node types and context behavior. Use [advanced patterns](lucide-patterns.md); a reusable consumer is optional, not a required global abstraction. |
+| Use optional Lucide Lab data | Official [Svelte Lab guide](https://lucide.dev/guide/svelte/advanced/with-lucide-lab); exact [0.7.0 registry metadata](https://registry.npmjs.org/@lucide/lab/0.7.0), [package manifest](https://unpkg.com/@lucide/lab@0.7.0/package.json), [declarations](https://unpkg.com/@lucide/lab@0.7.0/dist/lucide-lab.d.ts), and [ESM entrypoint](https://unpkg.com/@lucide/lab@0.7.0/dist/esm/lucide-lab.js) | Lab is an optional extra only for applications using its data. Inspect its actual named data export and node shape against `@lucide/svelte@1.61.0`, not a copied name or documentation type alias. See [custom data and Lab](lucide-patterns.md#custom-icon-data-and-lab). |
 | Style themes, native controls, and presets | Official [themes](https://www.skeleton.dev/docs/svelte/design/themes), [colors](https://www.skeleton.dev/docs/svelte/design/colors), [presets](https://www.skeleton.dev/docs/svelte/tailwind-utilities/presets), [forms](https://www.skeleton.dev/docs/svelte/tailwind-components/forms.md); exact [core CSS](https://unpkg.com/@skeletonlabs/skeleton@5.0.1/src/index.css), [presets CSS](https://unpkg.com/@skeletonlabs/skeleton@5.0.1/src/utilities/presets.css), [Cerberus](https://unpkg.com/@skeletonlabs/skeleton@5.0.1/src/themes/cerberus.css), [framework CSS](https://unpkg.com/@skeletonlabs/skeleton-svelte@5.0.1/dist/index.css) | Separate core/native CSS from optional framework behavior. Presets are included in core; form utilities require the forms plugin. See [styling](styling.md). |
 | Compose responsive pages | Official [typography](https://www.skeleton.dev/docs/svelte/design/typography), [spacing](https://www.skeleton.dev/docs/svelte/design/spacing), [responsive design](https://tailwindcss.com/docs/responsive-design) | Apply [design](design.md), then inspect actual narrow/wide rendering; a recipe is not an exported AppShell component. |
 | Configure Tailwind 4 | Official [Vite installation](https://tailwindcss.com/docs/installation/using-vite), [class detection](https://tailwindcss.com/docs/detecting-classes-in-source-files), [dark mode](https://tailwindcss.com/docs/dark-mode), [upgrade guide](https://tailwindcss.com/docs/upgrade-guide); exact [Vite plugin metadata](https://registry.npmjs.org/@tailwindcss/vite/4.3.3) | Use complete class strings and stylesheet-relative shared-source paths. Framework CSS replaces the old Skeleton distribution scan, not all uses of `@source`. |
@@ -112,6 +119,55 @@ resolve API questions. Motion remains optional within the Kit 3.1+ target and
 does not require experimental framework features. No Kit 2 implementation path
 is supported by this skill.
 
+### Pinned third-party Lucide review
+
+The user-supplied [Lucide Svelte reference at commit
+`42cf82f`](https://raw.githubusercontent.com/aksuharun/skills/42cf82f1c5e0bdbc88fec16db452d21f3a8ab016/lucide-icons/references/lucide-svelte.md)
+is **secondary research**, not official Lucide documentation. Its frozen review
+covered 15 units: 14 initially needed validation and one was a practice; all
+15 were flagged and adjudicated. The deterministic pre-filter removed 23
+blank/heading/separator blocks; the batch had no errors or truncated units.
+The following corrections are exact-package/source reviews, not test results;
+the initial classification labels were not treated as authority.
+
+- Use `@lucide/svelte@1.61.0` with its exact Svelte `^5` peer. The separately
+  versioned [`lucide-svelte@1.0.1`](https://registry.npmjs.org/lucide-svelte/1.0.1)
+  is deprecated in favor of `@lucide/svelte`; do not add an old-Svelte path.
+  Preserve the consumer's package manager and lockfile.
+- Root named imports such as `Camera` are public and valid. Canonical default
+  imports from `@lucide/svelte/icons/<slug>` are the preferred convention, not a
+  fix for an unsupported root API. They keep module traversal focused; neither
+  “always bundles every icon” nor universally “faster builds” is established.
+  A namespace/all-icon runtime catalog differs from static named imports.
+- The public `circle-alert` path is supported. Prefer canonical names and
+  theme-aware `currentColor`, not arbitrary example paint.
+- `size` accepts `number | string` and defaults to `24`; CSS can override rendered
+  dimensions. `color` defaults to `currentColor` and supplies SVG stroke.
+  `strokeWidth` accepts `number | string` and defaults to `2`; the raw SVG
+  `stroke-width` attribute is also accepted through rest attributes.
+- `absoluteStrokeWidth` is **deprecated, not removed**. Prefer `nonScalingStroke`,
+  which applies `vector-effect="non-scaling-stroke"` to shapes; it is not the old
+  numeric resize formula. A table heading/divider in the research is structural,
+  not additional API evidence.
+- SVG attributes are supported. Any `aria-*`, `role`, `title`, or child snippet
+  suppresses automatic `aria-hidden` inference. Name actual controls and keep
+  their icons decorative; meaningful standalone icons need `role="img"` and an
+  accessible name. Markup alone does not establish screen-reader certification.
+- Use `LucideIcon` (`Component<LucideProps>`) for generated icon component values.
+  `typeof Icon` refers to the generic custom-icon component, whose required
+  custom-icon input makes it the wrong general icon-map type; a type-only import
+  is not inherently invalid.
+- Generic `Icon` still supports `iconNode: LucideIconNode[]` as one branch of its
+  input union. Validate the actual typed node shape. Optional `@lucide/lab` was
+  not part of that original review's runtime evidence; the current
+  [advanced example](lucide-patterns.md#custom-icon-data-and-lab) has its own
+  additional dependency and requires separately recorded verification.
+
+These corrections come from the primary sources above and the exact installed
+package, not from the research's wording. The [Lucide verification
+guide](lucide.md#verification) specifies integration checks; no new runtime
+outcome is implied by this source review.
+
 ## Offline installed-package inspection
 
 1. Read manifest, lockfile, and installed metadata through the actual workspace
@@ -129,6 +185,11 @@ is supported by this skill.
    `types/index.d.ts` for framework contracts.
 5. Compare only affected contracts when versions differ. Do not silently change
    dependencies to fit an example. Name missing evidence rather than inventing APIs.
+
+For Lucide-specific exports, declarations, component source and context, use
+[offline package inspection](lucide.md#offline-package-inspection). Resolve the
+actual workspace dependency instead of assuming a flat `node_modules` layout;
+internal file paths inspected here are not public import recommendations.
 
 ## Exact compatibility baseline and observed evidence
 
@@ -148,6 +209,11 @@ requires Node `>=22.17`, Svelte `^5.57.1`, Vite `^8.0.12`, and Svelte Vite plugi
 Node 22 from 22.17 or Node 24+; use a maintained compatible release. JavaScript-only
 apps need not add TypeScript. Preserve the application's production adapter.
 These pins and peers do not certify every version in their ranges.
+
+**Independent Lucide package observation:** `@lucide/svelte@1.61.0` and its
+Svelte `^5` peer were observed in registry metadata and the exact installed
+package. This optional icon pin is separate from the historical stack table and
+checks below. It does not retroactively add Lucide coverage to those runs.
 
 **Original v5 baseline checks (2026-10-18):**
 
@@ -236,6 +302,104 @@ Marquee/FloatingPanel behavior, deployment, or every possible navigation race.
 Fault injection tested decoration handling; it did not turn failed application
 operations into successes. The temporary research and disposable fixture are not
 required to consume this skill.
+
+### Lucide validation — 2026-10-22
+
+A fresh fixture installed **131 packages** without forced peers: the exact
+framework/toolchain table above plus **`@lucide/svelte@1.61.0`**. Node/npm were
+**24.15.0 / 12.2.0**. Twenty-eight named documentation inputs were extracted,
+including **24 component files** and all **six Lucide example files**; the
+context child was rendered through its documented parent.
+
+- `npm run check`: **5,013 files, 0 errors, 0 warnings**.
+- `npm run build`: client/server production builds passed. Adapter-auto had no
+  production target; environmental color and occasional bundler-timing notices
+  were not deployment or performance certification.
+- Skill-format validation and local link/fence checks passed.
+- Production module evidence retained exactly **seven used icon implementations**
+  in both client and server output. The fixture used per-icon imports, public
+  root imports, custom `Icon`, and a finite map; this is observed tree-shaking,
+  not a blanket speed or bundle-size guarantee.
+
+Production preview used Chromium **156.0.8078.47**, with 13 recorded scenario
+groups covering the following:
+
+| Area | Observed result |
+| --- | --- |
+| SSR and no JavaScript | Nine inline SVGs rendered; local counter/tooltip controls remained disabled, context attributes were present, and native fragment links worked. |
+| Names and native interaction | Click/Space incremented the counter and Reset cleared it. Chromium's actual AX tree ignored seven decorative SVGs and exposed the two named meaningful images. |
+| Skeleton composition | The element-snippet trigger was one named native button with a direct SVG child. Focus/hover opened its associated tooltip; Escape dismissed it. |
+| Reusable/runtime data | Repeated counters stayed independent; all fragment IDs were unique and resolved. Finite component selection changed icons, retained text for unknown/prototype keys, and recovered to a known key. |
+| Props, CSS, and context | Public root and per-icon Camera geometry matched. Default SVG size/stroke was 24/2; context 32/1 and explicit 20/2 worked. Raw SVG stroke attributes and CSS size/stroke overrides behaved as documented. Direct versus wrapped control icons measured 16 versus 24px. |
+| Stroke mechanisms | `nonScalingStroke` added per-shape vector effects. Deprecated `absoluteStrokeWidth` still worked through its different numeric mechanism; no removal claim was inferred. |
+| Theme and fallbacks | `currentColor` followed control foreground in light/dark schemes. Forced-colors emulation kept meaningful icons visible in the forced foreground; static icons remained nonanimated with reduced motion. |
+| Responsive rendering | Open tooltips and the page fit 320/375/768/1280px widths. At 320px, content was bounded to the available 304px. Narrow light, wide dark, and forced-colors screenshots were inspected. |
+| Existing server actions | Native HTML POST failure preserved exact whitespace; valid input rendered its greeting. |
+
+Runtime inspection found and corrected two new-example defects: primary-500
+counter text measured **3.62:1** contrast in the tested theme, so it now uses a
+neutral filled preset; tooltip intrinsic width exceeded 320px, so its content
+now consumes `--available-width`. Both fixes were rebuilt and re-exercised.
+Targeted **axe-core 4.13.0** scans of the final icon demo reported **0 violations**
+in light and dark schemes. The hydrated run recorded no runtime/hydration errors
+or unhandled rejections.
+
+These results are not a screen-reader, full WCAG, all-theme, cross-browser,
+deployment, future-version, live-context-mutation, or Lucide Lab certification.
+The disposable fixture and module-analysis instrumentation are not required to
+consume the skill; the underlying application still owns real persistence.
+
+### Lucide review expansion — source evidence and verification boundary
+
+**Observed 2026-10-22.** Current official documentation was retrieved through
+Context7 and primary Lucide pages, then checked against exact installed source.
+A fresh fixture added **132 packages** with `--ignore-scripts`, without forced
+peers: the framework baseline above, `@lucide/svelte@1.61.0`, and the optional
+`@lucide/lab@0.7.0`. Node/npm remained **24.15.0 / 12.2.0**.
+
+All **12 named Lucide component files** were extracted verbatim: the original six
+plus six advanced files. Child components were mounted through their parents;
+artwork was mounted twice to check association isolation.
+
+- `npm run check` (`svelte-kit sync && svelte-check --tsconfig ./tsconfig.json`):
+  **4,993 files, 0 errors, 0 warnings**.
+- Client/server production builds passed, including the optional Lab import.
+  Adapter-auto still had no deployment target; the environment emitted the
+  `NO_COLOR`/`FORCE_COLOR` notice.
+- `skills-ref validate` and local link/fence checks passed.
+- The documented offline lookup ran from the consuming fixture. Digit/acronym
+  mappings `ArrowDown01` → `arrow-down-0-1` and `ArrowDownAZ` → `arrow-down-a-z`
+  resolved through public exports; declarations identified deprecated
+  `ArrowDownAz`. No Svelte component evaluation was required for inspection.
+
+Chromium **156.0.8078.47**, production preview:
+
+| Area | Observed result |
+| --- | --- |
+| Reactive consumer | Heart changed to Star; computed dimensions changed from 32 to 64px, stroke from 2 to 1px, and the checkbox added/removed per-shape non-scaling vectors. Approved raw/data attributes reached the decorative SVG. Favorite changed native `aria-pressed` and visible status. |
+| External-key boundary | Unknown and `__proto__` keys produced working text-only controls; keyboard activation worked, state survived the fallback, and a known key restored the icon. |
+| Composition and names | Duplicate artwork had distinct title IDs and correct associations. The native AX tree inspected 13 new-example SVGs: nine were ignored; four were named images, including two “Scanned user” instances. The nested user SVG stayed decorative. |
+| Fill, custom data, and Lab | Outline/filled star paint and stroke differed as documented. The `icon` data branch rendered its circle/path; Lab's `iconNode` branch rendered two paths whose geometry exactly matched the installed `pear` export. |
+| Directional navigation | RTL mirrored only the navigation arrow, not the checkmark. Keyboard activation reached the real fragment target; returning to LTR removed mirroring. |
+| SSR without JavaScript | All 22 SVGs rendered, including Lab and composed artwork; nine local controls were disabled. The initial heart and meaningful names were present, and native fragment navigation worked. |
+| Theme regression | Forms normalization initially produced 1.02:1 dark input text contrast. Skeleton `input`/`select` classes corrected the input/select text backdrop to 18.26:1; select text was checked in both schemes. |
+| Responsive and existing behavior | Final screenshots were inspected at 320px light and 1280px dark. The narrow page had no horizontal overflow; its input measured 288px. Existing Add/Reset worked, and the settled keyboard/hover tooltip remained 304px wide within the 320px viewport. |
+
+Final **axe-core 4.13.0** scans reported **0 violations and one needs-review
+result in each scheme**. The remaining result concerned the select's CSS
+background-image caret; its solid text backdrop was checked using computed,
+composited colors and visual inspection rather than suppressing the rule.
+Browser diagnostics recorded no runtime/hydration errors.
+
+Fixture-only preparation defects were corrected before final gates: missing Kit
+type generation, an executed inspector accidentally included by the root
+checker glob, and a missing document title. The documented heredoc itself
+creates no inspector file. Temporary fixtures and browser sessions were removed.
+
+This separately establishes the recorded advanced examples, not all Lab exports,
+live context mutation, native popup rendering on every platform, screen-reader
+announcements, full WCAG conformance, cross-browser support, deployment, or
+future-version compatibility.
 
 ## Maintenance and future re-verification
 

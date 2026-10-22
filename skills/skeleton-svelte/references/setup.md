@@ -1,8 +1,9 @@
-# Setup: Skeleton 5 with Svelte 5 and SvelteKit 3.1+
+# Setup: Skeleton + SvelteKit 3.1+ + Tailwind CSS + Lucide
 
 - [Version contract](#version-contract)
 - [Greenfield project](#greenfield-project)
 - [Existing project](#existing-project)
+- [Lucide when icons are useful](#lucide-when-icons-are-useful)
 - [TypeScript configuration](#typescript-configuration)
 - [Vite integration](#vite-integration)
 - [Kit 3 package imports and environment](#kit-3-package-imports-and-environment)
@@ -12,12 +13,13 @@
 
 ## Version contract
 
-This skill supports **SvelteKit `>=3.1.0` only**. The exact package set below is the tested, reproducible Kit `3.1.0` baseline for greenfield projects and prerequisite framework migrations. For a newer existing Kit release, check its matching official documentation, package metadata, public declarations and sources before retaining its toolchain; the baseline does not certify every later release. Both Skeleton packages are pinned to `5.0.1`; their equal versions do not justify inferring versions for other generations.
+This skill supports **SvelteKit `>=3.1.0` only**. The framework/toolchain pins below form the tested, reproducible Kit `3.1.0` baseline for greenfield projects and prerequisite framework migrations; the optional Lucide pin was observed independently. For a newer existing Kit release, check its matching official documentation, package metadata, public declarations and sources before retaining its toolchain; the baseline does not certify every later release. Both Skeleton packages are pinned to `5.0.1`; their equal versions do not justify inferring versions for other generations.
 
 | Package | Pin | Evidence |
 | --- | --- | --- |
 | `@skeletonlabs/skeleton` | `5.0.1` | [Registry](https://registry.npmjs.org/@skeletonlabs/skeleton/5.0.1): Tailwind peer `^4.0.0`, CSS exports |
 | `@skeletonlabs/skeleton-svelte` | `5.0.1` | [Registry](https://registry.npmjs.org/@skeletonlabs/skeleton-svelte/5.0.1): Svelte peer `^5.40.0` |
+| `@lucide/svelte` (optional icons) | `1.61.0` | [Registry](https://registry.npmjs.org/@lucide/svelte/1.61.0): independently observed package, Svelte peer `^5`; [official guide](https://lucide.dev/guide/svelte/) |
 | `svelte` | `5.57.2` | [Registry](https://registry.npmjs.org/svelte/5.57.2) |
 | `@sveltejs/kit` | `3.1.0` | [Registry](https://registry.npmjs.org/@sveltejs/kit/3.1.0): Svelte `^5.57.1`, Vite `^8.0.12`, Svelte Vite plugin `^7.0.0` |
 | `vite` | `8.3.4` | [Registry](https://registry.npmjs.org/vite/8.3.4) |
@@ -32,6 +34,12 @@ Use **Node 22.17+ within 22.x, or Node 24+**; maintained Node 24 LTS is recommen
 
 The [current Skeleton installation guide](https://www.skeleton.dev/docs/svelte/get-started/installation/sveltekit) describes Skeleton's upstream requirements, not this skill's framework support boundary. Kit `>=3.1.0` is required here; Kit `3.1.0`, Vite 8 and TypeScript 6 form the exact reproducible baseline. Direct pins require a committed lockfile to freeze transitive resolution. Published peer compatibility does not establish runtime behavior.
 
+Lucide is the preferred icon family when icons improve the interface; it is not
+a required dependency for every app or existing recipe. Its `1.61.0` pin is
+independent of the Skeleton versions and was observed separately from the
+historical framework baseline checks. Use the current scoped package
+`@lucide/svelte`.
+
 ## Greenfield project
 
 Use the [official Svelte CLI](https://svelte.dev/docs/kit/creating-a-project) to generate a project:
@@ -43,7 +51,7 @@ cd my-skeleton-app
 
 Choose TypeScript if desired. Select the intended package manager in the prompts. Configure Tailwind manually as shown below if needed; do not assume the current generator selects this reference's dependency versions. Inspect the generated manifest before proceeding.
 
-Honor `packageManager`, the existing lockfile, and workspace conventions. The examples below use npm; translate their version-qualified arguments to the repository's package manager's exact-version dev-dependency syntax. Do not create a second lockfile. Run installation in the application workspace, not an unrelated monorepo root.
+Honor `packageManager`, the existing lockfile, and workspace conventions. The examples below use npm; translate their version-qualified arguments to the repository's package manager's exact-version syntax, preserving each command's dependency scope. Do not create a second lockfile. Run installation in the application workspace, not an unrelated monorepo root.
 
 For a TypeScript project, replace generated versions with these exact dependencies:
 
@@ -68,6 +76,55 @@ npm install -D --save-exact @skeletonlabs/skeleton@5.0.1 @skeletonlabs/skeleton-
 Retain compatible existing Kit `>=3.1.0`, Svelte 5, Tailwind 4 and Vite integration versions only after checking the selected Kit release's framework, plugin and adapter contracts. Skeleton's component peer `^5.40.0` and core Tailwind peer `^4.0.0` do not lower this skill's framework floor; the exact Kit `3.1.0` baseline requires Svelte `^5.57.1`. Older Skeleton apps require the staged [migration](migration.md), not just a dependency update.
 
 For a prerequisite framework migration, use the [Kit migration guidance](migration.md) and the exact baseline above, or source-checked compatible versions for a newer Kit `>=3.1.0` target. Coordinate Kit, Svelte, Vite, the Svelte Vite plugin, optional TypeScript, Node and the existing deployment adapter; never force incompatible peers or silently rewrite unrelated applications. Apply the configuration and module changes below to the supported target. Preserve application settings, plugins, layouts and CSS; merge supported changes rather than overwriting whole files.
+
+## Lucide when icons are useful
+
+For either project path, add the optional icon dependency only when using icons:
+
+```sh
+npm install --save-exact @lucide/svelte@1.61.0
+```
+
+Follow the [current Lucide Svelte guide](https://lucide.dev/guide/svelte/) and the
+[exact package metadata](https://registry.npmjs.org/@lucide/svelte/1.61.0), not
+another framework's icon package. Prefer canonical public per-icon default imports:
+
+```ts
+import Search from '@lucide/svelte/icons/search';
+```
+
+Root named imports such as `import { Search } from '@lucide/svelte'` are also
+public and valid. Per-icon imports keep the traversed module graph focused;
+do not claim an unmeasured build-speed or bundle-size improvement.
+
+Lucide renders inline SVG and needs no stylesheet, Tailwind plugin, `@source`,
+DOM-scanning initializer, or client-only/`onMount` workaround for static imports.
+Skeleton styles native controls or supplies interactive components; Lucide
+supplies the icon, not the button's semantics or accessible name. Keep icons directly inside
+Skeleton `btn`/`btn-icon` controls for their SVG sizing rules, and label the
+actual control. See [Lucide imports](lucide.md#imports-and-package-boundary),
+[props and styling](lucide.md#props-and-styling), and
+[accessible icons and controls](lucide.md#accessible-icons-and-controls).
+
+Find the icon in the [official catalog](https://lucide.dev/icons/), then
+[verify its canonical export](lucide.md#discover-and-verify-an-icon) against the
+installed version. A rolling catalog can contain icons absent from an older pin.
+Use [offline package inspection](lucide.md#offline-package-inspection) without
+network access and the [focused troubleshooting table](lucide.md#troubleshooting)
+for import, SVG/CSS, naming, or context failures.
+
+**Optional advanced Lab example only:** install the additional package when
+using the [custom-data/Lab pattern](lucide-patterns.md#custom-icon-data-and-lab),
+not as part of the default application dependency set:
+
+```sh
+npm install --save-exact @lucide/lab@0.7.0
+```
+
+Lab supplies icon data for Lucide's generic `Icon`; it does not replace
+`@lucide/svelte`. Check its exact metadata, exported data and compatibility with
+the resolved Svelte icon types before adapting an example. No global wrapper,
+registry, or all-icon catalog is required.
 
 ## TypeScript configuration
 
@@ -180,7 +237,7 @@ Adjust the shared application path to an existing directory and register every a
 
 Import the stylesheet once in `src/routes/+layout.svelte`. A minimal Svelte 5 layout uses a `children` snippet:
 
-`src/routes/+layout.svelte`
+**File: `src/routes/+layout.svelte`**
 
 ```svelte
 <script lang="ts">
@@ -216,6 +273,7 @@ Theme registration (CSS import) and activation (`data-theme`) are distinct requi
 | Utilities exist, theme colors do not | Check core CSS, theme CSS and matching `<html data-theme>`. |
 | `preset-*` styles missing | Presets come from core; inspect the import and exact class spelling, not a historical optional-presets import or plugin. |
 | Export/prop error for a component | Inspect installed root exports and declarations. Historical `/composed` imports are not public 5.0.1 entrypoints; see [migration](migration.md). |
+| Lucide import, sizing, naming, or context failure | Use the focused [Lucide troubleshooting table](lucide.md#troubleshooting), then [offline package inspection](lucide.md#offline-package-inspection) for the resolved export/types/source. Do not add a Skeleton scanner/plugin or client-only workaround. |
 | HTML/hydration template error | Restore Kit's template placeholders and body wrapper; adding a theme never requires replacing `app.html`. |
 
 Before handing off, inspect resolved versions with the chosen package manager, run the project's existing typecheck and build, and smoke-test a rendered styled page and one interactive component. Record exact commands and results; a successful compile does not establish focus behavior, keyboard behavior, or deployment compatibility. For offline API inspection, use the [migration reference](migration.md#offline-inspection-fallback).
