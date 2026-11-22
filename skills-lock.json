@@ -1,0 +1,18 @@
+{
+  "version": 2,
+  "skills": {
+    "svelte": {
+      "source": "vercel-labs/json-render",
+      "sourceType": "github",
+      "skillPath": "skills/svelte/SKILL.md",
+      "computedHash": ""
+    },
+    "svelte-code-writer": {
+      "source": "sveltejs/ai-tools",
+      "commit": "f9d22f2f7f7cd5e4596eef5d108a69ac8f0dd48d",
+      "sourceType": "github",
+      "skillPath": "tools/skills/svelte-code-writer/SKILL.md",
+      "computedHash": "8eccb2e23091d482aeaca1c95db6c5aa34d055ac2d0c9797efbbecbe5a8e4fd0"
+    }
+  }
+}
