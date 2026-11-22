@@ -24,13 +24,15 @@ This repository contains skill documentation, not a component library or applica
 
 ## Install and use the skill
 
-Run this command from the project where you want to use the skill:
+With **Bun 1.4.5**, run this command from the project where you want to use the skill:
 
 ```sh
-npx skills add PhilosophiMoonbeam/skeleton-ui-skill
+bunx --bun skills@1.9.0 add PhilosophiMoonbeam/skeleton-ui-skill
 ```
 
 Follow the [skills CLI](https://github.com/vercel-labs/skills) prompts to select your coding agents and installation method.
+
+Verification used `add <local repo> --list` on Bun 1.4.5 to confirm skill discovery; it did not install the skill into any agent.
 
 1. Open [the skill entrypoint](skills/skeleton-svelte/SKILL.md) to browse its workflow and task router.
 2. Refresh skill discovery if your coding agent requires it.
@@ -57,7 +59,7 @@ The frozen framework baseline and independently observed optional icon pin are:
 
 Both Skeleton packages are pinned to `5.0.1`; use current v5 CSS imports, compound anatomy, providers, and callback contracts rather than older APIs. Lucide's `@lucide/svelte@1.61.0` is independently versioned and declares a Svelte `^5` peer.
 
-See [setup](skills/skeleton-svelte/references/setup.md) for the pinned toolchain, Node and peer requirements, optional icon installation, and configuration. Prefer canonical per-icon default imports; root named imports are also public and valid. Kit 3.1+ is this skill's target regardless of Skeleton's broader upstream compatibility. Older apps need a scoped prerequisite migration, not a legacy implementation. Preserve compatible adapters and unrelated work; verify matching APIs for later releases rather than assuming the tested baseline certifies them.
+See [setup](skills/skeleton-svelte/references/setup.md) for the pinned Bun toolchain, package peer requirements, optional icon installation, and configuration. Prefer canonical per-icon default imports; root named imports are also public and valid. Kit 3.1+ is this skill's target regardless of Skeleton's broader upstream compatibility. Older apps need a scoped prerequisite migration, not a legacy implementation. Preserve an existing app's compatible toolchain, deployment target, and adapter; check the deployment runtime's requirements separately. Verify matching APIs for later releases rather than assuming the tested baseline certifies them.
 
 ## Reference guide
 
@@ -79,6 +81,8 @@ See [setup](skills/skeleton-svelte/references/setup.md) for the pinned toolchain
 
 The [original baseline evidence](skills/skeleton-svelte/references/sources.md#exact-compatibility-baseline-and-observed-evidence) preserves the initial v5 migration checks. The [supplemental validation](skills/skeleton-svelte/references/sources.md#supplemental-validation--2026-10-18) records independent review of all 13 research sections, a fresh exact-version installation, **926 checked files with 0 errors and 0 warnings**, and successful client/server production builds. Skill-format and local link/fence validation passed.
 
+The [Bun toolchain verification](skills/skeleton-svelte/references/sources.md#bun-toolchain-verification) records the current Bun application fixture and CLI checks separately from that historical evidence.
+
 Chromium **155.0.8059.84** production-preview checks cover the original component/form/responsive scenarios and 15 supplemental groups: Spring state and cancellation, reduced motion before and after hydration, native/shallow/history navigation, skipped and failed view transitions, unsupported-API fallback, CSS-first utilities, runtime variables, and native/enhanced form regressions. New CSS-extension screenshots were inspected at **1280px dark** and **320px light**; the narrow page had no horizontal overflow. See the linked evidence for exact scenarios and limits.
 
 The Lucide integration has its own [dated validation](skills/skeleton-svelte/references/sources.md#lucide-validation--2026-10-22), covering all six icon example files, SSR, control names, theme/sizing boundaries, finite selection, responsive popups, and production tree-shaking. Targeted light/dark automated accessibility checks passed; they do not constitute a full accessibility audit.
@@ -95,6 +99,15 @@ These checks are not exhaustive browser coverage or a full accessibility audit. 
 ## Contribute
 
 Keep revisions terse and complete. Preserve technical qualifications, source attribution, and runnable examples. For API or version changes, follow the [re-verification workflow](skills/skeleton-svelte/references/sources.md#maintenance-and-future-re-verification) and update affected references and routing together.
+
+From the repository root, use **Bun 1.4.5**:
+
+```sh
+bun install --frozen-lockfile
+bun run check
+```
+
+`bun run check` runs the same strict **Biome 2.6.8** gate as CI, treating warnings as failures. It lints Markdown heading structure, the skill's YAML frontmatter, and workflow YAML. Use `bun run lint` for linting only and `bun run format` to format applicable config and workflow files. Markdown formatting is intentionally disabled to preserve prose and code fences as written.
 
 Check skill structure with the Agent Skills [`skills-ref`](https://github.com/agentskills/agentskills/tree/main/skills-ref) validator:
 

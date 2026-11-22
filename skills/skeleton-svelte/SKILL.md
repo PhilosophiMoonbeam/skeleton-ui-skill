@@ -10,9 +10,10 @@ description: >-
 compatibility: >-
   Skeleton core and Svelte components 5.0.1, Svelte 5.57.2, SvelteKit 3.1.0,
   Tailwind CSS 4.3.3; optional @lucide/svelte 1.61.0 (Svelte ^5 peer).
-  Targets Kit 3.1+ exclusively with compatible Node/Vite/adapter tooling;
-  later releases need matching API checks. Bundled guidance and installed
-  packages support offline inspection; installation requires registry/cache access.
+  Targets Kit 3.1+ exclusively. Bun 1.4.5 is the baseline runtime and package
+  manager; match Vite and adapter tooling to the selected Kit release.
+  Bundled guidance and installed packages support offline inspection;
+  installation requires registry/cache access.
 metadata:
   version: "3.1"
   skeleton-core: "5.0.1"
@@ -47,8 +48,9 @@ recipes do not require it.
 - **Later release:** retrieve matching primary documentation/types/source for
   affected APIs. The tested 3.1.0 baseline does not certify all future releases.
   Do not downgrade a supported app merely to copy an example.
-- **Greenfield:** use [setup](references/setup.md); inspect scaffold output and
-  dependency contracts rather than assuming CLI defaults. Never force peers.
+- **Greenfield:** use the [Bun 1.4.5 setup](references/setup.md#greenfield-project)
+  and commit `bun.lock` as the only lockfile. Inspect scaffold output and dependency
+  contracts rather than assuming CLI defaults. Never force peers.
 
 ## Read only the references needed for the task
 

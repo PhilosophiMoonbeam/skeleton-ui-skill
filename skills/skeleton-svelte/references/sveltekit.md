@@ -14,19 +14,19 @@ Use this reference for application behavior around Skeleton 5.0.1 on SvelteKit 3
 
 ## Verify the project before changing it
 
-Inspect the package manifest, lockfile, installed package versions, route and layout structure, Vite configuration, global CSS, theme ownership, and existing form and state conventions. Use the project's package manager; preserve compatible application behavior while adopting the Kit 3.1+ configuration and imports below. Use runes for new components; do not mix legacy `export let` or `$:` declarations into a runes component.
+Inspect the package manifest, lockfile, installed package versions, route and layout structure, Vite configuration, global CSS, theme ownership, and existing form and state conventions. Use Bun `1.4.5` for project commands; follow the [existing-project setup](setup.md#existing-project) before changing dependencies. Preserve compatible application behavior while adopting the Kit 3.1+ configuration and imports below. Use runes for new components; do not mix legacy `export let` or `$:` declarations into a runes component.
 
-The reproducible baseline is `@skeletonlabs/skeleton@5.0.1`, `@skeletonlabs/skeleton-svelte@5.0.1`, `svelte@5.57.2`, `@sveltejs/kit@3.1.0`, `tailwindcss@4.3.3`, `@tailwindcss/vite@4.3.3`, `vite@8.3.4`, and `@sveltejs/vite-plugin-svelte@7.3.1`. Skeleton core requires Tailwind `^4.0.0`; its Svelte package requires Svelte `^5.40.0`. Kit 3.1.0 separately requires Node `>=22.17`, Svelte `^5.57.1`, Vite `^8.0.12`, and the Svelte Vite plugin `^7.0.0`. Its TypeScript peer is optional: the baseline uses TypeScript `6.0.3` and `svelte-check@4.7.7` when TypeScript tooling is present; do not install TypeScript 7. JavaScript-only projects may omit that tooling. Preserve the production adapter and check its compatibility; `adapter-auto@8.0.0` is the baseline auto-adapter, not a replacement for deployment-specific configuration. Pin direct dependencies and retain the lockfile; satisfying peers alone is not proof of a working application.
+The reproducible baseline is `@skeletonlabs/skeleton@5.0.1`, `@skeletonlabs/skeleton-svelte@5.0.1`, `svelte@5.57.2`, `@sveltejs/kit@3.1.0`, `tailwindcss@4.3.3`, `@tailwindcss/vite@4.3.3`, `vite@8.3.4`, and `@sveltejs/vite-plugin-svelte@7.3.1`. Skeleton core requires Tailwind `^4.0.0`; its Svelte package requires Svelte `^5.40.0`. Kit 3.1.0 requires Svelte `^5.57.1`, Vite `^8.0.12`, and the Svelte Vite plugin `^7.0.0`. Its TypeScript peer is optional: the baseline uses TypeScript `6.0.3` and `svelte-check@4.7.7` when TypeScript tooling is present; do not install TypeScript 7. JavaScript-only projects may omit that tooling. Preserve the production adapter and check its compatibility; `adapter-auto@8.0.0` is the baseline auto-adapter, not a replacement for deployment-specific configuration. Pin direct dependencies and retain the lockfile; satisfying peers alone is not proof of a working application.
 
-These requirements describe the exact tested Kit 3.1.0 baseline, not certification of every later Kit release. For newer Kit 3.1+ versions, inspect their matching dependencies and source contracts. See [setup](setup.md#existing-project) for project inspection and migration guidance and the combined Node/Vite-plugin engine ranges.
+Kit 3.1.0 publishes `engines.node: >=22.17`. That is upstream Node metadata, not a Bun requirement or a reason to run local project commands under Node. If the production adapter or host actually requires Node, check the deployment runtime against its requirements and the applicable upstream Node engine ranges; see [setup](setup.md#version-contract) for the combined ranges. These requirements describe the exact Kit 3.1.0 baseline, not certification of every later Kit release. For newer Kit 3.1+ versions, inspect their matching dependencies and source contracts.
 
-For an npm project, these are inspection commands, not upgrade commands:
+In a Bun-owned project, inspect installed versions with `bun pm ls` and published metadata for exact releases with `bun info`. These commands do not upgrade dependencies:
 
 ```sh
-npm ls svelte @sveltejs/kit @skeletonlabs/skeleton @skeletonlabs/skeleton-svelte
-npm view @sveltejs/kit@3.1.0 engines peerDependencies peerDependenciesMeta
-npm view @skeletonlabs/skeleton@5.0.1 peerDependencies exports
-npm view @skeletonlabs/skeleton-svelte@5.0.1 peerDependencies exports
+bun pm ls
+bun info @sveltejs/kit@3.1.0 engines peerDependencies peerDependenciesMeta
+bun info @skeletonlabs/skeleton@5.0.1 peerDependencies exports
+bun info @skeletonlabs/skeleton-svelte@5.0.1 peerDependencies exports
 ```
 
 For the Kit 3.1+ target, migrate these historical Kit 2 conventions:

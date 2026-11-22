@@ -1,6 +1,7 @@
-# graft's local graph cache — regenerable, not committed (run `graft build`).
+# Graft's local graph cache — regenerate with the command in AGENTS.md.
 /graft/
 # Playwright CLI output (may contain credentials)
 .playwright-cli/
 # Local agent skills are development tools, not distributed project skills.
 /.agents/skills/
+/node_modules/

@@ -191,9 +191,35 @@ For Lucide-specific exports, declarations, component source and context, use
 actual workspace dependency instead of assuming a flat `node_modules` layout;
 internal file paths inspected here are not public import recommendations.
 
+## Bun toolchain verification
+
+On Linux x64 with **Bun 1.4.5**, a disposable fixture was scaffolded with
+`bunx --bun sv@1.7.0 create --template minimal --types ts --no-add-ons --no-install`.
+Before installing the exact [setup stack](setup.md) with Bun, the fixture set
+`scripts.prepare` to `bun --bun svelte-kit sync` to avoid the generated
+Node-shebang hook. The install included optional `@lucide/svelte@1.61.0` and
+`@lucide/lab@0.7.0`. The fixture used the extracted setup and configuration,
+`TabsExample.svelte`, and `OptionalLabIcon.svelte`.
+
+- The dev server returned HTTP 200 with themed SSR HTML and the Pear SVG.
+  `bun run --bun check` reported **5,126 files, 0 errors, 0 warnings**;
+  `bun run --bun build` succeeded for both SSR and client. A `node`/`npm`/`npx`
+  guard and executable traces for dev, check, and build observed only Bun or
+  Bun's `node`-named symlink resolving to Bun.
+- The documented offline lookup returned version **1.61.0** and its public
+  export map. The Bun-run skills CLI discovered the local skill with `--list`.
+  Migration CLI help and Skeleton package-manager detection were tested, not a
+  full migration.
+- `adapter-auto` found no deployment target; informational color, plugin-timing,
+  and build messages were not check failures. The fixture was removed. This run
+  did not cover a browser matrix or a production deployment.
+
 ## Exact compatibility baseline and observed evidence
 
-| Dependency/runtime | Exact baseline |
+The table and dated runs below record earlier observations, not current
+toolchain instructions.
+
+| Dependency/runtime | Historical exact baseline |
 | --- | --- |
 | Node / npm observed during installation | `24.15.0` / `12.2.0` |
 | `@skeletonlabs/skeleton` / `@skeletonlabs/skeleton-svelte` | `5.0.1` / `5.0.1` |
@@ -204,10 +230,13 @@ internal file paths inspected here are not public import recommendations.
 | `@sveltejs/adapter-auto` / `@tailwindcss/forms` | `8.0.0` / `0.5.11` |
 
 Core requires Tailwind `^4.0.0`; components require Svelte `^5.40.0`. Kit 3.1.0
-requires Node `>=22.17`, Svelte `^5.57.1`, Vite `^8.0.12`, and Svelte Vite plugin
-`^7.0.0`; TypeScript `^6.0.0` is optional. Combined tool engines permit maintained
-Node 22 from 22.17 or Node 24+; use a maintained compatible release. JavaScript-only
-apps need not add TypeScript. Preserve the application's production adapter.
+requires Svelte `^5.57.1`, Vite `^8.0.12`, and Svelte Vite plugin `^7.0.0`;
+TypeScript `^6.0.0` is optional. For downstream deployments that actually run
+Node, Kit 3.1.0 declares Node `>=22.17` and the combined upstream tool engines
+permit maintained Node 22 from 22.17 or Node 24+. These upstream engine
+constraints are not instructions to install Node for the Bun workflow.
+JavaScript-only apps need not add TypeScript. Preserve the application's
+production adapter.
 These pins and peers do not certify every version in their ranges.
 
 **Independent Lucide package observation:** `@lucide/svelte@1.61.0` and its
@@ -410,10 +439,12 @@ future-version compatibility.
    optional peers, adapters, public entrypoints, tokens, and source detection.
 3. Update every affected example, caller, reference, and task route together.
    Remove obsolete APIs rather than retaining compatibility shims.
-4. In an authorized disposable fixture or application workflow, install without
-   forced peers; extract complete documented examples/configuration. Run project
-   checks and production build after edits finish. Record actual commands, results,
-   warnings, and failures; do not predict counts.
+4. Use the pinned Bun workflow in [setup](setup.md) for first-party application
+   fixtures; keep an existing downstream application's package manager and
+   lockfile. In the authorized fixture or application, install without forced
+   peers, extract complete documented examples/configuration, and run checks
+   and a production build after edits finish. Record actual commands, results,
+   warnings, and failures; do not predict counts or relabel historical runs.
 5. Exercise hydration, repeated-instance associations, callback state, providers,
    keyboard/focus, overlays, responsive/theme/mode rendering, native/enhanced forms,
    raw failed values, and no-JavaScript behavior as applicable. Report browser and

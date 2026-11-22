@@ -17,30 +17,34 @@ Sources: [core 5.0.1 metadata](https://registry.npmjs.org/@skeletonlabs/skeleton
 
 Use a dedicated migration branch, preserving existing user changes. An application below Kit `3.1.0` requires an explicitly scoped prerequisite framework migration before reaching this skill's supported destination. If that scope is not authorized, report the prerequisite and leave the unrelated application unchanged; do not offer its older framework as an alternative supported setup. Skeleton 5 core requires Tailwind `^4.0.0` and its Svelte package requires Svelte `^5.40.0`, but these lower peer floors do not replace Kit's stricter framework contract.
 
-For historical **Kit 2 sources**, the [official Kit 3 migration guide](https://svelte.dev/docs/kit/migrating-to-sveltekit-3) recommends upgrading to the latest Kit 2 release first to expose targeted deprecations, then running `npx sv migrate sveltekit-3` (not `sv@next`). Latest Kit 2 is a **temporary migration step only, never a supported destination**. Finish at [the exact tested Kit `3.1.0` baseline](setup.md#version-contract), or a newer Kit `>=3.1.0` release after checking its matching official documentation, metadata, declarations and sources. A Kit `3.0` application also needs the prerequisite upgrade to at least `3.1.0`; it is not an in-scope destination.
+Before running any mutating migration command, verify that the app is Bun-owned: it has a `bun.lock` in the owning project or workspace, any `packageManager` declaration is `bun@1.4.5`, and there are no conflicting package-manager signals. If ownership is different or ambiguous, stop until the project has explicitly authorized and completed a Bun cutover.
 
-Coordinate Node, Vite, the Svelte plugin, optional TypeScript and the existing deployment adapter. Automation does not replace manual review: move supported configuration into `sveltekit({...})`, remove obsolete `svelte.config.*`, merge [tsconfig](setup.md#typescript-configuration), and migrate every `$lib` import/re-export to `#lib` with explicit extensions. Use `$app/env`; `$app/environment` is deprecated, not absent, in exact Kit `3.1.0`. Replace removed `$app/stores` with read-only rune-reactive `$app/state`. Apply the remaining breaking changes relevant to the application from [Kit's migration guide](https://svelte.dev/docs/kit/migrating-to-sveltekit-3) and [Kit integration](sveltekit.md), preserving application behavior and unrelated configuration. The exact baseline does not certify all later Kit releases.
+Before running either the Kit or Skeleton migration CLI, verify that the project's installer lifecycle scripts run under Bun without invoking Node, npm, or npx. `--bun` controls the CLI runtime only: either CLI can launch `bun install`, which can run the app's `prepare` script. If a hook still relies on Node, stop and make it Bun-compatible first. See [greenfield setup](setup.md#greenfield-project) for the verified `prepare` command: `bun --bun svelte-kit sync`.
+
+For historical **Kit 2 sources**, follow the order in the [official Kit 3 migration guide](https://svelte.dev/docs/kit/migrating-to-sveltekit-3): upgrade to the latest Kit 2 release first to expose targeted deprecations, then run `bunx --bun sv@1.7.0 migrate sveltekit-3 --install bun` on the Bun-owned app. Latest Kit 2 is a **temporary migration step only, never a supported destination**. Finish at [the exact tested Kit `3.1.0` baseline](setup.md#version-contract), or a newer Kit `>=3.1.0` release after checking its matching official documentation, metadata, declarations and sources. A Kit `3.0` application also needs the prerequisite upgrade to at least `3.1.0`; it is not an in-scope destination.
+
+Coordinate Bun `1.4.5` for project commands, Vite, the Svelte plugin, optional TypeScript and the existing deployment adapter. Treat upstream Node engine ranges as published metadata, not Bun version requirements; check the Node engine ranges for deployment only if the selected adapter or host actually requires Node. Automation does not replace manual review: move supported configuration into `sveltekit({...})`, remove obsolete `svelte.config.*`, merge [tsconfig](setup.md#typescript-configuration), and migrate every `$lib` import/re-export to `#lib` with explicit extensions. Use `$app/env`; `$app/environment` is deprecated, not absent, in exact Kit `3.1.0`. Replace removed `$app/stores` with read-only rune-reactive `$app/state`. Apply the remaining breaking changes relevant to the application from [Kit's migration guide](https://svelte.dev/docs/kit/migrating-to-sveltekit-3) and [Kit integration](sveltekit.md), preserving application behavior and unrelated configuration. The exact baseline does not certify all later Kit releases.
 
 1. Inventory imports, providers/hosts, wrappers, stores, themes, utility classes, Tailwind/PostCSS configuration and every affected callsite, including shared packages.
 2. For **v2**, follow the [archived v2-to-v4 guide](https://v4.skeleton.dev/docs/svelte/get-started/migrate-from-v2), including `skeleton-3` then `skeleton-4` transformations. For **v3**, follow the [archived v3-to-v4 guide](https://v4.skeleton.dev/docs/svelte/get-started/migrate-from-v3). Complete manual component/prop conversion and establish a working v4 app, not merely a changed manifest.
 3. Finish the intermediate stage at **both Skeleton packages `4.15.2`**. Use exact intermediate pins, not archived `@latest` or release-candidate instructions:
 
 ```sh
-npm install -D --save-exact @skeletonlabs/skeleton@4.15.2 @skeletonlabs/skeleton-svelte@4.15.2
+bun add --dev --exact @skeletonlabs/skeleton@4.15.2 @skeletonlabs/skeleton-svelte@4.15.2
 ```
 
 4. From the functional intermediate app, follow the [v4-to-v5 guide](https://www.skeleton.dev/docs/svelte/get-started/migrate-from-v4). Preserve the selected Kit `>=3.1.0` framework/toolchain contract, including its Svelte peer (`^5.57.1` at the exact baseline), not merely Skeleton's lower Svelte floor; the CLI does not perform the necessary peer bump. Install the destination pair using [existing-project setup](setup.md#existing-project), integrate its CSS and finish the manual changes below.
 5. Import custom themes into the [Theme Generator](https://themes.skeleton.dev/themes/import), inspect converted CSS and restore custom fonts through typography controls: theme import strips them. Preserve local font loading and assets. Register the converted theme and activate the same name on `<html>`.
 
-For an authorized automated application migration, the pinned CLI supports these commands; run only the stages appropriate to the starting version:
+For an authorized automated application migration, the pinned CLI supports these commands; run only the stages appropriate to the starting version. Run from the app directory only after the Bun ownership and lifecycle checks above pass. The CLI detects its installer from the working directory and falls back to npm if none is detected, so do not run it from a directory whose package-manager signals do not resolve to Bun.
 
 ```sh
-npx skeleton@5.0.1 migrate skeleton-3
-npx skeleton@5.0.1 migrate skeleton-4
-npx skeleton@5.0.1 migrate skeleton-5
+bunx --bun skeleton@5.0.1 migrate skeleton-3
+bunx --bun skeleton@5.0.1 migrate skeleton-4
+bunx --bun skeleton@5.0.1 migrate skeleton-5
 ```
 
-**CLI version is not output dependency version.** These commands mutate files and install dependencies. CLI `5.0.1`'s `skeleton-3` resolves core `>=3.0.0-0 <4.0.0` and components `>=1.0.0-0 <2.0.0`; `skeleton-4` writes `^4.0.0`; `skeleton-5` writes `^5.0.0`. Restore exact intermediate/destination pins and the chosen package manager's lockfile after each applicable stage. Review every diff. The v3-to-v4 conversion still requires manual composition/prop work; automated renames are not component conversion.
+**CLI version is not output dependency version.** These commands mutate files and install dependencies. CLI `5.0.1`'s `skeleton-3` resolves core `>=3.0.0-0 <4.0.0` and components `>=1.0.0-0 <2.0.0`; `skeleton-4` writes `^4.0.0`; `skeleton-5` writes `^5.0.0`. Restore exact intermediate/destination pins and keep `bun.lock` in sync after each applicable stage. Review every diff. The v3-to-v4 conversion still requires manual composition/prop work; automated renames are not component conversion.
 
 The v5 scanner selects source folders and includes `.svelte`, `.css`, `.pcss`, `.postcss`, `.jsx`, `.tsx`, `.js`, `.mjs`, `.cjs`; it **omits `.ts` and `.html`**. Manually inspect those files and all callers outside selected folders, including themes, generated class strings, shared libraries and tests. Package/token/class automation does not cover semantic Field Group markup or every removed utility. Exact CLI source: [skeleton@5.0.1](https://unpkg.com/skeleton@5.0.1/dist/index.mjs).
 
@@ -222,7 +226,7 @@ When web research is unavailable or mixes versions:
 4. Core CSS is **`src/index.css`**, themes are **`src/themes/*.css`**; presets are included through core's CSS. Framework CSS is **`dist/index.css`** in the Svelte package. Do not restore historical core `dist/index.css`, optional-presets or `/composed` paths.
 5. If no public export matches, use documented native HTML or an application-owned implementation preserving the behavior; never fabricate a prop/component.
 
-Exact source links: [core index](https://unpkg.com/@skeletonlabs/skeleton@5.0.1/src/index.css), [Cerberus](https://unpkg.com/@skeletonlabs/skeleton@5.0.1/src/themes/cerberus.css), [framework CSS](https://unpkg.com/@skeletonlabs/skeleton-svelte@5.0.1/dist/index.css), [framework declarations](https://unpkg.com/@skeletonlabs/skeleton-svelte@5.0.1/dist/index.d.ts). Metadata query: `npm view @skeletonlabs/skeleton-svelte@5.0.1 peerDependencies exports --json`. Do not replace inspection with an unpinned install.
+Exact source links: [core index](https://unpkg.com/@skeletonlabs/skeleton@5.0.1/src/index.css), [Cerberus](https://unpkg.com/@skeletonlabs/skeleton@5.0.1/src/themes/cerberus.css), [framework CSS](https://unpkg.com/@skeletonlabs/skeleton-svelte@5.0.1/dist/index.css), [framework declarations](https://unpkg.com/@skeletonlabs/skeleton-svelte@5.0.1/dist/index.d.ts). Metadata query: `bun info @skeletonlabs/skeleton-svelte@5.0.1 peerDependencies exports`. Do not replace inspection with an unpinned install.
 
 ## Diagnose the failing layer
 

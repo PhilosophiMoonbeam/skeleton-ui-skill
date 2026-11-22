@@ -30,7 +30,9 @@ This skill supports **SvelteKit `>=3.1.0` only**. The framework/toolchain pins b
 | `@tailwindcss/forms` | `0.5.11` | [Registry](https://registry.npmjs.org/@tailwindcss/forms/0.5.11): needed for Skeleton native form utilities |
 | `@sveltejs/adapter-auto` | `8.0.0` | [Registry](https://registry.npmjs.org/@sveltejs/adapter-auto/8.0.0): compatible with stable Kit 3 |
 
-Use **Node 22.17+ within 22.x, or Node 24+**; maintained Node 24 LTS is recommended. Kit requires `>=22.17`; the Svelte Vite plugin requires `^20.19 || ^22.12 || >=24`. Node 20 and 23 fail the combined contract. JavaScript-only projects can omit TypeScript and its checker. Do not substitute TypeScript 7 for Kit's optional TypeScript 6 peer.
+Use **Bun `1.4.5`** as the runtime and package manager for this baseline. JavaScript-only projects can omit TypeScript and its checker. Do not substitute TypeScript 7 for Kit's optional TypeScript 6 peer.
+
+Node is not required for the Bun setup, development, type check, or build. Only if an explicitly scoped deployment runs Node, check its adapter's runtime requirements as well as the upstream engines: Kit `3.1.0` requires `>=22.17`; the pinned Svelte Vite plugin requires `^20.19 || ^22.12 || >=24`. Use a maintained Node release in the intersection (`22.17+` within `22.x`, or `24+`).
 
 The [current Skeleton installation guide](https://www.skeleton.dev/docs/svelte/get-started/installation/sveltekit) describes Skeleton's upstream requirements, not this skill's framework support boundary. Kit `>=3.1.0` is required here; Kit `3.1.0`, Vite 8 and TypeScript 6 form the exact reproducible baseline. Direct pins require a committed lockfile to freeze transitive resolution. Published peer compatibility does not establish runtime behavior.
 
@@ -42,21 +44,34 @@ historical framework baseline checks. Use the current scoped package
 
 ## Greenfield project
 
-Use the [official Svelte CLI](https://svelte.dev/docs/kit/creating-a-project) to generate a project:
+With Bun `1.4.5` installed (`bun --version` should print `1.4.5`), generate a minimal TypeScript project with the pinned [official Svelte CLI](https://svelte.dev/docs/kit/creating-a-project):
 
 ```sh
-npx sv create my-skeleton-app
+bunx --bun sv@1.7.0 create --template minimal --types ts --no-add-ons --no-install my-skeleton-app
 cd my-skeleton-app
 ```
 
-Choose TypeScript if desired. Select the intended package manager in the prompts. Configure Tailwind manually as shown below if needed; do not assume the current generator selects this reference's dependency versions. Inspect the generated manifest before proceeding.
+The CLI runs under Bun and generates files only: skip add-ons and dependency installation so no scaffold step selects another package manager. For a JavaScript-only project without TypeScript tooling, use `--no-types` in place of `--types ts`. Inspect the generated manifest; scaffold versions do not define this reference's dependency pins.
 
-Honor `packageManager`, the existing lockfile, and workspace conventions. The examples below use npm; translate their version-qualified arguments to the repository's package manager's exact-version syntax, preserving each command's dependency scope. Do not create a second lockfile. Run installation in the application workspace, not an unrelated monorepo root.
+Before the first `bun add`, merge these fields into the generated `package.json`. Change only `prepare` under `scripts`; preserve the other scripts and unrelated fields.
+
+```json
+{
+  "packageManager": "bun@1.4.5",
+  "scripts": {
+    "prepare": "bun --bun svelte-kit sync"
+  }
+}
+```
+
+`bun add` runs the application's `prepare` lifecycle hook. The generated hook invokes the Kit CLI through its Node shebang, and its fallback masks a failed sync. Replacing the entire `prepare` value forces the CLI to run under Bun and leaves any sync failure visible.
+
+Run installs in the application workspace, not an unrelated monorepo root, and commit `bun.lock` as the new application's only lockfile.
 
 For a TypeScript project, replace generated versions with these exact dependencies:
 
 ```sh
-npm install -D --save-exact @skeletonlabs/skeleton@5.0.1 @skeletonlabs/skeleton-svelte@5.0.1 svelte@5.57.2 @sveltejs/kit@3.1.0 vite@8.3.4 @sveltejs/vite-plugin-svelte@7.3.1 typescript@6.0.3 svelte-check@4.7.7 tailwindcss@4.3.3 @tailwindcss/vite@4.3.3 @tailwindcss/forms@0.5.11 @sveltejs/adapter-auto@8.0.0
+bun add --dev --exact @skeletonlabs/skeleton@5.0.1 @skeletonlabs/skeleton-svelte@5.0.1 svelte@5.57.2 @sveltejs/kit@3.1.0 vite@8.3.4 @sveltejs/vite-plugin-svelte@7.3.1 typescript@6.0.3 svelte-check@4.7.7 tailwindcss@4.3.3 @tailwindcss/vite@4.3.3 @tailwindcss/forms@0.5.11 @sveltejs/adapter-auto@8.0.0
 ```
 
 For JavaScript-only projects without TypeScript tooling, omit `typescript@6.0.3` and `svelte-check@4.7.7`. Omit forms only when not using Skeleton native form utilities. Keep other scaffold tools only if their peers support this toolchain.
@@ -65,24 +80,26 @@ Adapter auto 8's Kit `^3.0.0-next.0` peer includes stable `3.1.0`. For an existi
 
 ## Existing project
 
-First inspect `package.json`, the resolved lockfile, Node version, `vite.config.*`, `svelte.config.*`, root layout, `src/app.html`, and the imported global stylesheet. **Inspection does not authorize an upgrade.** An application below Kit `3.1.0` requires an explicitly scoped [prerequisite framework migration](migration.md) before this setup applies; if that migration is outside the request, report the prerequisite and leave the unrelated application unchanged. For an application already on Kit `>=3.1.0` with this Skeleton pair, preserve its compatible framework, deployment adapter, toolchain, lockfile and working conventions and make only the requested UI changes.
+First inspect `package.json`, the resolved lockfile, runtime version, `vite.config.*`, `svelte.config.*`, root layout, `src/app.html`, and the imported global stylesheet. **Inspection does not authorize an upgrade.** An application below Kit `3.1.0` requires an explicitly scoped [prerequisite framework migration](migration.md) before this setup applies; if that migration is outside the request, report the prerequisite and leave the unrelated application unchanged. For an application already on Kit `>=3.1.0` with this Skeleton pair, preserve its compatible framework, deployment adapter, toolchain, lockfile and working conventions and make only the requested UI changes.
 
-For an approved Skeleton installation or migration on Kit `>=3.1.0`, install the destination pair with the repository's package manager; the npm command is:
+Before adding any packages to an existing Bun-managed application, inspect install hooks such as `prepare`: the hooks themselves must run compatible JavaScript tools under Bun. For a Kit sync hook, use `bun --bun svelte-kit sync` as in the [greenfield example](#greenfield-project). If a hook needs changes outside the approved scope, report the prerequisite rather than editing it or proceeding with the install.
+
+For an approved Skeleton installation or migration on Kit `>=3.1.0` in a Bun-managed application, run this in the application workspace. Preserve any compatible existing package manager and lockfile unless changing them is explicitly in scope; do not add a second lockfile just to use a setup example.
 
 ```sh
-npm install -D --save-exact @skeletonlabs/skeleton@5.0.1 @skeletonlabs/skeleton-svelte@5.0.1
+bun add --dev --exact @skeletonlabs/skeleton@5.0.1 @skeletonlabs/skeleton-svelte@5.0.1
 ```
 
 Retain compatible existing Kit `>=3.1.0`, Svelte 5, Tailwind 4 and Vite integration versions only after checking the selected Kit release's framework, plugin and adapter contracts. Skeleton's component peer `^5.40.0` and core Tailwind peer `^4.0.0` do not lower this skill's framework floor; the exact Kit `3.1.0` baseline requires Svelte `^5.57.1`. Older Skeleton apps require the staged [migration](migration.md), not just a dependency update.
 
-For a prerequisite framework migration, use the [Kit migration guidance](migration.md) and the exact baseline above, or source-checked compatible versions for a newer Kit `>=3.1.0` target. Coordinate Kit, Svelte, Vite, the Svelte Vite plugin, optional TypeScript, Node and the existing deployment adapter; never force incompatible peers or silently rewrite unrelated applications. Apply the configuration and module changes below to the supported target. Preserve application settings, plugins, layouts and CSS; merge supported changes rather than overwriting whole files.
+For a prerequisite framework migration, use the [Kit migration guidance](migration.md) and the exact baseline above, or source-checked compatible versions for a newer Kit `>=3.1.0` target. Coordinate Kit, Svelte, Vite, the Svelte Vite plugin, optional TypeScript, the runtime and the existing deployment adapter; never force incompatible peers or silently rewrite unrelated applications. Apply the configuration and module changes below to the supported target. Preserve application settings, plugins, layouts and CSS; merge supported changes rather than overwriting whole files.
 
 ## Lucide when icons are useful
 
-For either project path, add the optional icon dependency only when using icons:
+In a Bun-managed application, add this optional runtime dependency only when using icons:
 
 ```sh
-npm install --save-exact @lucide/svelte@1.61.0
+bun add --exact @lucide/svelte@1.61.0
 ```
 
 Follow the [current Lucide Svelte guide](https://lucide.dev/guide/svelte/) and the
@@ -118,7 +135,7 @@ using the [custom-data/Lab pattern](lucide-patterns.md#custom-icon-data-and-lab)
 not as part of the default application dependency set:
 
 ```sh
-npm install --save-exact @lucide/lab@0.7.0
+bun add --exact @lucide/lab@0.7.0
 ```
 
 Lab supplies icon data for Lucide's generic `Icon`; it does not replace
@@ -167,7 +184,7 @@ Sources: [Kit 3 configuration migration](https://svelte.dev/docs/kit/migrating-t
 
 ## Kit 3 package imports and environment
 
-`$lib` is no longer generated. Merge this public Node subpath-import mapping into the **application's** `package.json`, preserving its other fields and existing import mappings:
+`$lib` is no longer generated. Merge this public package subpath-import mapping into the **application's** `package.json`, preserving its other fields and existing import mappings:
 
 ```json
 {
@@ -201,10 +218,10 @@ For `src/app.css` with `node_modules` in the app root, use:
 
 These are the [current installation imports](https://www.skeleton.dev/docs/svelte/get-started/installation/sveltekit). Presets are included in core. The historical optional-presets subpath is not exported by 5.0.1. The framework CSS import replaces the historical manual Skeleton `dist` scan. Keep imports grouped before plugins and application rules.
 
-**Install form normalization when using Skeleton's styled native form classes** (`input`, `select`, `textarea`, `checkbox`, etc.). The [forms prerequisites](https://www.skeleton.dev/docs/svelte/tailwind-components/forms) require `@tailwindcss/forms` for those utilities, not for every Skeleton app or unstyled native form. Install the pinned release with the same package manager:
+**Install form normalization when using Skeleton's styled native form classes** (`input`, `select`, `textarea`, `checkbox`, etc.). The [forms prerequisites](https://www.skeleton.dev/docs/svelte/tailwind-components/forms) require `@tailwindcss/forms` for those utilities, not for every Skeleton app or unstyled native form. In a Bun-managed application, install the pinned release with:
 
 ```sh
-npm install -D --save-exact @tailwindcss/forms@0.5.11
+bun add --dev --exact @tailwindcss/forms@0.5.11
 ```
 
 Insert this directive **after all `@import` rules**, including theme imports, and before `@source` directives or application styles. Keep the imports grouped first:
@@ -276,4 +293,17 @@ Theme registration (CSS import) and activation (`data-theme`) are distinct requi
 | Lucide import, sizing, naming, or context failure | Use the focused [Lucide troubleshooting table](lucide.md#troubleshooting), then [offline package inspection](lucide.md#offline-package-inspection) for the resolved export/types/source. Do not add a Skeleton scanner/plugin or client-only workaround. |
 | HTML/hydration template error | Restore Kit's template placeholders and body wrapper; adding a theme never requires replacing `app.html`. |
 
-Before handing off, inspect resolved versions with the chosen package manager, run the project's existing typecheck and build, and smoke-test a rendered styled page and one interactive component. Record exact commands and results; a successful compile does not establish focus behavior, keyboard behavior, or deployment compatibility. For offline API inspection, use the [migration reference](migration.md#offline-inspection-fallback).
+For the Bun baseline, inspect resolved versions against `bun.lock`, then run the scaffold's type check and production build after applying the setup changes. Use `--bun` so Vite and Svelte executables with Node shebangs run under Bun:
+
+```sh
+bun run --bun check
+bun run --bun build
+```
+
+Start the development server with:
+
+```sh
+bun run --bun dev
+```
+
+For JavaScript-only projects without a `check` script, omit the type check. For existing apps, preserve the authorized check and build workflow. Before handing off, smoke-test a rendered styled page and one interactive component. Record exact commands and results; a successful compile does not establish focus behavior, keyboard behavior, or deployment compatibility. For offline API inspection, use the [migration reference](migration.md#offline-inspection-fallback).

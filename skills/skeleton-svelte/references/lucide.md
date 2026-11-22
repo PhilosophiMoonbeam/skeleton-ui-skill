@@ -5,7 +5,7 @@ Use Lucide when icons improve recognition or communication; do not add decorativ
 ## Imports and package boundary
 
 ```sh
-npm install --save-exact @lucide/svelte@1.61.0
+bun add --exact @lucide/svelte@1.61.0
 ```
 
 Prefer canonical public per-icon default imports, such as `import Camera from '@lucide/svelte/icons/camera'`. Public root named imports, such as `import { Camera } from '@lucide/svelte'`, are also valid and can be tree-shaken. Per-icon imports keep the traversed module graph focused; they do not establish a measured bundle-size or build-speed advantage. Never import internal `dist` files. Root type-only imports are appropriate.
@@ -24,26 +24,24 @@ The workflow is **catalog label → confirmed export/file mapping → public imp
 
 ## Offline package inspection
 
-Run this from the consuming application's directory after dependencies are installed. It reads files without evaluating Svelte components or requiring network access:
+Run this from the consuming application's directory after dependencies are installed. It resolves the installed package and reads its metadata without writing a file, using the network, or evaluating Svelte components:
 
 ```sh
-node --input-type=module <<'NODE'
-import { createRequire } from 'node:module';
-import { readFileSync, realpathSync } from 'node:fs';
+bun - <<'BUN'
+import { realpathSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 
-const require = createRequire(import.meta.url);
-const entry = realpathSync(require.resolve('@lucide/svelte'));
+const entry = realpathSync(Bun.resolveSync('@lucide/svelte', process.cwd()));
 const root = dirname(dirname(entry));
-const pkg = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'));
+const pkg = await Bun.file(join(root, 'package.json')).json();
 console.log('Package directory:', root);
 console.log(JSON.stringify({
   version: pkg.version, peerDependencies: pkg.peerDependencies, exports: pkg.exports
 }, null, 2));
-NODE
+BUN
 ```
 
-Use the printed physical directory, not an assumed package-manager store path. The inspected npm installation has an ordinary `node_modules/@lucide/svelte` directory and regular per-icon files; other layouts may symlink the package directory (for example, into pnpm's `.pnpm` store). `realpathSync` follows the actual installation. In 1.61.0 the resolved root entry is `dist/lucide-svelte.js`, so two parent directories locate the package root.
+Use the printed physical directory, not an assumed `node_modules` path: isolated installs may symlink the package, and `realpathSync` follows those links. In 1.61.0 the resolved entry is `dist/lucide-svelte.js`, so two parent directories locate the package root.
 
 Inspect these files in that directory with an editor or text search:
 

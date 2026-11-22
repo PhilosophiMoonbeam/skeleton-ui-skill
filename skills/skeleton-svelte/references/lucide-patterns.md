@@ -230,7 +230,7 @@ Use ordinary icon components at a `LucideIcon` consumer boundary. The generic `I
 Only the next file requires this extra package; none of the preceding examples imports it:
 
 ```sh
-npm install --save-exact @lucide/lab@0.7.0
+bun add --exact @lucide/lab@0.7.0
 ```
 
 Exact 0.7.0 metadata declares an ESM entry and declarations; its ESM entry exports `pear`, whose implementation is a path-node array, not a Svelte component or a `LucideIconData` object. Its declared tuple names and string attributes fit 1.61.0's `LucideIconNode[]` shape. The typed assignment below makes that compatibility explicit; use the generic `iconNode` branch, not `icon={pear}` or `<pear />`. Lab is optional experimental artwork, not a promise that its symbols will enter the core catalog.

@@ -1,0 +1,61 @@
+{
+  "$schema": "https://biomejs.dev/schemas/2.6.8/schema.json",
+  "vcs": {
+    "enabled": true,
+    "clientKind": "git",
+    "useIgnoreFile": true
+  },
+  "files": {
+    // Only first-party docs, config, and CI; leave the upstream spec, artwork, and local state alone.
+    "includes": [
+      "README.md",
+      "AGENTS.md",
+      "package.json",
+      "biome.jsonc",
+      ".github/workflows/**",
+      "skills/skeleton-svelte/**/*.md"
+    ]
+  },
+  "formatter": {
+    "enabled": true,
+    "indentStyle": "space",
+    "indentWidth": 2
+  },
+  "linter": {
+    "rules": {
+      "preset": "recommended",
+      "nursery": {
+        "useConsistentHeadingLevel": "error",
+        "useSingleTopLevelHeading": "error",
+        "noDuplicateMapKeys": "error",
+        // Null workflow event values (e.g. pull_request:) are valid.
+        "noYamlEmptyMapKeys": "error",
+        "noYamlEmptySequenceEntries": "error"
+      }
+    }
+  },
+  "markdown": {
+    "parser": {
+      "frontmatter": true
+    },
+    // Keep published prose and fences as written; still format JSONC and workflow YAML.
+    "formatter": {
+      "enabled": false
+    }
+  },
+  "yaml": {
+    "formatter": {
+      "enabled": true,
+      "indentWidth": 2
+    }
+  },
+  "overrides": [
+    {
+      // Lint the skill's YAML frontmatter without linting contextual fences in other docs.
+      "includes": ["skills/skeleton-svelte/SKILL.md"],
+      "markdown": {
+        "analyzeEmbeds": true
+      }
+    }
+  ]
+}
