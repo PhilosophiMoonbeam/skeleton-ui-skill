@@ -5,23 +5,26 @@ description: >-
   with Svelte 5, Tailwind CSS 4, and Lucide for useful icons. Use for components,
   themes, icon imports and accessible icon controls, responsive composition,
   progressive motion, SSR, and server forms. Exact framework baseline:
-  Skeleton 5.0.1, Svelte 5.57.2, Kit 3.1.0, Tailwind 4.3.3; optional
-  @lucide/svelte 1.61.0. Older conventions are migration context only. Not React.
+  Skeleton 5.0.6, Svelte 5.59.1, Kit 3.4.0, Tailwind 4.3.5; optional
+  @lucide/svelte 1.77.0. Older conventions are migration context only. Not React.
 compatibility: >-
-  Skeleton core and Svelte components 5.0.1, Svelte 5.57.2, SvelteKit 3.1.0,
-  Tailwind CSS 4.3.3; optional @lucide/svelte 1.61.0 (Svelte ^5 peer).
-  Targets Kit 3.1+ exclusively. Bun 1.4.5 is the baseline runtime and package
-  manager; match Vite and adapter tooling to the selected Kit release.
+  Skeleton core and Svelte components 5.0.6, Svelte 5.59.1, SvelteKit 3.4.0,
+  Tailwind CSS 4.3.5; optional @lucide/svelte 1.77.0 (Svelte ^5 peer).
+  Existing apps require Kit 3.1+; 3.4.0 is the exact reference version.
+  Bun 1.4.5 is the baseline runtime and package manager; match Vite and
+  adapter tooling to the selected Kit release.
   Bundled guidance and installed packages support offline inspection;
   installation requires registry/cache access.
 metadata:
-  version: "3.1"
-  skeleton-core: "5.0.1"
-  skeleton-svelte: "5.0.1"
-  svelte: "5.57.2"
-  sveltekit: "3.1.0"
-  tailwindcss: "4.3.3"
-  lucide: "1.61.0"
+  version: "3.2"
+  skeleton-core: "5.0.6"
+  skeleton-svelte: "5.0.6"
+  svelte: "5.59.1"
+  sveltekit: "3.4.0"
+  sveltekit-minimum: "3.1.0"
+  tailwindcss: "4.3.5"
+  lucide: "1.77.0"
+  lucide-lab: "0.17.0"
 ---
 
 # Skeleton + SvelteKit + Tailwind CSS + Lucide
@@ -33,20 +36,22 @@ icon improves comprehension, not as mandatory decoration. React is out of scope.
 
 ## Version boundary: inspect before using examples
 
-The exact reference baseline is **`@skeletonlabs/skeleton@5.0.1`** (CSS),
-**`@skeletonlabs/skeleton-svelte@5.0.1`**, **Svelte `5.57.2`**,
-**SvelteKit `3.1.0`**, and **Tailwind CSS `4.3.3`**.
+The exact reference baseline is **`@skeletonlabs/skeleton@5.0.6`** (CSS),
+**`@skeletonlabs/skeleton-svelte@5.0.6`**, **Svelte `5.59.1`**,
+**SvelteKit `3.4.0`**, and **Tailwind CSS `4.3.5`**.
 
-The independently observed icon pin is **`@lucide/svelte@1.61.0`**, with a
-Svelte `^5` peer. Install it only where icons are used; existing dependency-free
-recipes do not require it.
+The optional icon pin is **`@lucide/svelte@1.77.0`**, with a Svelte `^5` peer.
+Install it only where icons are used; recipes without icons do not require it.
+Only the optional Lab example needs **`@lucide/lab@0.17.0`**.
 
-- **Existing app:** require SvelteKit 3.1 or later. Inspect resolved versions;
+- **Existing app:** require SvelteKit 3.1 or later; 3.4.0 is the exact reference
+  version, not a higher minimum. Inspect resolved versions;
   preserve compatible tooling, adapter, application conventions, and unrelated work.
   An older app needs the [prerequisite migration](references/migration.md), not
   a legacy-compatible implementation. Establish migration scope before editing it.
-- **Later release:** retrieve matching primary documentation/types/source for
-  affected APIs. The tested 3.1.0 baseline does not certify all future releases.
+- **Different supported version:** retrieve matching primary documentation,
+  types, or source for affected APIs. Evidence applies only to the versions
+  and scenarios actually checked.
   Do not downgrade a supported app merely to copy an example.
 - **Greenfield:** use the [Bun 1.4.5 setup](references/setup.md#greenfield-project)
   and commit `bun.lock` as the only lockfile. Inspect scaffold output and dependency
@@ -73,7 +78,7 @@ Read the relevant sections, not the full reference set.
 | Labels, errors, keyboard/focus, contrast, continuous motion | [Accessibility](references/accessibility.md): relevant interaction contract and browser checks |
 | Runes, SSR, lifecycle, route/load data, native server forms | [SvelteKit](references/sveltekit.md): selected framework boundary or example |
 | Springs, transitions, attachments, or route view transitions | [SvelteKit](references/sveltekit.md#purposeful-motion): smallest mechanism, reduced motion, navigation lifecycle |
-| Conflicting documentation, offline inspection, evidence | [Sources](references/sources.md): authority hierarchy, primary-source map, verification limits |
+| Conflicting documentation, offline inspection, evidence, or release impact | [Sources](references/sources.md): authority hierarchy, primary-source map, verification limits; [upstream release review](references/sources.md#upstream-release-review) |
 
 For a page refresh, combine **design + styling** and relevant accessibility
 checks. Add **components + the selected recipe** for interaction, **Lucide** when
@@ -133,9 +138,10 @@ relevant versions; setup or migration needs the full toolchain/configuration.
   Styled native form utilities require `@tailwindcss/forms`. CSS alone does not
   make a dialog modal or a styled disabled control semantically disabled.
 - **Lucide is a Svelte SVG component library.** Prefer canonical per-icon default
-  imports from `@lucide/svelte/icons/<slug>`; root named imports remain public and
-  valid. No icon stylesheet, Tailwind plugin, scanner, or client-only workaround
-  is required. Name the actual button/link and keep its icon decorative.
+  imports from `@lucide/svelte/icons/<slug>` (for example, `circle-exclamation-point`);
+  root named imports such as `CircleExclamationPoint` remain public and valid.
+  No icon stylesheet, Tailwind plugin, scanner, or client-only workaround is
+  required. Name the actual button/link and keep its icon decorative.
   See [Lucide verification](references/lucide.md#verification) for affected checks.
 - **Motion decorates real state.** Accessible values and success messages must
   report actual work, not animated interpolation. Honor reduced motion in CSS

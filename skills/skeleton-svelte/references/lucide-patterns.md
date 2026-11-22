@@ -1,6 +1,6 @@
 # Lucide patterns: typed consumers and advanced SVG
 
-Progressive examples for **@lucide/svelte 1.61.0**, Svelte 5, and the [core Lucide guide](lucide.md). Use only the patterns the application needs; no global wrapper or registry is required. All files except the explicitly optional Lab example need only the existing baseline dependencies.
+Progressive examples for **@lucide/svelte 1.77.0**, Svelte 5, and the [core Lucide guide](lucide.md). Use only the patterns the application needs; no global wrapper or registry is required. All files except the explicitly optional Lab example need only the existing baseline dependencies.
 
 Native form classes use the [global CSS and forms integration](setup.md#global-css-and-dependency-scanning). Use theme-aware `input`/`select` classes rather than inheriting light text onto forms normalization's white background in dark mode.
 
@@ -132,7 +132,7 @@ Expected assertions: before mount, every local control is disabled and SSR conta
 
 Lucide is an outline set, not a solid-icon set. SVG `fill` works on suitable geometry (such as a closed star), but filling arbitrary outlines can obscure details or close open paths unexpectedly. Inspect the particular icon; do not globally fill `.lucide`. In the comparison below, `strokeWidth={0}` intentionally removes the filled star's outline.
 
-Child snippets can add native SVG elements or nested icon SVGs. Here the composed image has exactly one accessible name: the outer SVG references an instance-safe nested `<title>`; the inner SVG stays decorative. Coordinates are in the outer 24×24 viewBox, not the displayed pixel size.
+Child snippets can add native SVG elements or nested icon SVGs and stop Lucide's automatic hiding; a snippet is not itself an accessible name. Here the composed image has exactly one accessible name: the outer SVG references an instance-safe nested `<title>`; the inner SVG stays explicitly decorative. Coordinates are in the outer 24×24 viewBox, not the displayed pixel size.
 
 **File: `IconArtwork.svelte`**
 ```svelte
@@ -225,15 +225,17 @@ Use ordinary icon components at a `LucideIcon` consumer boundary. The generic `I
 <Icon icon={addition} size={32} role="img" aria-label="Addition symbol in a circle" focusable="false" />
 ```
 
-### Optional dependency: @lucide/lab 0.7.0
+### Optional dependency: @lucide/lab 0.17.0
 
 Only the next file requires this extra package; none of the preceding examples imports it:
 
 ```sh
-bun add --exact @lucide/lab@0.7.0
+bun add --exact @lucide/lab@0.17.0
 ```
 
-Exact 0.7.0 metadata declares an ESM entry and declarations; its ESM entry exports `pear`, whose implementation is a path-node array, not a Svelte component or a `LucideIconData` object. Its declared tuple names and string attributes fit 1.61.0's `LucideIconNode[]` shape. The typed assignment below makes that compatibility explicit; use the generic `iconNode` branch, not `icon={pear}` or `<pear />`. Lab is optional experimental artwork, not a promise that its symbols will enter the core catalog.
+Lab is experimental; icons can graduate to core and disappear from Lab. For example, [Lab 0.15.0](https://github.com/lucide-icons/lucide/releases/tag/@lucide%2Flab@0.15.0) removed `jacket` after graduation. Confirm the core version's declaration and public path, then replace the Lab data import and generic `<Icon>` usage with the core component (`Jacket` from `@lucide/svelte/icons/jacket` in 1.77.0). Drop the Lab dependency if no imports need it.
+
+Pear has not graduated in this baseline: Lab 0.17.0 still exports the named `pear` data with the same two paths. Its declarations and shipped ESM source show an array of `[elementName, attributes]` tuples with string-valued attributes, compatible with the Svelte 1.77.0 `LucideIconNode[]` type. It is neither a Svelte component nor a `LucideIconData` object. Use the generic `iconNode` branch as shown below; do not pass `icon={pear}` or render `<pear />`.
 
 **File: `OptionalLabIcon.svelte`**
 ```svelte
@@ -252,5 +254,5 @@ Expected assertions: the custom-data image is named “Addition symbol in a circ
 ## Primary references
 
 - Current official guidance: [filled icons](https://lucide.dev/guide/svelte/advanced/filled-icons), [combining icons](https://lucide.dev/guide/svelte/advanced/combining-icons), and [Lucide Lab](https://lucide.dev/guide/svelte/advanced/with-lucide-lab).
-- Exact **@lucide/svelte 1.61.0**: [public types](https://unpkg.com/@lucide/svelte@1.61.0/dist/types.d.ts), [data types](https://unpkg.com/@lucide/svelte@1.61.0/dist/utils/types.d.ts), [Icon implementation](https://unpkg.com/@lucide/svelte@1.61.0/dist/Icon.svelte), and [SVG construction](https://unpkg.com/@lucide/svelte@1.61.0/dist/utils/buildLucideIconNode.js).
-- Exact **@lucide/lab 0.7.0**: [metadata](https://registry.npmjs.org/@lucide/lab/0.7.0), [named ESM exports](https://unpkg.com/@lucide/lab@0.7.0/dist/esm/lucide-lab.js), [declarations](https://unpkg.com/@lucide/lab@0.7.0/dist/lucide-lab.d.ts), and [pear data](https://unpkg.com/@lucide/lab@0.7.0/dist/esm/icons/pear.js).
+- Exact **@lucide/svelte 1.77.0**: [public types](https://unpkg.com/@lucide/svelte@1.77.0/dist/types.d.ts), [data types](https://unpkg.com/@lucide/svelte@1.77.0/dist/utils/types.d.ts), [Icon implementation](https://unpkg.com/@lucide/svelte@1.77.0/dist/Icon.svelte), and [SVG construction](https://unpkg.com/@lucide/svelte@1.77.0/dist/utils/buildLucideIconNode.js).
+- Exact **@lucide/lab 0.17.0**: [metadata](https://registry.npmjs.org/@lucide/lab/0.17.0), [named ESM exports](https://unpkg.com/@lucide/lab@0.17.0/dist/esm/lucide-lab.js), [declarations](https://unpkg.com/@lucide/lab@0.17.0/dist/lucide-lab.d.ts), and [pear data](https://unpkg.com/@lucide/lab@0.17.0/dist/esm/icons/pear.js).

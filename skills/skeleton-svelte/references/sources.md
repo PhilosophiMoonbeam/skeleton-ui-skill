@@ -1,20 +1,23 @@
 # Sources, compatibility evidence, and distribution
 
-Reference baseline as of **2026-10-18**: Skeleton core and Svelte components
-**5.0.1**, Svelte **5.57.2**, SvelteKit **3.1.0**, Tailwind CSS **4.3.3**.
-Lucide is independently pinned to **`@lucide/svelte@1.61.0`** (Svelte peer **`^5`**)
-when icons are useful; it does not change the existing stack pins or become a
-dependency of recipes that use no icons.
+Reference baseline as of **2026-11-22**: Skeleton core, Svelte components,
+Common (inherited), and CLI **5.0.6**; Svelte **5.59.1**; SvelteKit **3.4.0**;
+Tailwind CSS **4.3.5**. See [setup](setup.md) for the full application
+toolchain. **`@lucide/svelte@1.77.0`** (Svelte peer **`^5`**) and
+**`@lucide/lab@0.17.0`** are separately pinned and optional. Recipes that
+use no icons need neither package; core Lucide icons do not require Lab.
 Exact packages establish API and dependency contracts, not upstream certification
 of every application, deployment, or accessibility requirement.
 
 ## Exclusive framework scope
 
-Skill version **3.1** targets **SvelteKit 3.1+ exclusively**. The supported
-implementation path uses modern configuration, imports, state, navigation and
-forms. Older framework references identify migration inputs or patterns to
-replace; they are not alternative recipes. This policy supersedes earlier
-legacy-framework preservation guidance without relabeling historical test runs.
+Skill metadata version **3.2** targets **SvelteKit >=3.1.0 exclusively**.
+The floor is unchanged: Kit **3.4.0** is the exact reference baseline, not a
+new minimum. The supported implementation path uses modern configuration,
+imports, state, navigation and forms. Older framework references identify
+migration inputs or patterns to replace; they are not alternative recipes.
+This policy supersedes earlier legacy-framework preservation guidance without
+relabeling historical test runs.
 
 The earlier Kit-only scope cutover changed instructions, not executable examples
 or the then-existing dependency pins. A fresh exact-baseline fixture passed `npm run check` (**173 files,
@@ -48,22 +51,23 @@ future releases nor a production deployment.
 
 | Task | Primary sources | How to use them |
 | --- | --- | --- |
-| Establish versions and dependency contracts | Registry: [core 5.0.1](https://registry.npmjs.org/@skeletonlabs/skeleton/5.0.1), [components 5.0.1](https://registry.npmjs.org/@skeletonlabs/skeleton-svelte/5.0.1), [Svelte 5.57.2](https://registry.npmjs.org/svelte/5.57.2), [Kit 3.1.0](https://registry.npmjs.org/@sveltejs/kit/3.1.0), [Tailwind 4.3.3](https://registry.npmjs.org/tailwindcss/4.3.3) | Read `version`, `exports`, peers, optional peers, and engines. Development dependencies are not consumer requirements. |
+| Establish versions and dependency contracts | Registry: [core 5.0.6](https://registry.npmjs.org/@skeletonlabs/skeleton/5.0.6), [components 5.0.6](https://registry.npmjs.org/@skeletonlabs/skeleton-svelte/5.0.6), [Common 5.0.6](https://registry.npmjs.org/@skeletonlabs/skeleton-common/5.0.6), [Svelte 5.59.1](https://registry.npmjs.org/svelte/5.59.1), [Kit 3.4.0](https://registry.npmjs.org/@sveltejs/kit/3.4.0), [adapter-auto 9.0.0](https://registry.npmjs.org/@sveltejs/adapter-auto/9.0.0), [Tailwind 4.3.5](https://registry.npmjs.org/tailwindcss/4.3.5) | Read `version`, `exports`, peers, optional peers, and engines. Development dependencies are not consumer requirements. |
+| Check build and checker peers | Registry: [Vite 8.3.8](https://registry.npmjs.org/vite/8.3.8), [Svelte Vite plugin 7.3.1](https://registry.npmjs.org/@sveltejs/vite-plugin-svelte/7.3.1), [svelte-check 4.7.8](https://registry.npmjs.org/svelte-check/4.7.8), [TypeScript 6.0.3](https://registry.npmjs.org/typescript/6.0.3) | Use the compatible TypeScript peer set for typed apps; distinguish published Node engines from the documented Bun workflow. |
 | Install Skeleton 5 | Official [SvelteKit installation](https://www.skeleton.dev/docs/svelte/get-started/installation/sveltekit.md) and [core API](https://www.skeleton.dev/docs/svelte/get-started/core-api.md) | Use current CSS imports and theme activation with this skill's Kit 3.1+ setup; upstream minimums do not broaden the skill's target. |
-| Migrate older Skeleton applications | Official [v4-to-v5 migration](https://www.skeleton.dev/docs/svelte/get-started/migrate-from-v4.md); archived [v3-to-v4](https://v4.skeleton.dev/docs/svelte/get-started/migrate-from-v3) and [v2-to-v4](https://v4.skeleton.dev/docs/svelte/get-started/migrate-from-v2); exact [CLI source](https://unpkg.com/skeleton@5.0.1/dist/index.mjs) | Reach functional v4.15.2 before v5. CLI transformations do not replace manual component, Svelte-peer, field-group, and caller migration. See [migration](migration.md). |
-| Select exports and component anatomy | Exact [package metadata](https://unpkg.com/@skeletonlabs/skeleton-svelte@5.0.1/package.json), [runtime index](https://unpkg.com/@skeletonlabs/skeleton-svelte@5.0.1/dist/index.js), [declarations](https://unpkg.com/@skeletonlabs/skeleton-svelte@5.0.1/dist/index.d.ts); official [fundamentals](https://www.skeleton.dev/docs/svelte/get-started/fundamentals.md) and [Svelte documentation index](https://www.skeleton.dev/llms-svelte.txt) | Follow public exports into their declarations/source. Root is the public component entrypoint; `/composed` is not exported. See [components](components.md). |
+| Migrate older Skeleton applications | Official [v4-to-v5 migration](https://www.skeleton.dev/docs/svelte/get-started/migrate-from-v4.md); archived [v3-to-v4](https://v4.skeleton.dev/docs/svelte/get-started/migrate-from-v3) and [v2-to-v4](https://v4.skeleton.dev/docs/svelte/get-started/migrate-from-v2); exact [CLI source](https://unpkg.com/skeleton@5.0.6/dist/index.mjs) | Reach functional v4.15.2 before v5. CLI transformations do not replace manual component, Svelte-peer, field-group, and caller migration. See [migration](migration.md). |
+| Select exports and component anatomy | Exact [package metadata](https://unpkg.com/@skeletonlabs/skeleton-svelte@5.0.6/package.json), [runtime index](https://unpkg.com/@skeletonlabs/skeleton-svelte@5.0.6/dist/index.js), [declarations](https://unpkg.com/@skeletonlabs/skeleton-svelte@5.0.6/dist/index.d.ts); official [fundamentals](https://www.skeleton.dev/docs/svelte/get-started/fundamentals.md) and [Svelte documentation index](https://www.skeleton.dev/llms-svelte.txt) | Follow public exports into their declarations/source. Root is the public component entrypoint; `/composed` is not exported. See [components](components.md). |
 | Resolve state, callbacks, and floating anatomy | Official [Tabs](https://www.skeleton.dev/docs/svelte/framework-components/tabs.md), [Accordion](https://www.skeleton.dev/docs/svelte/framework-components/accordion.md), [Switch](https://www.skeleton.dev/docs/svelte/framework-components/switch.md), [Tooltip](https://www.skeleton.dev/docs/svelte/framework-components/tooltip.md), [Dialog](https://www.skeleton.dev/docs/svelte/framework-components/dialog.md), [Toast](https://www.skeleton.dev/docs/svelte/framework-components/toast.md) | Verify callbacks, bindability, providers, and element snippets against shipped declarations. See [recipes](recipes.md). |
-| Integrate Lucide components | Official [Svelte guide](https://lucide.dev/guide/svelte/), [getting started](https://lucide.dev/guide/svelte/getting-started), [migration](https://lucide.dev/guide/svelte/migration), and [GitHub source](https://github.com/lucide-icons/lucide/tree/main/packages/svelte); exact [1.61.0 metadata](https://registry.npmjs.org/@lucide/svelte/1.61.0), [public declarations](https://unpkg.com/@lucide/svelte@1.61.0/dist/lucide-svelte.d.ts), [prop/component types](https://unpkg.com/@lucide/svelte@1.61.0/dist/types.d.ts), [Icon implementation](https://unpkg.com/@lucide/svelte@1.61.0/dist/Icon.svelte), and [context implementation](https://unpkg.com/@lucide/svelte@1.61.0/dist/context.js) | Package exports/types determine the API; rolling docs explain intent. See [Lucide](lucide.md) and the [package cutover](migration.md#migrate-lucide-to-the-current-svelte-package). |
-| Discover and verify an icon | Official [icon catalog](https://lucide.dev/icons/); exact [1.61.0 metadata](https://registry.npmjs.org/@lucide/svelte/1.61.0) and [public declarations](https://unpkg.com/@lucide/svelte@1.61.0/dist/lucide-svelte.d.ts) | Search visually or by meaning, then verify canonical slug, public subpath and named export in the resolved package; the rolling catalog is not a frozen availability list. See [discovery](lucide.md#discover-and-verify-an-icon) and [offline inspection](lucide.md#offline-package-inspection). |
-| Apply deeper Lucide patterns | Official Svelte [TypeScript](https://lucide.dev/guide/svelte/advanced/typescript), [filled icons](https://lucide.dev/guide/svelte/advanced/filled-icons), [combining icons](https://lucide.dev/guide/svelte/advanced/combining-icons), and [global styling](https://lucide.dev/guide/svelte/advanced/global-styling); exact [types](https://unpkg.com/@lucide/svelte@1.61.0/dist/types.d.ts), [Icon implementation](https://unpkg.com/@lucide/svelte@1.61.0/dist/Icon.svelte), and [context implementation](https://unpkg.com/@lucide/svelte@1.61.0/dist/context.js) | Rolling examples need exact-package checks, especially custom-node types and context behavior. Use [advanced patterns](lucide-patterns.md); a reusable consumer is optional, not a required global abstraction. |
-| Use optional Lucide Lab data | Official [Svelte Lab guide](https://lucide.dev/guide/svelte/advanced/with-lucide-lab); exact [0.7.0 registry metadata](https://registry.npmjs.org/@lucide/lab/0.7.0), [package manifest](https://unpkg.com/@lucide/lab@0.7.0/package.json), [declarations](https://unpkg.com/@lucide/lab@0.7.0/dist/lucide-lab.d.ts), and [ESM entrypoint](https://unpkg.com/@lucide/lab@0.7.0/dist/esm/lucide-lab.js) | Lab is an optional extra only for applications using its data. Inspect its actual named data export and node shape against `@lucide/svelte@1.61.0`, not a copied name or documentation type alias. See [custom data and Lab](lucide-patterns.md#custom-icon-data-and-lab). |
-| Style themes, native controls, and presets | Official [themes](https://www.skeleton.dev/docs/svelte/design/themes), [colors](https://www.skeleton.dev/docs/svelte/design/colors), [presets](https://www.skeleton.dev/docs/svelte/tailwind-utilities/presets), [forms](https://www.skeleton.dev/docs/svelte/tailwind-components/forms.md); exact [core CSS](https://unpkg.com/@skeletonlabs/skeleton@5.0.1/src/index.css), [presets CSS](https://unpkg.com/@skeletonlabs/skeleton@5.0.1/src/utilities/presets.css), [Cerberus](https://unpkg.com/@skeletonlabs/skeleton@5.0.1/src/themes/cerberus.css), [framework CSS](https://unpkg.com/@skeletonlabs/skeleton-svelte@5.0.1/dist/index.css) | Separate core/native CSS from optional framework behavior. Presets are included in core; form utilities require the forms plugin. See [styling](styling.md). |
+| Integrate Lucide components | Official [Svelte guide](https://lucide.dev/guide/svelte/), [getting started](https://lucide.dev/guide/svelte/getting-started), [migration](https://lucide.dev/guide/svelte/migration); exact [1.77.0 metadata](https://registry.npmjs.org/@lucide/svelte/1.77.0), [public declarations](https://unpkg.com/@lucide/svelte@1.77.0/dist/lucide-svelte.d.ts), and [Icon implementation](https://unpkg.com/@lucide/svelte@1.77.0/dist/Icon.svelte) | Package exports/types determine the API; rolling docs explain intent. See [Lucide](lucide.md) and the [package cutover](migration.md#migrate-lucide-to-the-current-svelte-package). |
+| Discover and verify an icon | Official [icon catalog](https://lucide.dev/icons/); exact [1.77.0 metadata](https://registry.npmjs.org/@lucide/svelte/1.77.0) and [public declarations](https://unpkg.com/@lucide/svelte@1.77.0/dist/lucide-svelte.d.ts) | Search visually or by meaning, then verify canonical slug, public subpath and named export in the resolved package; the rolling catalog is not a frozen availability list. See [discovery](lucide.md#discover-and-verify-an-icon) and [offline inspection](lucide.md#offline-package-inspection). |
+| Apply deeper Lucide patterns | Official Svelte [TypeScript](https://lucide.dev/guide/svelte/advanced/typescript), [filled icons](https://lucide.dev/guide/svelte/advanced/filled-icons), [combining icons](https://lucide.dev/guide/svelte/advanced/combining-icons), and [global styling](https://lucide.dev/guide/svelte/advanced/global-styling); exact [types](https://unpkg.com/@lucide/svelte@1.77.0/dist/types.d.ts), [Icon implementation](https://unpkg.com/@lucide/svelte@1.77.0/dist/Icon.svelte), and [context implementation](https://unpkg.com/@lucide/svelte@1.77.0/dist/context.js) | Rolling examples need exact-package checks, especially custom-node types and context behavior. Use [advanced patterns](lucide-patterns.md); a reusable consumer is optional, not a required global abstraction. |
+| Use optional Lucide Lab data | Official [Svelte Lab guide](https://lucide.dev/guide/svelte/advanced/with-lucide-lab); exact [0.17.0 registry metadata](https://registry.npmjs.org/@lucide/lab/0.17.0), [declarations](https://unpkg.com/@lucide/lab@0.17.0/dist/lucide-lab.d.ts), and [ESM entrypoint](https://unpkg.com/@lucide/lab@0.17.0/dist/esm/lucide-lab.js) | Lab is an optional extra only for applications using its data. Inspect its actual named data export and node shape against `@lucide/svelte@1.77.0`, not a copied name or documentation type alias. See [custom data and Lab](lucide-patterns.md#custom-icon-data-and-lab). |
+| Style themes, native controls, and presets | Official [themes](https://www.skeleton.dev/docs/svelte/design/themes), [colors](https://www.skeleton.dev/docs/svelte/design/colors), [presets](https://www.skeleton.dev/docs/svelte/tailwind-utilities/presets), [forms](https://www.skeleton.dev/docs/svelte/tailwind-components/forms.md); exact [core CSS](https://unpkg.com/@skeletonlabs/skeleton@5.0.6/src/index.css), [presets CSS](https://unpkg.com/@skeletonlabs/skeleton@5.0.6/src/utilities/presets.css), [Cerberus](https://unpkg.com/@skeletonlabs/skeleton@5.0.6/src/themes/cerberus.css), [framework CSS](https://unpkg.com/@skeletonlabs/skeleton-svelte@5.0.6/dist/index.css) | Separate core/native CSS from optional framework behavior. Presets are included in core; form utilities require the forms plugin. See [styling](styling.md). |
 | Compose responsive pages | Official [typography](https://www.skeleton.dev/docs/svelte/design/typography), [spacing](https://www.skeleton.dev/docs/svelte/design/spacing), [responsive design](https://tailwindcss.com/docs/responsive-design) | Apply [design](design.md), then inspect actual narrow/wide rendering; a recipe is not an exported AppShell component. |
-| Configure Tailwind 4 | Official [Vite installation](https://tailwindcss.com/docs/installation/using-vite), [class detection](https://tailwindcss.com/docs/detecting-classes-in-source-files), [dark mode](https://tailwindcss.com/docs/dark-mode), [upgrade guide](https://tailwindcss.com/docs/upgrade-guide); exact [Vite plugin metadata](https://registry.npmjs.org/@tailwindcss/vite/4.3.3) | Use complete class strings and stylesheet-relative shared-source paths. Framework CSS replaces the old Skeleton distribution scan, not all uses of `@source`. |
-| Write Svelte 5 state and lifecycle | Official [migration](https://svelte.dev/docs/svelte/v5-migration-guide), [$state](https://svelte.dev/docs/svelte/$state), [$derived](https://svelte.dev/docs/svelte/$derived), [$effect](https://svelte.dev/docs/svelte/$effect), [$props](https://svelte.dev/docs/svelte/$props), [snippets](https://svelte.dev/docs/svelte/snippet), [lifecycle](https://svelte.dev/docs/svelte/lifecycle-hooks); exact [types](https://unpkg.com/svelte@5.57.2/types/index.d.ts) | Use instance-owned state and hydration-stable IDs; distinguish browser-only lifecycle from SSR. |
-| Add optional motion or route continuity | Official [Svelte motion](https://svelte.dev/docs/svelte/svelte-motion), [transitions](https://svelte.dev/docs/svelte/transition), [attachments](https://svelte.dev/docs/svelte/@attach), [Kit view-transition pattern](https://svelte.dev/docs/kit/faq#How-do-I-use-the-view-transitions-API); exact [Spring](https://unpkg.com/svelte@5.57.2/src/motion/spring.js), [Tween](https://unpkg.com/svelte@5.57.2/src/motion/tweened.js), and [Kit router](https://unpkg.com/@sveltejs/kit@3.1.0/src/runtime/client/client.js) | Separate actual state from interpolation; verify cancellation, reduced motion, lifecycle cleanup, and nonblocking navigation. |
+| Configure Tailwind 4 | Official [Vite installation](https://tailwindcss.com/docs/installation/using-vite), [class detection](https://tailwindcss.com/docs/detecting-classes-in-source-files), [dark mode](https://tailwindcss.com/docs/dark-mode), [upgrade guide](https://tailwindcss.com/docs/upgrade-guide); exact [Vite plugin metadata](https://registry.npmjs.org/@tailwindcss/vite/4.3.5) | Use complete class strings and stylesheet-relative shared-source paths. Framework CSS replaces the old Skeleton distribution scan, not all uses of `@source`. |
+| Write Svelte 5 state and lifecycle | Official [migration](https://svelte.dev/docs/svelte/v5-migration-guide), [$state](https://svelte.dev/docs/svelte/$state), [$derived](https://svelte.dev/docs/svelte/$derived), [$effect](https://svelte.dev/docs/svelte/$effect), [$props](https://svelte.dev/docs/svelte/$props), [snippets](https://svelte.dev/docs/svelte/snippet), [lifecycle](https://svelte.dev/docs/svelte/lifecycle-hooks); exact [types](https://unpkg.com/svelte@5.59.1/types/index.d.ts) | Use instance-owned state and hydration-stable IDs; distinguish browser-only lifecycle from SSR. |
+| Add optional motion or route continuity | Official [Svelte motion](https://svelte.dev/docs/svelte/svelte-motion), [transitions](https://svelte.dev/docs/svelte/transition), [attachments](https://svelte.dev/docs/svelte/@attach), [Kit view-transition pattern](https://svelte.dev/docs/kit/faq#How-do-I-use-the-view-transitions-API); exact [Spring](https://unpkg.com/svelte@5.59.1/src/motion/spring.js), [Tween](https://unpkg.com/svelte@5.59.1/src/motion/tweened.js), and [Kit router](https://unpkg.com/@sveltejs/kit@3.4.0/src/runtime/client/client.js) | Separate actual state from interpolation; verify cancellation, reduced motion, lifecycle cleanup, and nonblocking navigation. |
 | Evaluate expressive effects and performance | [Animation purpose](https://www.nngroup.com/articles/animation-purpose-ux/), [rendering cost](https://web.dev/articles/animations-guide), [LCP optimization](https://web.dev/articles/optimize-lcp), [Core Web Vitals](https://web.dev/articles/vitals) | Design recommendations and measurement targets are not proof of user outcomes, field performance, or accessibility. |
-| Configure or migrate Kit 3.1+ | Official [stable Kit 3 migration](https://svelte.dev/docs/kit/migrating-to-sveltekit-3), [environment variables](https://svelte.dev/docs/kit/environment-variables); exact [Kit declarations](https://unpkg.com/@sveltejs/kit@3.1.0/types/index.d.ts) | Use Vite configuration, `$app/tsconfig`, `#lib`, `$app/env`, `$app/state`, and current navigation/enhancement signatures. Remove historical alternatives during migration. |
+| Configure or migrate Kit 3.1+ | Official [stable Kit 3 migration](https://svelte.dev/docs/kit/migrating-to-sveltekit-3), [environment variables](https://svelte.dev/docs/kit/environment-variables); exact [Kit 3.4.0 declarations](https://unpkg.com/@sveltejs/kit@3.4.0/types/index.d.ts) | Use Vite configuration, `$app/tsconfig`, `#lib`, `$app/env`, `$app/state`, and current navigation/enhancement signatures. Remove historical alternatives during migration. |
 | Implement isolated SSR and native/progressive forms | Official [state management](https://svelte.dev/docs/kit/state-management), [load](https://svelte.dev/docs/kit/load), [server-only modules](https://svelte.dev/docs/kit/server-only-modules), [form actions](https://svelte.dev/docs/kit/form-actions) | Keep user data out of server singletons; preserve native POST and raw failed text. See [SvelteKit integration](sveltekit.md). |
 | Evaluate interaction and accessibility | WAI [modal dialogs](https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/), [labels](https://www.w3.org/WAI/tutorials/forms/labels/), [form notifications](https://www.w3.org/WAI/tutorials/forms/notifications/), [status messages](https://www.w3.org/WAI/WCAG22/Understanding/status-messages.html) | These are requirements/guidance, not passed checks. Use [accessibility](accessibility.md). |
 | Distribute the skill | [Agent Skills specification](https://agentskills.io/specification) | Preserve directory naming, string metadata, relative references, and progressive disclosure. |
@@ -71,6 +75,85 @@ future releases nor a production deployment.
 Version-qualified registry URLs describe published metadata; UNPKG exposes the
 same published package files. If unavailable, inspect the installed copy or the
 registry record's `dist.tarball`, not an unversioned `latest` substitute.
+
+## Upstream release review
+
+These are source and published-package findings, not runtime, deployment, or
+accessibility results. Use the resolved package if it differs from the baseline.
+
+- **Skeleton core, components, Common, and CLI.** Keep the public component
+  root and core stylesheet/theme imports in [Skeleton Svelte 5.0.6](https://github.com/skeletonlabs/skeleton/releases/tag/@skeletonlabs%2Fskeleton-svelte@5.0.6)
+  and [core 5.0.6](https://github.com/skeletonlabs/skeleton/releases/tag/@skeletonlabs%2Fskeleton@5.0.6).
+  The [5.0.6 CLI](https://github.com/skeletonlabs/skeleton/releases/tag/skeleton@5.0.6)
+  still complements, rather than replaces, manual migration. Across the exact
+  5.0.4–5.0.6 npm artifacts, including
+  [untagged Skeleton Svelte 5.0.5](https://registry.npmjs.org/@skeletonlabs/skeleton-svelte/5.0.5),
+  the comparison found manifest bumps and a return declaration change for
+  `useListCollection` to `ListCollection<T, never>`;
+  no caller redesign is needed. Common
+  [5.0.3](https://github.com/skeletonlabs/skeleton/releases/tag/@skeletonlabs%2Fskeleton-common@5.0.3)
+  corrected the navigation rail gap unit and
+  [5.0.4](https://github.com/skeletonlabs/skeleton/releases/tag/@skeletonlabs%2Fskeleton-common@5.0.4)
+  corrected Firefox QrCode output. Do not add an application workaround for
+  either fix on the new baseline.
+- **Inherited Zag 1.48.0.** Use Skeleton's wrappers, not a separately installed
+  Zag API. [Combobox 1.47.0](https://github.com/chakra-ui/zag/releases/tag/@zag-js%2Fcombobox@1.47.0)
+  adds result/no-result announcements and `loading`/`aria-busy`; the wrapper
+  forwards the loading prop and translations. Retain the visible label and
+  check real keyboard behavior. For Dialog
+  [1.45.0](https://github.com/chakra-ui/zag/releases/tag/@zag-js%2Fdialog@1.45.0)
+  and [1.47.0](https://github.com/chakra-ui/zag/releases/tag/@zag-js%2Fdialog@1.47.0),
+  prefer normal modal focus defaults and check Escape and restored focus.
+  Check actual rendered link boundaries with
+  [Pagination 1.46.0](https://github.com/chakra-ui/zag/releases/tag/@zag-js%2Fpagination@1.46.0),
+  keyboard exit with [Tabs 1.47.0](https://github.com/chakra-ui/zag/releases/tag/@zag-js%2Ftabs@1.47.0),
+  and use the positioner's `--z-index` with
+  [Floating Panel 1.48.0](https://github.com/chakra-ui/zag/releases/tag/@zag-js%2Ffloating-panel@1.48.0).
+  [Toast 1.47.0](https://github.com/chakra-ui/zag/releases/tag/@zag-js%2Ftoast@1.47.0)
+  fixes focus and paused timers; keep the instance-owned store.
+- **Kit and adapters.** [Kit 3.2.0](https://github.com/sveltejs/kit/releases/tag/@sveltejs%2Fkit@3.2.0)
+  corrected initial `afterNavigate` route/params and `from`; don't assume that
+  behavior at the 3.1 floor. [Kit 3.4.0](https://github.com/sveltejs/kit/releases/tag/@sveltejs%2Fkit@3.4.0)
+  adds the adapter capability `vite.customPreview: true` for an adapter that
+  supplies `configurePreviewServer`; it is not an application or Bun setting.
+  [Adapter-auto 9.0.0](https://github.com/sveltejs/kit/releases/tag/@sveltejs%2Fadapter-auto@9.0.0)
+  targets Cloudflare **Workers**, not **Pages**, when it detects Cloudflare.
+  Preserve explicit compatible production adapters; treat a hosting change
+  as a separate migration. Keep ordinary Vite configuration and native and
+  enhanced page actions.
+- **Svelte, Vite, and svelte-check.** [Svelte 5.58.1](https://github.com/sveltejs/svelte/releases/tag/svelte@5.58.1)
+  fixes native `bind:files` reset and `svelte/events` listener propagation;
+  [5.59.1](https://github.com/sveltejs/svelte/releases/tag/svelte@5.59.1) fixes
+  mount/hydrate types. Keep ordinary event props and don't enable experimental
+  async for the examples. [Vite 8.3.6](https://github.com/vitejs/vite/releases/tag/v8.3.6)
+  fixes `#` subpath resolution in dependency optimization; retain explicit
+  package import mappings, not an alias workaround.
+  [Vite 8.3.8](https://github.com/vitejs/vite/releases/tag/v8.3.8) and
+  [svelte-check 4.7.8](https://github.com/sveltejs/language-tools/releases/tag/svelte-check@4.7.8)
+  need no change to the documented regular configuration; keep TypeScript
+  6.0.3 within the Kit and checker peer ranges and leave `--tsgo` off.
+- **Tailwind.** [4.3.4](https://github.com/tailwindlabs/tailwindcss/releases/tag/v4.3.4)
+  fixes explicit symlinked `@source` watching and negated `.gitignore` scans,
+  and stops emitting CSS for invalid/empty modifiers.
+  [4.3.5](https://github.com/tailwindlabs/tailwindcss/releases/tag/v4.3.5)
+  fixes `color-mix` fallback and Oxide WASM scanning/install. Keep explicit
+  stylesheet-relative shared sources and the Vite plugin; don't install an
+  internal WASM package or infer broader browser support.
+- **Lucide and Lab.** [Lucide 1.68.0](https://github.com/lucide-icons/lucide/releases/tag/1.68.0)
+  renamed warning/alert icons to exclamation-point names. In
+  [1.77.0](https://github.com/lucide-icons/lucide/releases/tag/1.77.0),
+  `circle-alert` is still an alias; use `CircleExclamationPoint` and
+  `@lucide/svelte/icons/circle-exclamation-point` in new code. After
+  [1.76.0](https://github.com/lucide-icons/lucide/releases/tag/1.76.0) expanded
+  case conversion, still verify canonical slugs against exact exports.
+  [1.75.0](https://github.com/lucide-icons/lucide/releases/tag/1.75.0) checks
+  own non-nullish `aria-*`, `role`, or `title` values for automatic hiding;
+  a child snippet also disables automatic hiding. An undefined prop is not an
+  accessible name: name the control and keep its icon decorative.
+  [Lab 0.17.0](https://github.com/lucide-icons/lucide/releases/tag/@lucide%2Flab@0.17.0)
+  still exports `pear` with unchanged geometry. Some other icons graduated
+  into core (see [Lab 0.15.0](https://github.com/lucide-icons/lucide/releases/tag/@lucide%2Flab@0.15.0));
+  check exact exports first and keep Lab optional.
 
 ## Secondary research and corrections
 
@@ -127,11 +210,13 @@ is **secondary research**, not official Lucide documentation. Its frozen review
 covered 15 units: 14 initially needed validation and one was a practice; all
 15 were flagged and adjudicated. The deterministic pre-filter removed 23
 blank/heading/separator blocks; the batch had no errors or truncated units.
-The following corrections are exact-package/source reviews, not test results;
-the initial classification labels were not treated as authority.
+These historical corrections describe the exact **1.61.0** review, not the
+current icon baseline or new test results. See
+[upstream release review](#upstream-release-review) for later naming and
+accessibility changes.
 
-- Use `@lucide/svelte@1.61.0` with its exact Svelte `^5` peer. The separately
-  versioned [`lucide-svelte@1.0.1`](https://registry.npmjs.org/lucide-svelte/1.0.1)
+- The review used `@lucide/svelte@1.61.0` with its exact Svelte `^5` peer.
+  The separately versioned [`lucide-svelte@1.0.1`](https://registry.npmjs.org/lucide-svelte/1.0.1)
   is deprecated in favor of `@lucide/svelte`; do not add an old-Svelte path.
   Preserve the consumer's package manager and lockfile.
 - Root named imports such as `Camera` are public and valid. Canonical default
@@ -163,7 +248,7 @@ the initial classification labels were not treated as authority.
   [advanced example](lucide-patterns.md#custom-icon-data-and-lab) has its own
   additional dependency and requires separately recorded verification.
 
-These corrections come from the primary sources above and the exact installed
+These corrections come from the 1.61.0 published sources and exact installed
 package, not from the research's wording. The [Lucide verification
 guide](lucide.md#verification) specifies integration checks; no new runtime
 outcome is implied by this source review.
@@ -173,12 +258,13 @@ outcome is implied by this source review.
 1. Read manifest, lockfile, and installed metadata through the actual workspace
    dependency layout, including symlinks. Record resolved versions and overrides;
    preserve package manager and lockfile.
-2. Read `exports`/`types`. In component 5.0.1, start at `dist/index.d.ts` and
+2. Read `exports`/`types`. In components 5.0.6, start at `dist/index.d.ts` and
    `dist/index.js`, then follow relative declarations and source. Inspect required
    props, callback payloads, snippet tuples, child members, and bindability.
-3. Follow inherited Zag contracts through the installed dependency version, not
-   rolling Zag documentation. Read implementation for rendered tags, hidden/native
-   inputs, default styling, event forwarding, and lifecycle behavior.
+3. Follow the inherited Zag contracts through the installed dependency version
+   (1.48.0 in components 5.0.6), not rolling Zag documentation. Read
+   implementation for rendered tags, hidden/native inputs, default styling,
+   event forwarding, and lifecycle behavior.
 4. Inspect core `src/index.css`, its imported utilities, and `src/themes/*.css`,
    plus Svelte package `dist/index.css`. Core exports only its root, themes, and
    package metadata; `/optional/presets` is obsolete. Inspect installed Svelte/Kit
@@ -191,12 +277,45 @@ For Lucide-specific exports, declarations, component source and context, use
 actual workspace dependency instead of assuming a flat `node_modules` layout;
 internal file paths inspected here are not public import recommendations.
 
+## Current Bun baseline verification
+
+On **2026-11-22**, a disposable Linux x64 fixture used Bun **1.4.5**,
+the exact [setup stack](setup.md#version-contract), and both optional icon pins
+(`@lucide/svelte@1.77.0`, `@lucide/lab@0.17.0`). It used the documented
+`sv@1.7.0` scaffold and `bun --bun svelte-kit sync` prepare hook. Bun installed
+all 14 exact direct app dependencies and accepted the resulting `bun.lock`
+with `--frozen-lockfile`. Skeleton's inherited Zag dependencies pinned 1.48.0.
+
+- The fixture materialized the setup and examples, including all eight
+  component recipes, the Lucide examples and the complete Kit greeting action.
+  `bun run --bun check` reported **5,469 files, 0 errors, 0 warnings**;
+  `bun run --bun build` produced SSR and client output. Vite dev returned themed
+  SSR HTML with the canonical warning icon; production preview returned HTTP
+  200 and the active theme on all ten fixture routes.
+- Chrome **158.0.8127.36** rendered theme tokens, Skeleton and Tailwind styles,
+  the canonical warning SVG and the two-path Lab Pear without JavaScript.
+  With hydration, keyboard tests covered Tabs, Dialog focus and Escape, and
+  Combobox result announcements and selection. Native and enhanced form tests
+  both preserved raw invalid values, rejected an overlength raw value, and
+  produced the trimmed greeting on success.
+- The documented Bun offline lookup returned Lucide **1.77.0** and its export
+  map. Skeleton CLI help and skills CLI local discovery (`--list`) ran under
+  Bun; neither performed a migration or installed the skill into an agent.
+  Runtime guards and executable traces found no external Node, npm or npx
+  launches in the repository or application commands; the `node`-named shim
+  resolved to Bun. The browser driver was separate verification tooling.
+
+The build emitted a Rolldown plugin-timing advisory, and `adapter-auto` found
+no production target. This run did not verify deployment, hosted CI, Firefox,
+screen-reader announcements, or the whole supported Kit range.
+
 ## Bun toolchain verification
 
-On Linux x64 with **Bun 1.4.5**, a disposable fixture was scaffolded with
+**Historical 5.0.1 baseline.** On Linux x64 with **Bun 1.4.5**, a disposable
+fixture was scaffolded with
 `bunx --bun sv@1.7.0 create --template minimal --types ts --no-add-ons --no-install`.
-Before installing the exact [setup stack](setup.md) with Bun, the fixture set
-`scripts.prepare` to `bun --bun svelte-kit sync` to avoid the generated
+Before installing the then-current exact stack (see the historical table below)
+with Bun, the fixture set `scripts.prepare` to `bun --bun svelte-kit sync` to avoid the generated
 Node-shebang hook. The install included optional `@lucide/svelte@1.61.0` and
 `@lucide/lab@0.7.0`. The fixture used the extracted setup and configuration,
 `TabsExample.svelte`, and `OptionalLabIcon.svelte`.

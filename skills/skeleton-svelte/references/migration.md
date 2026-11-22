@@ -2,16 +2,16 @@
 
 ## Identify the installed generation first
 
-Inspect the application's manifest **and resolved lockfile**. This skill targets **SvelteKit `>=3.1.0` only**, with `@skeletonlabs/skeleton@5.0.1` and `@skeletonlabs/skeleton-svelte@5.0.1`. Core exports CSS; framework components come from the Svelte package root. Historical framework and Skeleton versions below are migration sources or temporary intermediates, not supported destinations.
+Inspect the application's manifest **and resolved lockfile**. This skill targets **SvelteKit `>=3.1.0` only**, with `@skeletonlabs/skeleton@5.0.6` and `@skeletonlabs/skeleton-svelte@5.0.6`. Core exports CSS; framework components come from the Svelte package root. Historical framework and Skeleton versions below are migration sources or temporary intermediates, not supported destinations.
 
 | Signal | Interpretation/action |
 | --- | --- |
 | Components/store helpers imported from core; `initializeStores`, `getModalStore`, `getToastStore`, `getDrawerStore`, `AppShell`, `variant-*`, Skeleton Tailwind plugin | Historical v2 integration: inventory every caller before removal. |
 | Core `3.x` plus component `1.x` | Historical v3 pair; unequal majors were intentional. Follow the archived v3-to-v4 guide first. |
 | Core/component `4.x` | Establish a functional `4.15.2` pair before v5. |
-| Both packages `5.0.1`, framework CSS import, Kit `>=3.1.0` | Target generation; still inspect component contracts and all local wrappers, plus the selected Kit release's matching contracts. |
+| Both packages `5.0.6`, framework CSS import, Kit `>=3.1.0` | Target generation; still inspect component contracts and all local wrappers, plus the selected Kit release's matching contracts. |
 
-Sources: [core 5.0.1 metadata](https://registry.npmjs.org/@skeletonlabs/skeleton/5.0.1), [component 5.0.1 metadata](https://registry.npmjs.org/@skeletonlabs/skeleton-svelte/5.0.1), [current v5 migration](https://www.skeleton.dev/docs/svelte/get-started/migrate-from-v4). A store name alone is only a clue: confirm its import and usage before removing application state.
+Sources: [core 5.0.6 metadata](https://registry.npmjs.org/@skeletonlabs/skeleton/5.0.6), [component 5.0.6 metadata](https://registry.npmjs.org/@skeletonlabs/skeleton-svelte/5.0.6), [current v5 migration](https://www.skeleton.dev/docs/svelte/get-started/migrate-from-v4). A store name alone is only a clue: confirm its import and usage before removing application state.
 
 ## Separate prerequisite framework migration from Skeleton migration
 
@@ -21,9 +21,9 @@ Before running any mutating migration command, verify that the app is Bun-owned:
 
 Before running either the Kit or Skeleton migration CLI, verify that the project's installer lifecycle scripts run under Bun without invoking Node, npm, or npx. `--bun` controls the CLI runtime only: either CLI can launch `bun install`, which can run the app's `prepare` script. If a hook still relies on Node, stop and make it Bun-compatible first. See [greenfield setup](setup.md#greenfield-project) for the verified `prepare` command: `bun --bun svelte-kit sync`.
 
-For historical **Kit 2 sources**, follow the order in the [official Kit 3 migration guide](https://svelte.dev/docs/kit/migrating-to-sveltekit-3): upgrade to the latest Kit 2 release first to expose targeted deprecations, then run `bunx --bun sv@1.7.0 migrate sveltekit-3 --install bun` on the Bun-owned app. Latest Kit 2 is a **temporary migration step only, never a supported destination**. Finish at [the exact tested Kit `3.1.0` baseline](setup.md#version-contract), or a newer Kit `>=3.1.0` release after checking its matching official documentation, metadata, declarations and sources. A Kit `3.0` application also needs the prerequisite upgrade to at least `3.1.0`; it is not an in-scope destination.
+For historical **Kit 2 sources**, follow the order in the [official Kit 3 migration guide](https://svelte.dev/docs/kit/migrating-to-sveltekit-3): upgrade to the latest Kit 2 release first to expose targeted deprecations, then run `bunx --bun sv@1.7.0 migrate sveltekit-3 --install bun` on the Bun-owned app. Latest Kit 2 is a **temporary migration step only, never a supported destination**. The [shipped `sv@1.7.0` migrator](https://unpkg.com/sv@1.7.0/dist/bin.mjs) writes a Kit `^3.0.0` range, not an exact pin. Finish at [the exact Kit `3.4.0` baseline](setup.md#version-contract), or a newer Kit `>=3.1.0` release after checking its matching official documentation, metadata, declarations and sources. A Kit `3.0` application also needs the prerequisite upgrade to at least `3.1.0`; it is not an in-scope destination.
 
-Coordinate Bun `1.4.5` for project commands, Vite, the Svelte plugin, optional TypeScript and the existing deployment adapter. Treat upstream Node engine ranges as published metadata, not Bun version requirements; check the Node engine ranges for deployment only if the selected adapter or host actually requires Node. Automation does not replace manual review: move supported configuration into `sveltekit({...})`, remove obsolete `svelte.config.*`, merge [tsconfig](setup.md#typescript-configuration), and migrate every `$lib` import/re-export to `#lib` with explicit extensions. Use `$app/env`; `$app/environment` is deprecated, not absent, in exact Kit `3.1.0`. Replace removed `$app/stores` with read-only rune-reactive `$app/state`. Apply the remaining breaking changes relevant to the application from [Kit's migration guide](https://svelte.dev/docs/kit/migrating-to-sveltekit-3) and [Kit integration](sveltekit.md), preserving application behavior and unrelated configuration. The exact baseline does not certify all later Kit releases.
+Coordinate Bun `1.4.5` for project commands, Vite, the Svelte plugin, optional TypeScript and the existing deployment adapter. Retain TypeScript 6 when using it: neither Kit `3.4.0` nor `svelte-check@4.7.8` accepts TypeScript 7. Treat upstream Node engine ranges as published metadata, not Bun version requirements; check them for deployment only with an explicitly Node-targeted production adapter. Automation does not replace manual review: move supported configuration into `sveltekit({...})`, remove obsolete `svelte.config.*`, merge [tsconfig](setup.md#typescript-configuration), and migrate every `$lib` import/re-export to `#lib` with explicit extensions. The migrator rewrites `$app/environment` imports to `$app/env`; review remaining callers even though the [Kit 3.4.0 compatibility module](https://unpkg.com/@sveltejs/kit@3.4.0/src/runtime/app/environment/index.js) still re-exports `$app/env` and warns in development. Replace removed `$app/stores` with read-only rune-reactive `$app/state`. Apply the remaining breaking changes relevant to the application from [Kit's migration guide](https://svelte.dev/docs/kit/migrating-to-sveltekit-3) and [Kit integration](sveltekit.md), preserving application behavior and unrelated configuration. The exact baseline does not certify all later Kit releases.
 
 1. Inventory imports, providers/hosts, wrappers, stores, themes, utility classes, Tailwind/PostCSS configuration and every affected callsite, including shared packages.
 2. For **v2**, follow the [archived v2-to-v4 guide](https://v4.skeleton.dev/docs/svelte/get-started/migrate-from-v2), including `skeleton-3` then `skeleton-4` transformations. For **v3**, follow the [archived v3-to-v4 guide](https://v4.skeleton.dev/docs/svelte/get-started/migrate-from-v3). Complete manual component/prop conversion and establish a working v4 app, not merely a changed manifest.
@@ -39,14 +39,14 @@ bun add --dev --exact @skeletonlabs/skeleton@4.15.2 @skeletonlabs/skeleton-svelt
 For an authorized automated application migration, the pinned CLI supports these commands; run only the stages appropriate to the starting version. Run from the app directory only after the Bun ownership and lifecycle checks above pass. The CLI detects its installer from the working directory and falls back to npm if none is detected, so do not run it from a directory whose package-manager signals do not resolve to Bun.
 
 ```sh
-bunx --bun skeleton@5.0.1 migrate skeleton-3
-bunx --bun skeleton@5.0.1 migrate skeleton-4
-bunx --bun skeleton@5.0.1 migrate skeleton-5
+bunx --bun skeleton@5.0.6 migrate skeleton-3
+bunx --bun skeleton@5.0.6 migrate skeleton-4
+bunx --bun skeleton@5.0.6 migrate skeleton-5
 ```
 
-**CLI version is not output dependency version.** These commands mutate files and install dependencies. CLI `5.0.1`'s `skeleton-3` resolves core `>=3.0.0-0 <4.0.0` and components `>=1.0.0-0 <2.0.0`; `skeleton-4` writes `^4.0.0`; `skeleton-5` writes `^5.0.0`. Restore exact intermediate/destination pins and keep `bun.lock` in sync after each applicable stage. Review every diff. The v3-to-v4 conversion still requires manual composition/prop work; automated renames are not component conversion.
+**CLI version is not output dependency version.** These commands mutate files and install dependencies. CLI `5.0.6`'s `skeleton-3` resolves core `>=3.0.0-0 <4.0.0` and components `>=1.0.0-0 <2.0.0`; `skeleton-4` writes `^4.0.0`; `skeleton-5` writes `^5.0.0`. Restore exact intermediate/destination pins and keep `bun.lock` in sync after each applicable stage. Review every diff. The v3-to-v4 conversion still requires manual composition/prop work; automated renames are not component conversion.
 
-The v5 scanner selects source folders and includes `.svelte`, `.css`, `.pcss`, `.postcss`, `.jsx`, `.tsx`, `.js`, `.mjs`, `.cjs`; it **omits `.ts` and `.html`**. Manually inspect those files and all callers outside selected folders, including themes, generated class strings, shared libraries and tests. Package/token/class automation does not cover semantic Field Group markup or every removed utility. Exact CLI source: [skeleton@5.0.1](https://unpkg.com/skeleton@5.0.1/dist/index.mjs).
+The v5 scanner selects source folders and includes `.svelte`, `.css`, `.pcss`, `.postcss`, `.jsx`, `.tsx`, `.js`, `.mjs`, `.cjs`; it **omits `.ts` and `.html`**. Manually inspect those files and all callers outside selected folders, including themes, generated class strings, shared libraries and tests. Package/token/class automation does not cover semantic Field Group markup or every removed utility. Exact CLI source: [skeleton@5.0.6](https://unpkg.com/skeleton@5.0.6/dist/index.mjs).
 
 ## Remove Tailwind 3 and v2 plugin assumptions
 
@@ -71,7 +71,7 @@ Historical v2 modal/toast/drawer stores and `initializeStores()` have no v5 comp
 ## Migrate Lucide to the current Svelte package
 
 For icons in the supported Svelte 5 / Kit 3.1+ application, cut over from
-deprecated `lucide-svelte` to independently versioned **`@lucide/svelte@1.61.0`**
+deprecated `lucide-svelte` to independently versioned **`@lucide/svelte@1.77.0`**
 (peer `svelte: ^5`). Keep the existing stack pins, package manager and lockfile.
 An application without icons does not need this dependency.
 
@@ -81,16 +81,16 @@ An application without icons does not need this dependency.
    package and obsolete aliases/wrappers. Do not keep compatibility shims.
 2. Prefer canonical public per-icon default imports, for example
    `import House from '@lucide/svelte/icons/house'` and
-   `import CircleAlert from '@lucide/svelte/icons/circle-alert'`.
+   `import CircleExclamationPoint from '@lucide/svelte/icons/circle-exclamation-point'`.
    Root named imports such as `import { Camera } from '@lucide/svelte'` remain
    supported; changing their spelling is not required to make tree-shaking
    possible. Never replace them with an all-icon runtime namespace or internal
    `dist` imports. See [imports and package boundary](lucide.md#imports-and-package-boundary).
 3. Replace deprecated names with canonical ones throughout imports and markup:
-   `Home` → `House`, `AlertCircle` → `CircleAlert`, and
-   `HelpCircle` / `CircleHelp` → `CircleQuestionMark`. Their deprecated aliases
-   can still resolve in 1.61.0; they are not removed exports. Check the shipped
-   alias declarations for other names rather than guessing replacements.
+   `Home` → `House`, `AlertCircle` / `CircleAlert` → `CircleExclamationPoint`,
+   and `HelpCircle` / `CircleHelp` → `CircleQuestionMark`. In `1.77.0`, `circle-alert`
+   still resolves as an alias of `circle-exclamation-point`; use the canonical name
+   for migrated callers. Check the shipped alias declarations for other names.
 4. Replace deprecated `absoluteStrokeWidth` usage with the intended
    `nonScalingStroke` behavior and review the actual rendered stroke at relevant
    sizes. The old prop is **still present**, not removed: its numeric resize
@@ -121,9 +121,9 @@ not a module singleton or a getter-shaped API copied from Skeleton providers.
 Sources: [official Svelte guide](https://lucide.dev/guide/svelte/),
 [v1 brand removal](https://lucide.dev/guide/svelte/migration),
 [old package deprecation](https://registry.npmjs.org/lucide-svelte/1.0.1),
-[current metadata](https://registry.npmjs.org/@lucide/svelte/1.61.0),
-[exact aliases](https://unpkg.com/@lucide/svelte@1.61.0/dist/aliases/aliases.d.ts),
-[exact types](https://unpkg.com/@lucide/svelte@1.61.0/dist/types.d.ts).
+[current metadata](https://registry.npmjs.org/@lucide/svelte/1.77.0),
+[exact aliases](https://unpkg.com/@lucide/svelte@1.77.0/dist/aliases/aliases.d.ts),
+[exact types](https://unpkg.com/@lucide/svelte@1.77.0/dist/types.d.ts).
 
 ## Components are not a rename-only migration
 
@@ -144,7 +144,7 @@ Read [current components](components.md) and exact installed declarations. `Acco
 
 ## Avoid v4/v5 compound-API traps
 
-This heading is retained for existing links; **v5 compound APIs are now the target**, not an API to avoid. Import them from `@skeletonlabs/skeleton-svelte`. Historical v3 root components, alpha `/composed` components and v4 examples are migration sources only. There is no public `/composed` entrypoint in 5.0.1.
+This heading is retained for existing links; **v5 compound APIs are now the target**, not an API to avoid. Import them from `@skeletonlabs/skeleton-svelte`. Historical v3 root components, alpha `/composed` components and v4 examples are migration sources only. There is no public `/composed` entrypoint in 5.0.6.
 
 Use callable roots such as `<Avatar>`, `<Switch>`, `<Accordion>` and `<Tabs>`, with their declared children. Root names alone do not establish compatibility: historical `Tabs.Control`/`Tabs.Panel` and old list snippets are not current `Tabs.List`/`Tabs.Trigger`/`Tabs.Content`. Inspect child exports, required props and callback payloads. Do not combine old single-component props with current compound children or invent missing exports.
 
@@ -214,7 +214,7 @@ Typography utility names also change independently of token names:
 | `base-font-style`, `heading-font-style`, `anchor-font-style` | `italic` / `not-italic`, or consume matching typography token directly |
 | `anchor-text-decoration` and `-hover`/`-active`/`-focus` suffixes | Explicit decoration utilities/state variants or matching anchor tokens |
 
-The historical `code` utility class is not shipped in 5.0.1. Remove that redundant class while preserving semantic `<code>` markup: core CSS styles the native element. Add explicit application styles only where additional presentation is needed; do not remove semantic code markup to satisfy the CLI warning.
+The historical `code` utility class is not shipped in 5.0.6. Remove that redundant class while preserving semantic `<code>` markup: core CSS styles the native element. Add explicit application styles only where additional presentation is needed; do not remove semantic code markup to satisfy the CLI warning.
 
 ## Offline inspection fallback
 
@@ -226,14 +226,14 @@ When web research is unavailable or mixes versions:
 4. Core CSS is **`src/index.css`**, themes are **`src/themes/*.css`**; presets are included through core's CSS. Framework CSS is **`dist/index.css`** in the Svelte package. Do not restore historical core `dist/index.css`, optional-presets or `/composed` paths.
 5. If no public export matches, use documented native HTML or an application-owned implementation preserving the behavior; never fabricate a prop/component.
 
-Exact source links: [core index](https://unpkg.com/@skeletonlabs/skeleton@5.0.1/src/index.css), [Cerberus](https://unpkg.com/@skeletonlabs/skeleton@5.0.1/src/themes/cerberus.css), [framework CSS](https://unpkg.com/@skeletonlabs/skeleton-svelte@5.0.1/dist/index.css), [framework declarations](https://unpkg.com/@skeletonlabs/skeleton-svelte@5.0.1/dist/index.d.ts). Metadata query: `bun info @skeletonlabs/skeleton-svelte@5.0.1 peerDependencies exports`. Do not replace inspection with an unpinned install.
+Exact source links: [core index](https://unpkg.com/@skeletonlabs/skeleton@5.0.6/src/index.css), [Cerberus](https://unpkg.com/@skeletonlabs/skeleton@5.0.6/src/themes/cerberus.css), [framework CSS](https://unpkg.com/@skeletonlabs/skeleton-svelte@5.0.6/dist/index.css), [framework declarations](https://unpkg.com/@skeletonlabs/skeleton-svelte@5.0.6/dist/index.d.ts). Metadata query: `bun info @skeletonlabs/skeleton-svelte@5.0.6 peerDependencies exports`. Do not replace inspection with an unpinned install.
 
 ## Diagnose the failing layer
 
 | Failure | Targeted next step |
 | --- | --- |
 | Historical `initializeStores`/`get*Store` import fails | Complete caller/host migration; no initialization workaround exists in CSS core. |
-| Compound child or prop missing | Compare root 5.0.1 declarations; remove historical subpath/snippet assumptions. |
+| Compound child or prop missing | Compare root 5.0.6 declarations; remove historical subpath/snippet assumptions. |
 | Value/callback type error after rename | Check value shape and callback payload directly; do not assume `.detail` or bindability. |
 | Theme/preset utilities disappear | Fix current CSS imports, theme activation and class names, not the old Tailwind plugin. |
 | CLI leaves classes/tokens unchanged | Inspect `.ts`, `.html`, unselected/shared folders and dynamic class construction manually. |

@@ -4,7 +4,7 @@
 
 An unofficial, opinionated [Agent Skill](https://agentskills.io) for building applications with **Skeleton UI, SvelteKit, Tailwind CSS, and Lucide together**. This is a holistic four-part stack resource, not just a component or icon catalog: it connects design-system controls, utility styling, and useful icons with application structure, server rendering, forms, accessibility, and verification.
 
-The guidance is packaged as the **`skeleton-svelte`** skill. It targets **Skeleton UI 5, Svelte 5, SvelteKit 3.1+, and Tailwind CSS 4**, with **`@lucide/svelte@1.61.0`** as the preferred optional icon package. The exact framework baseline and independently observed icon pin are documented below. Older framework conventions appear only as migration or avoidance context.
+The guidance is packaged as the **`skeleton-svelte`** skill (version **3.2**). It targets **Skeleton UI 5, Svelte 5, SvelteKit 3.1+, and Tailwind CSS 4**, with **`@lucide/svelte@1.77.0`** as the preferred optional icon package. SvelteKit **3.4.0** is the exact reference version, not the existing-app minimum. Older framework conventions appear only as migration or avoidance context.
 
 Its opinions favor native semantics, coherent theme tokens, modern framework patterns, progressive enhancement, and evidence from actual behavior. Use icons where they help comprehension, not as forced decoration or a dependency in every recipe. Give a new agent session the contracts, complete examples, and integration guidance it needs without relying on prior conversation context or mixing incompatible documentation versions.
 
@@ -32,7 +32,7 @@ bunx --bun skills@1.9.0 add PhilosophiMoonbeam/skeleton-ui-skill
 
 Follow the [skills CLI](https://github.com/vercel-labs/skills) prompts to select your coding agents and installation method.
 
-Verification used `add <local repo> --list` on Bun 1.4.5 to confirm skill discovery; it did not install the skill into any agent.
+An earlier verification used `add <local repo> --list` on Bun 1.4.5 to confirm skill discovery; it did not install the skill into any agent.
 
 1. Open [the skill entrypoint](skills/skeleton-svelte/SKILL.md) to browse its workflow and task router.
 2. Refresh skill discovery if your coding agent requires it.
@@ -42,24 +42,25 @@ Example request:
 
 > Use the skeleton-svelte skill to build an accessible preferences page in this Skeleton UI + SvelteKit + Tailwind CSS + Lucide application. Use the existing theme and Lucide only where icons aid comprehension, preserve compatible tooling, retain native form submission with server validation, and verify responsive layout and keyboard interaction.
 
-Installing the skill copies documentation; it does not install application dependencies. The bundled references support offline reading and inspection of installed package declarations and source. Package installation still requires the application's normal registry or cache access. Add `@lucide/svelte@1.61.0` only when using icons; [setup](skills/skeleton-svelte/references/setup.md#lucide-when-icons-are-useful) gives the exact optional command.
+Installing the skill copies documentation; it does not install application dependencies. The bundled references support offline reading and inspection of installed package declarations and source. Package installation still requires the application's normal registry or cache access. Add `@lucide/svelte@1.77.0` only when using icons; [setup](skills/skeleton-svelte/references/setup.md#lucide-when-icons-are-useful) gives the exact optional command.
 
 ## Compatibility boundary
 
-The frozen framework baseline and independently observed optional icon pin are:
+The exact reference baseline and separately versioned optional icon packages are:
 
 | Package | Version |
 | --- | --- |
-| `@skeletonlabs/skeleton` | `5.0.1` |
-| `@skeletonlabs/skeleton-svelte` | `5.0.1` |
-| `svelte` | `5.57.2` |
-| `@sveltejs/kit` | `3.1.0` |
-| `tailwindcss` | `4.3.3` |
-| `@lucide/svelte` (optional icons) | `1.61.0` |
+| `@skeletonlabs/skeleton` | `5.0.6` |
+| `@skeletonlabs/skeleton-svelte` | `5.0.6` |
+| `svelte` | `5.59.1` |
+| `@sveltejs/kit` | `3.4.0` |
+| `tailwindcss` | `4.3.5` |
+| `@lucide/svelte` (optional icons) | `1.77.0` |
+| `@lucide/lab` (optional experimental icon data) | `0.17.0` |
 
-Both Skeleton packages are pinned to `5.0.1`; use current v5 CSS imports, compound anatomy, providers, and callback contracts rather than older APIs. Lucide's `@lucide/svelte@1.61.0` is independently versioned and declares a Svelte `^5` peer.
+Use current Skeleton v5 CSS imports, compound anatomy, providers, and callback contracts rather than older APIs. The optional `@lucide/svelte` package declares a Svelte `^5` peer. Lab is only needed for the [optional Lab example](skills/skeleton-svelte/references/lucide-patterns.md#custom-icon-data-and-lab).
 
-See [setup](skills/skeleton-svelte/references/setup.md) for the pinned Bun toolchain, package peer requirements, optional icon installation, and configuration. Prefer canonical per-icon default imports; root named imports are also public and valid. Kit 3.1+ is this skill's target regardless of Skeleton's broader upstream compatibility. Older apps need a scoped prerequisite migration, not a legacy implementation. Preserve an existing app's compatible toolchain, deployment target, and adapter; check the deployment runtime's requirements separately. Verify matching APIs for later releases rather than assuming the tested baseline certifies them.
+See [setup](skills/skeleton-svelte/references/setup.md) for the full pinned app toolchain, package peers, optional icon installation, and configuration. Prefer canonical per-icon default imports such as `@lucide/svelte/icons/circle-exclamation-point`; root named imports such as `CircleExclamationPoint` are also public and valid. Kit 3.1+ is this skill's existing-app boundary regardless of Skeleton's broader upstream compatibility. Older apps need a scoped prerequisite migration, not a legacy implementation. Preserve an existing app's compatible toolchain, deployment target, and adapter; check the deployment runtime's requirements separately. Verify matching APIs for other versions. See the [upstream release review](skills/skeleton-svelte/references/sources.md#upstream-release-review) for changes that affect this guidance.
 
 ## Reference guide
 
@@ -79,22 +80,24 @@ See [setup](skills/skeleton-svelte/references/setup.md) for the pinned Bun toolc
 
 ## Evidence and limits
 
+The [current Bun baseline verification](skills/skeleton-svelte/references/sources.md#current-bun-baseline-verification) records the exact install, type check, SSR/client build, and targeted browser checks for the new pins.
+
 The [original baseline evidence](skills/skeleton-svelte/references/sources.md#exact-compatibility-baseline-and-observed-evidence) preserves the initial v5 migration checks. The [supplemental validation](skills/skeleton-svelte/references/sources.md#supplemental-validation--2026-10-18) records independent review of all 13 research sections, a fresh exact-version installation, **926 checked files with 0 errors and 0 warnings**, and successful client/server production builds. Skill-format and local link/fence validation passed.
 
-The [Bun toolchain verification](skills/skeleton-svelte/references/sources.md#bun-toolchain-verification) records the current Bun application fixture and CLI checks separately from that historical evidence.
+The [historical Bun fixture](skills/skeleton-svelte/references/sources.md#bun-toolchain-verification) records its earlier application and CLI checks separately.
 
-Chromium **155.0.8059.84** production-preview checks cover the original component/form/responsive scenarios and 15 supplemental groups: Spring state and cancellation, reduced motion before and after hydration, native/shallow/history navigation, skipped and failed view transitions, unsupported-API fallback, CSS-first utilities, runtime variables, and native/enhanced form regressions. New CSS-extension screenshots were inspected at **1280px dark** and **320px light**; the narrow page had no horizontal overflow. See the linked evidence for exact scenarios and limits.
+Historical Chromium **155.0.8059.84** production-preview checks cover the original component/form/responsive scenarios and 15 supplemental groups: Spring state and cancellation, reduced motion before and after hydration, native/shallow/history navigation, skipped and failed view transitions, unsupported-API fallback, CSS-first utilities, runtime variables, and native/enhanced form regressions. CSS-extension screenshots were inspected at **1280px dark** and **320px light**; the narrow page had no horizontal overflow. See the linked evidence for exact scenarios and limits.
 
-The Lucide integration has its own [dated validation](skills/skeleton-svelte/references/sources.md#lucide-validation--2026-10-22), covering all six icon example files, SSR, control names, theme/sizing boundaries, finite selection, responsive popups, and production tree-shaking. Targeted light/dark automated accessibility checks passed; they do not constitute a full accessibility audit.
+The Lucide integration has its own [dated validation](skills/skeleton-svelte/references/sources.md#lucide-validation--2026-10-22) on `@lucide/svelte@1.61.0`, covering all six icon example files, SSR, control names, theme/sizing boundaries, finite selection, responsive popups, and production tree-shaking. Targeted light/dark automated accessibility checks passed; they do not constitute a full accessibility audit.
 
 The [review expansion](skills/skeleton-svelte/references/sources.md#lucide-review-expansion--source-evidence-and-verification-boundary)
-separately verifies six added component files: reactive typed consumers,
+records a separate historical run for six added component files: reactive typed consumers,
 composition, selective RTL, custom data, and optional `@lucide/lab@0.7.0`.
 It records no-JavaScript rendering, a corrected dark-mode form contrast defect,
 and manual review of the select-caret contrast warning; historical checks are
 not reused as proof for these additions.
 
-These checks are not exhaustive browser coverage or a full accessibility audit. No deployment or production-adapter verification is recorded: `adapter-auto` found no production target, and the build emitted an environmental `NO_COLOR`/`FORCE_COLOR` warning. Compilation and local interaction do not certify accessibility, server persistence, or SSR request isolation. Follow the [re-verification workflow](skills/skeleton-svelte/references/sources.md#maintenance-and-future-re-verification) for the application being changed and report only actual results.
+Historical results apply only to the versions and scenarios tested, not to newer pins. These checks are not exhaustive browser coverage or a full accessibility audit. No deployment or production-adapter verification is recorded: `adapter-auto` found no production target, and the build emitted an environmental `NO_COLOR`/`FORCE_COLOR` warning. Compilation and local interaction do not certify accessibility, server persistence, or SSR request isolation. Follow the [re-verification workflow](skills/skeleton-svelte/references/sources.md#maintenance-and-future-re-verification) for the application being changed and report only actual results.
 
 ## Contribute
 

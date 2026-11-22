@@ -1,6 +1,6 @@
 # Runnable Skeleton 5 / Svelte 5 recipes
 
-Targets core and component packages **5.0.1**, Svelte **5.57.2**, Tailwind **4.3.3**, and SvelteKit **3.1+** exclusively. The exact tested baseline uses Kit **3.1.0**; later Kit releases require matching dependency and source checks rather than assumed certification. Each Svelte fence is a complete standalone component. Import global Tailwind, Skeleton core, Skeleton Svelte root styles, and an activated theme first; native form classes also require `@tailwindcss/forms`. No icon dependency is needed. Mount a component in a page or copy its contents into `+page.svelte`.
+Targets Skeleton core and Svelte components **5.0.6** (inherited Zag **1.48.0**), Svelte **5.59.1**, Tailwind **4.3.5**, and SvelteKit **3.4.0**. Kit **3.1.0** remains the support floor; use the matching dependencies in [setup](setup.md). Each Svelte fence is a complete standalone component. Import global Tailwind, Skeleton core, Skeleton Svelte root styles, and an activated theme first; native form classes also require `@tailwindcss/forms`. No icon dependency is needed. Mount a component in a page or copy its contents into `+page.svelte`.
 
 - [State, callbacks, and snippets](#state-callbacks-and-snippets)
 - [Tabs: controlled local panels](#tabs-controlled-local-panels)
@@ -17,7 +17,7 @@ For icon tasks, use the [Lucide reference](lucide.md): install/import boundaries
 
 ## State, callbacks, and snippets
 
-The recipe controls use props and callbacks; their 5.0.1 state props are not bindable. Native inputs still use Svelte bindings. Composition is ordinary children plus named anatomy, not the old wrapper snippet props.
+The recipe controls use props and callbacks; their 5.0.6 state props are not bindable. Native inputs still use Svelte bindings. Composition is ordinary children plus named anatomy, not the old wrapper snippet props.
 
 | Component | Controlled prop | Callback payload |
 | --- | --- | --- |
@@ -32,7 +32,7 @@ Use `.Context` with `children(api)` for API access; `api` is a getter. Toast.Gro
 
 Skeleton/Zag supplies supported keyboard/focus behavior and generated IDs. Keep names, state updates, contrast, persistence, validation, and fetching application-owned. Machine effects and portals start on the client, not during SSR. Keep initial state consistent across server/client. Roots generate hydration-stable IDs; custom associations use `$props.id()`. These examples are instance-owned, start floating surfaces closed, and make no server mutations. Local state resets when the component is recreated.
 
-Sources: [fundamentals](https://www.skeleton.dev/docs/svelte/get-started/fundamentals.md), [5.0.1 declarations](https://unpkg.com/@skeletonlabs/skeleton-svelte@5.0.1/dist/index.d.ts), [shipped components](https://unpkg.com/@skeletonlabs/skeleton-svelte@5.0.1/dist/components/).
+Sources: [fundamentals](https://www.skeleton.dev/docs/svelte/get-started/fundamentals.md), [5.0.6 declarations](https://unpkg.com/@skeletonlabs/skeleton-svelte@5.0.6/dist/index.d.ts), [shipped components](https://unpkg.com/@skeletonlabs/skeleton-svelte@5.0.6/dist/components/).
 
 ## Tabs: controlled local panels
 
@@ -60,9 +60,9 @@ Matching trigger/content values establish panel associations. These are local pa
 </section>
 ```
 
-Click Activity to select its panel. Left/Right move focus and, by default, automatically activate tabs; Home/End move to the first/last. With `activationMode="manual"`, Enter/Space activates the focused tab. Preserve the generated trigger roles/handlers and test duplicate instances without cross-associations.
+Click Activity to select its panel. Left/Right move focus and, by default, automatically activate tabs; Home/End move to the first/last. With `activationMode="manual"`, Enter/Space activates the focused tab. Tab immediately after an arrow, Home, or End should leave the list without jumping back. Preserve the generated trigger roles/handlers and test duplicate instances without cross-associations.
 
-Sources: [Tabs](https://www.skeleton.dev/docs/svelte/framework-components/tabs.md), [5.0.1 anatomy](https://unpkg.com/@skeletonlabs/skeleton-svelte@5.0.1/dist/components/tabs/modules/anatomy.d.ts), [ARIA Tabs pattern](https://www.w3.org/WAI/ARIA/apg/patterns/tabs/).
+Sources: [Tabs](https://www.skeleton.dev/docs/svelte/framework-components/tabs.md), [5.0.6 anatomy](https://unpkg.com/@skeletonlabs/skeleton-svelte@5.0.6/dist/components/tabs/modules/anatomy.d.ts), [Zag keyboard exit fix](https://github.com/chakra-ui/zag/pull/3536), [ARIA Tabs pattern](https://www.w3.org/WAI/ARIA/apg/patterns/tabs/).
 
 ## Accordion: collapsible FAQ
 
@@ -95,7 +95,7 @@ Enter/Space toggles a header; Up/Down and Home/End move between headers. `collap
 
 For simple disclosures, prefer native `<details class="disclosure">` with `<summary>` and `.disclosure-content`. Exclusive native groups use `.disclosure-group` and a shared `name` derived from `$props.id()` for each group instance; do not reuse a global group name across unrelated instances. Browser support governs native grouping and optional animations.
 
-Sources: [Accordion](https://www.skeleton.dev/docs/svelte/framework-components/accordion.md), [5.0.1 content source](https://unpkg.com/@skeletonlabs/skeleton-svelte@5.0.1/dist/components/accordion/anatomy/item-content.svelte), [native disclosures](https://www.skeleton.dev/docs/svelte/tailwind-components/disclosures.md).
+Sources: [Accordion](https://www.skeleton.dev/docs/svelte/framework-components/accordion.md), [5.0.6 content source](https://unpkg.com/@skeletonlabs/skeleton-svelte@5.0.6/dist/components/accordion/anatomy/item-content.svelte), [native disclosures](https://www.skeleton.dev/docs/svelte/tailwind-components/disclosures.md).
 
 ## Switch and native inputs: one state model, two APIs
 
@@ -146,7 +146,7 @@ Switch is already a label. Its explicit HiddenInput retains native form particip
 
 Click the label or press Space on the switch: state and submitted FormData must agree. Do not wrap Switch in another label or use `bind:checked` on it. Review preferences remains disabled until mount, preventing this local form from leaking values through an unenhanced GET. Replace the local handler with a real SvelteKit action for persistence; keep native validation and server error handling.
 
-Sources: [Switch](https://www.skeleton.dev/docs/svelte/framework-components/switch.md), [5.0.1 hidden input](https://unpkg.com/@skeletonlabs/skeleton-svelte@5.0.1/dist/components/switch/anatomy/hidden-input.svelte), [native forms](https://www.skeleton.dev/docs/svelte/tailwind-components/forms.md), [Svelte bindings](https://svelte.dev/docs/svelte/bind).
+Sources: [Switch](https://www.skeleton.dev/docs/svelte/framework-components/switch.md), [5.0.6 hidden input](https://unpkg.com/@skeletonlabs/skeleton-svelte@5.0.6/dist/components/switch/anatomy/hidden-input.svelte), [native forms](https://www.skeleton.dev/docs/svelte/tailwind-components/forms.md), [Svelte bindings](https://svelte.dev/docs/svelte/bind).
 
 ## Floating help: tooltip
 
@@ -172,9 +172,9 @@ Tooltip contains supplemental, noninteractive text. Style its actual anatomy; Po
 </Tooltip>
 ```
 
-Hover/focus shows help; Escape dismisses it. Keep the trigger's accessible name and focus treatment. Essential instructions stay visible outside the tooltip. For interactive click-triggered content use Popover with its Title/Description and explicit Portal, or Dialog; do not place controls in a tooltip.
+Hover/focus shows help; Escape dismisses it. Keep the trigger's accessible name and focus treatment. Essential instructions stay visible outside the tooltip. If you control `disabled`, the first hover after re-enabling should work without a second hover. For interactive click-triggered content use Popover with its Title/Description and explicit Portal, or Dialog; do not place controls in a tooltip.
 
-Sources: [Tooltip](https://www.skeleton.dev/docs/svelte/framework-components/tooltip.md), [Popover](https://www.skeleton.dev/docs/svelte/framework-components/popover.md), [5.0.1 tooltip anatomy](https://unpkg.com/@skeletonlabs/skeleton-svelte@5.0.1/dist/components/tooltip/modules/anatomy.d.ts).
+Sources: [Tooltip](https://www.skeleton.dev/docs/svelte/framework-components/tooltip.md), [Popover](https://www.skeleton.dev/docs/svelte/framework-components/popover.md), [5.0.6 tooltip anatomy](https://unpkg.com/@skeletonlabs/skeleton-svelte@5.0.6/dist/components/tooltip/modules/anatomy.d.ts).
 
 ## Dialog strategy: Dialog, including drawer styling
 
@@ -209,13 +209,15 @@ Title and Description anatomy supply associations. This headless Dialog explicit
 <p role="status">{archived ? 'Project archived in this example.' : 'Project is active.'}</p>
 ```
 
-Preserve default modal focus containment, scroll prevention, Escape/outside dismissal, and focus restoration. Open by keyboard, cycle Tab/Shift+Tab, close with Cancel/Escape/confirmation, and check focus returns to the trigger. For destructive real mutations, choose an appropriate initial focus target, await the server result, and announce success only after success.
+Preserve default modal focus containment, scroll prevention, Escape/outside dismissal, and focus restoration. Open by keyboard, try Escape immediately after opening, cycle Tab/Shift+Tab, and check that focus returns to the trigger after closing. Zag also corrected focus return for non-modal Dialog. If a destructive confirmation needs an explicit initial target, supply `initialFocusEl={() => cancelButton}` (with a reference to the actual Cancel button). Returning `null` uses the default; returning `false` skips moving focus and is not appropriate for an ordinary modal. Await a real server mutation before announcing success.
 
 A drawer is styled Dialog, not a Drawer export: align Positioner to the start, use a constrained sidebar width and `100dvh` height, and retain naming, close controls, viewport fit, and focus behavior. Keep it motion-free by default; optional JavaScript transitions must subscribe to reduced-motion preferences after mount and clean up.
 
+For a dialog with a nested menu, popover, or combobox, preserve the generated layer styles on its concrete anatomy instead of applying the flat example's z-index to each layer. The inherited layer fixes keep nested positioners in stack order and prevent one open layer from dismissing a newly opened sibling. Check that Escape dismisses the child first and that outside presses, including touch, do not close both siblings when switching between them.
+
 For simpler modal requirements, native `<dialog class="dialog">` with `showModal()`/`close()` already provides top-layer/modal behavior. Use `$props.id()`-prefixed `aria-labelledby`/`aria-describedby` targets and a real close control. Invoker commands and newer light-dismiss features are support-dependent enhancements, not a reason to invent framework APIs.
 
-Sources: [Dialog](https://www.skeleton.dev/docs/svelte/framework-components/dialog.md), [5.0.1 anatomy](https://unpkg.com/@skeletonlabs/skeleton-svelte@5.0.1/dist/components/dialog/modules/anatomy.d.ts), [native dialogs](https://www.skeleton.dev/docs/svelte/tailwind-components/dialogs.md).
+Sources: [Dialog](https://www.skeleton.dev/docs/svelte/framework-components/dialog.md), [5.0.6 anatomy](https://unpkg.com/@skeletonlabs/skeleton-svelte@5.0.6/dist/components/dialog/modules/anatomy.d.ts), [Zag Dialog focus and Escape fix](https://github.com/chakra-ui/zag/pull/3487), [layer stacking](https://github.com/chakra-ui/zag/pull/3426), [sibling dismissal](https://github.com/chakra-ui/zag/pull/3599), [native dialogs](https://www.skeleton.dev/docs/svelte/tailwind-components/dialogs.md).
 
 ## Toast strategy: create a store and mount a renderer
 
@@ -249,9 +251,11 @@ The store belongs to this component instance. Toast.Group's snippet receives a t
 
 Each click creates a message; Close dismisses it. `.info`, `.success`, `.warning`, `.error`, and `.create` are supported; `duration: Infinity` prevents automatic expiry. Use Toast.ActionTrigger when providing an action, and keep permanent errors/actionable details inline too.
 
+Keep the ID returned by a create method if you need to update that toast. `toaster.update(id, (current) => ({ description: ((current.description ?? '') + ' Complete.').trim() }))` derives a patch from current props, including for a queued toast. Queued dismissal and timer pausing are handled by the store. When a focused toast is dismissed, the group moves focus to the next toast or restores the prior focus after the last one; check that remaining timers resume after focus or pointer leaves the group.
+
 Each `createToaster()` call creates independent mutable state; it is not an enforced singleton. For app-wide messages, create one store in a layout instance, distribute it through Svelte context, and render one group for that store. Never mutate a request-shared server-module store with user-specific notifications. Trigger notifications from client interactions, not SSR.
 
-Sources: [Toast](https://www.skeleton.dev/docs/svelte/framework-components/toast.md), [5.0.1 group source](https://unpkg.com/@skeletonlabs/skeleton-svelte@5.0.1/dist/components/toast/anatomy/group.svelte), [Zag store](https://unpkg.com/@zag-js/toast@1.43.0/dist/toast.store.js), [SSR state isolation](https://svelte.dev/docs/kit/state-management#Avoid-shared-state-on-the-server).
+Sources: [Toast](https://www.skeleton.dev/docs/svelte/framework-components/toast.md), [5.0.6 group source](https://unpkg.com/@skeletonlabs/skeleton-svelte@5.0.6/dist/components/toast/anatomy/group.svelte), [Zag 1.48.0 store](https://unpkg.com/@zag-js/toast@1.48.0/dist/toast.store.js), [SSR state isolation](https://svelte.dev/docs/kit/state-management#Avoid-shared-state-on-the-server).
 
 ## Combobox: searchable local selection
 
@@ -261,6 +265,7 @@ Application-owned filtering creates a real empty result. Stable values, not labe
 ```svelte
 <script lang="ts">
   import { Combobox, Portal, useListCollection } from '@skeletonlabs/skeleton-svelte';
+  const noResults = 'No matching projects.';
   const projects = [
     { label: 'Atlas design system', value: 'atlas', category: 'Design' },
     { label: 'Beacon dashboard', value: 'beacon', category: 'Analytics' },
@@ -282,6 +287,7 @@ Application-owned filtering creates a real empty result. Stable values, not labe
   <Combobox
     {collection}
     value={selected}
+    translations={{ noResults }}
     onValueChange={(e) => (selected = e.value)}
     onInputValueChange={(e) => {
       const query = e.inputValue.trim().toLowerCase();
@@ -306,23 +312,27 @@ Application-owned filtering creates a real empty result. Stable values, not labe
               <Combobox.ItemIndicator>Selected</Combobox.ItemIndicator>
             </Combobox.Item>
           {:else}
-            <p role="status" class="p-2">No matching projects.</p>
+            <li aria-hidden="true" class="p-2">{noResults}</li>
           {/each}
         </Combobox.Content>
       </Combobox.Positioner>
     </Portal>
   </Combobox>
-  <p role="status">Selected project: {selectedProject ? `${selectedProject.label} (${selectedProject.value})` : 'none'}</p>
+  <p>Selected project: {selectedProject ? `${selectedProject.label} (${selectedProject.value})` : 'none'}</p>
 </section>
 ```
 
-Type `bea`, then ArrowDown/Enter to select Beacon. Escape closes without submitting; Clear clears selection; reopening displays the full list. An unmatched query displays no options and a truthful empty message. Selection remains a string array; typed text is not itself a selected value. Duplicate labels are valid when values differ. Keep category text readable in normal/highlighted/selected states and both schemes; verify composited contrast instead of lowering metadata opacity blindly.
+Type `bea`, then ArrowDown/Enter to select Beacon. Escape closes without submitting; Clear clears selection; reopening displays the full list. An unmatched query displays no options and a truthful empty message. Zag announces the filtered count or `translations.noResults`; the empty row is visual only, not a second live region or selectable item. Selection remains a string array; typed text is not itself a selected value. Duplicate labels are valid when values differ. Keep category text readable in normal/highlighted/selected states and both schemes; verify composited contrast instead of lowering metadata opacity blindly.
 
-Skeleton 5.0.1's common CSS absolutely positions Trigger inside the input and gives it square icon-button dimensions. This text-button layout resets its position, inset, transform, width, and height. Separate grid columns keep Show and Clear apart; `minmax(0,1fr)` and `min-w-0` let the input shrink. The positioner's `--available-width` cap keeps its reference-width popup within the viewport's collision padding, including while closed.
+When adapting a longer list, preserve the generated `aria-selected` and highlighted state. An input change resets the open popup's scroll position; highlighting an item should scroll the list, not the page. Try Escape immediately after opening and Tab immediately after selection to check that focus is not pulled back into the input.
 
-This recipe only selects local data. Remote search requires application-owned loading/error/filtering behavior, not an invented built-in fetch or filter API. When collections change, keep the selected record/label available from full data and exercise selection retention; do not derive submitted identity solely from visible options.
+Skeleton 5.0.6's common CSS absolutely positions Trigger inside the input and gives it square icon-button dimensions. This text-button layout resets its position, inset, transform, width, and height. Separate grid columns keep Show and Clear apart; `minmax(0,1fr)` and `min-w-0` let the input shrink. The positioner's `--available-width` cap keeps its reference-width popup within the viewport's collision padding, including while closed.
 
-Sources: [Combobox](https://www.skeleton.dev/docs/svelte/framework-components/combobox.md), [5.0.1 default styles](https://unpkg.com/@skeletonlabs/skeleton-common@5.0.1/src/components/combobox.css), [5.0.1 collection helper](https://unpkg.com/@skeletonlabs/skeleton-svelte@5.0.1/dist/hooks/use-list-collection.js), [5.0.1 root](https://unpkg.com/@skeletonlabs/skeleton-svelte@5.0.1/dist/components/combobox/anatomy/root.svelte), [contrast guidance](https://www.w3.org/WAI/WCAG22/Understanding/contrast-minimum.html).
+This recipe only selects local data. For remote search, the app still owns fetching, filtering, errors, and pending state. Pass `loading` to the Combobox while results are pending: it sets `aria-busy` on the listbox and announces loading instead of no results. Localize `translations.resultsCount` (a function of the count), `translations.noResults`, and `translations.loading`. To silence one message, use `''` for `noResults` or `loading`, or `() => ''` for `resultsCount`. Suppress the visual empty message while loading, too. Keep the selected record/label available from full data when the collection changes, and do not derive submitted identity solely from visible options.
+
+For a combobox with real anchor options, modified Enter follows modified-click behavior. `navigate` and `onSelect` receive `modifiers`; do not also navigate in the selection callback for a modified activation. The local options above are not links.
+
+Sources: [Combobox](https://www.skeleton.dev/docs/svelte/framework-components/combobox.md), [5.0.6 default styles](https://unpkg.com/@skeletonlabs/skeleton-common@5.0.6/src/components/combobox.css), [5.0.6 collection helper](https://unpkg.com/@skeletonlabs/skeleton-svelte@5.0.6/dist/hooks/use-list-collection.d.ts), [5.0.6 root](https://unpkg.com/@skeletonlabs/skeleton-svelte@5.0.6/dist/components/combobox/anatomy/root.svelte), [Zag announcements and link behavior](https://github.com/chakra-ui/zag/releases/tag/@zag-js%2Fcombobox@1.47.0), [contrast guidance](https://www.w3.org/WAI/WCAG22/Understanding/contrast-minimum.html).
 
 ## Pagination: controlled local table
 
@@ -410,6 +420,8 @@ Pass the complete count, render the current slice yourself, and reset/clamp the 
 
 Initially IDs 1–5 render. Next shows 6–10; Last shows 21–23 on page 5. Changing size to 20 resets to page 1; Last then shows 21–23 on page 2. `currentPage` clamps the supplied page and slice after a count reduction, including zero rows. If adapting this to mutable data, commit the clamped page when replacing the data so a later count increase does not restore an old requested page. Empty status says “0 results”, never “rows 1–0”. Controls remain visible for one/zero pages with boundaries disabled; hide them explicitly if that is the product policy.
 
-Controls are individually tabbable, not a roving arrow-key list. Page entries retain the `type: 'page'` discriminant passed to `api().getItemProps(entry)`; `type="button"` belongs on the rendered native button. In 5.0.1 `Pagination.Item` defaults to an anchor without `href`, and its element snippet is anchor-typed. This recipe uses the public Context API's generated item attributes on a real button, preserving ARIA and events without casting anchor event handlers. FirstTrigger/LastTrigger attach click handlers without supplying button type or disabled boundaries; those props are explicit here to prevent parent-form submission and invalid boundary actions. The native select owns size selection; Pagination's callback does not create a picker or fetch rows.
+Controls are individually tabbable, not a roving arrow-key list. Page entries retain the `type: 'page'` discriminant passed to `api().getItemProps(entry)`; `type="button"` belongs on the rendered native button. In Skeleton 5.0.6, `Pagination.Item` renders an anchor by default, and its element snippet is anchor-typed. Since the machine defaults to button mode, the recipe uses the public Context API's generated item attributes on real buttons. PrevTrigger/NextTrigger render buttons and forward machine button attributes; FirstTrigger/LastTrigger also render buttons but only wire clicks, so their type and disabled boundaries are explicit here. The native select owns size selection; Pagination's callback does not create a picker or fetch rows.
 
-Sources: [Pagination](https://www.skeleton.dev/docs/svelte/framework-components/pagination.md), [5.0.1 anatomy](https://unpkg.com/@skeletonlabs/skeleton-svelte@5.0.1/dist/components/pagination/modules/anatomy.d.ts), [Item source](https://unpkg.com/@skeletonlabs/skeleton-svelte@5.0.1/dist/components/pagination/anatomy/item.svelte), [FirstTrigger source](https://unpkg.com/@skeletonlabs/skeleton-svelte@5.0.1/dist/components/pagination/anatomy/first-trigger.svelte), [LastTrigger source](https://unpkg.com/@skeletonlabs/skeleton-svelte@5.0.1/dist/components/pagination/anatomy/last-trigger.svelte), [Zag 1.43.0 pagination types](https://unpkg.com/@zag-js/pagination@1.43.0/dist/pagination.types.d.ts).
+For URL pagination, set `type="link"` and supply `getPageUrl({ page, pageSize })` on the root. `Pagination.Item` can then use its default anchor. For first/previous/next/last links, render real anchors through `Pagination.Context` using `api().getFirstTriggerProps()`, `getPrevTriggerProps()`, `getNextTriggerProps()`, and `getLastTriggerProps()` respectively. The Skeleton trigger wrappers do not automatically switch to anchors, and FirstTrigger/LastTrigger don't forward the generated link props. At a disabled boundary the generated props omit `href` and set `role="link"` and `aria-disabled="true"`; do not add a fallback `href` or make that anchor tabbable.
+
+Sources: [Pagination](https://www.skeleton.dev/docs/svelte/framework-components/pagination.md), [5.0.6 anatomy](https://unpkg.com/@skeletonlabs/skeleton-svelte@5.0.6/dist/components/pagination/modules/anatomy.d.ts), [Item source](https://unpkg.com/@skeletonlabs/skeleton-svelte@5.0.6/dist/components/pagination/anatomy/item.svelte), [FirstTrigger source](https://unpkg.com/@skeletonlabs/skeleton-svelte@5.0.6/dist/components/pagination/anatomy/first-trigger.svelte), [LastTrigger source](https://unpkg.com/@skeletonlabs/skeleton-svelte@5.0.6/dist/components/pagination/anatomy/last-trigger.svelte), [Zag 1.48.0 pagination types](https://unpkg.com/@zag-js/pagination@1.48.0/dist/pagination.types.d.ts), [disabled link boundary fix](https://github.com/chakra-ui/zag/pull/3409).
