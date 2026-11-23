@@ -27,7 +27,7 @@ This repository contains skill documentation, not a component library or applica
 With **Bun 1.4.5**, run this command from the project where you want to use the skill:
 
 ```sh
-bunx --bun skills@1.9.0 add PhilosophiMoonbeam/skeleton-ui-skill
+bunx --bun skills@latest add PhilosophiMoonbeam/skeleton-ui-skill
 ```
 
 Follow the [skills CLI](https://github.com/vercel-labs/skills) prompts to select your coding agents and installation method.
