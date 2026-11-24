@@ -76,7 +76,7 @@ Start with native HTML. Choose Bits UI when the interaction calls for more than 
 ## Composition and missing primitives
 
 - [Composition.svelte](../examples/Composition.svelte) covers cross-cutting patterns. Consult the official [child snippet](https://www.bits-ui.com/docs/child-snippet/llms.txt), [state management](https://www.bits-ui.com/docs/state-management/llms.txt), and [Portal](https://www.bits-ui.com/docs/utilities/portal/llms.txt) pages before customizing anatomy.
-- **Notification or status:** render persistent feedback near the relevant task. Use an existing `role="status"` region for polite updates; reserve `role="alert"` for urgent updates. Neither is a reason to move focus or to auto-dismiss important information.
+- **Notification or status:** use persistent inline feedback when it fits. Use an existing `role="status"` region for polite updates and `role="alert"` only for urgent updates. If transient notifications are required, [Skeleton Toast](skeleton.md) is an option; keep important feedback available after dismissal.
 - **Drawer:** style Dialog as a side sheet for a modal task. For persistent navigation, use a landmarks-and-links layout instead of modal focus trapping.
-- **Stepper or wizard:** use an ordered list with `aria-current="step"` and explicit next/back buttons; the app owns validation, data, and navigation.
-- **File upload, tags, and tables:** use a labeled native file input, an input with a list of named remove buttons, or a semantic `<table>`, respectively. Add behavior only when requirements call for it; do not infer support for uploading, token editing, or grid keyboard behavior from styling.
+- **Stepper, carousel, file upload, or tags:** use a simple native pattern when sufficient. When managed interaction is required, see the [Skeleton components](skeleton.md) that cover these gaps. A file picker is not a server upload, and a step indicator is not a routing or validation engine.
+- **Tables:** use semantic `<table>` for data. Do not infer interactive grid behavior from styling.

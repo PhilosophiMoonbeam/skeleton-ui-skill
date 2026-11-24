@@ -6,10 +6,10 @@ Use the latest Bun instead of Node wherever applicable. Use Biome for repository
 
 Start with [svelte-ui-eco](skills/svelte-ui-eco/SKILL.md) and the [Agent Skills specification](skills/SKILLS_SPEC.md).
 
-Use native HTML when sufficient and Bits UI as the sole headless interaction layer. The exact reference baseline is Bun 1.4.5, Svelte 5.59.1, Bits UI 2.22.0, and `@internationalized/date` 3.12.4 for date/time examples. Standalone Svelte 5 is supported; Kit-specific guidance starts at SvelteKit 3.1 and uses 3.4.0 as its exact reference version. Optional styling uses Skeleton core CSS 5.0.6 and Tailwind CSS 4.3.5; optional icons use `@lucide/svelte` 1.77.0.
+Use native HTML when sufficient, preserve working components, and prefer Bits UI for new custom widgets. Skeleton core CSS and Skeleton Svelte components are separate optional choices; do not mix behavior layers inside one widget. The reference baseline is Bun 1.4.5, Svelte 5.59.1, Bits UI 2.22.0, and `@internationalized/date` 3.12.4. Kit-specific guidance starts at SvelteKit 3.1 (reference 3.4.0). Optional Skeleton packages use 5.0.6, Tailwind CSS uses 4.3.5, and `@lucide/svelte` uses 1.77.0.
 
 - Bits UI: [documentation](https://www.bits-ui.com/docs/introduction), [LLM access guide](https://www.bits-ui.com/docs/llms), and [index](https://www.bits-ui.com/llms.txt). Follow the relevant component page's `/llms.txt` link instead of loading the whole corpus.
-- Skeleton CSS: [documentation](https://www.skeleton.dev/docs/svelte/get-started/introduction) and [index](https://www.skeleton.dev/llms.txt). Use these for CSS and themes only.
+- Skeleton UI: [fundamentals](https://www.skeleton.dev/docs/svelte/get-started/fundamentals), [Svelte LLM index](https://www.skeleton.dev/llms-svelte.txt), and [local component guide](skills/svelte-ui-eco/references/skeleton.md).
 - For further discovery, see your `find-docs` skill. Prefer the resolved installed declarations and source when they differ from rolling documentation.
 
 <!-- beads-integration:start -->

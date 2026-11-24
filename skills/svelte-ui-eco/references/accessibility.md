@@ -44,6 +44,18 @@ For an asynchronous Bits UI `Combobox`, label the input and preserve generated i
 
 Sources: [WAI Form Notifications](https://www.w3.org/WAI/tutorials/forms/notifications/), [WCAG Status Messages](https://www.w3.org/WAI/WCAG22/Understanding/status-messages.html).
 
+## Standalone native form
+
+[NativeForm.svelte](../examples/NativeForm.svelte) is a complete local profile preview. Copy it into an existing Svelte 5.59.1 app and render `<NativeForm />` from a page, or mount it twice to exercise reusable IDs. It needs only Svelte, not Bits UI, Skeleton, Tailwind, or a server. The scoped palette works without a theme; see [optional theming](design.md#optional-theming) to adapt it.
+
+The form has visible labels and help, native required text and email inputs, autocomplete hints, a length limit, and native submit and reset buttons. It deliberately uses `novalidate` so its submit handler can show linked errors together rather than competing with browser validation popups. It checks the email input's native validity, rejects an empty or whitespace-only display name, and trims its outer whitespace for the preview without modifying the input. The length limit includes spaces. Failed submissions preserve the entered values and any last successful preview.
+
+Errors appear beside the corresponding fields and in a summary that receives focus after rendering. Summary links take the user to the invalid controls. Only a field that failed its most recent validation gets `aria-invalid` and an error reference in addition to its help reference. The example revalidates on submission, not while typing. If browser messages meet your needs, keep native interactive validation instead of implementing a parallel notification path. `$props.id()` keeps label, help, error, and fragment associations unique and stable across server render and hydration. Success is reported in a persistent status region with the actual submitted preview; it does not move focus. **Reset preview** clears the native inputs, errors, and output, then returns focus to **Display name**.
+
+The local handlers send no request and write no storage. Until mounting, the disabled fieldset and visible explanation make clear that the preview is unavailable. For a persisted operation, use [native form actions with progressive enhancement](sveltekit.md#native-form-actions-with-progressive-enhancement) or your existing server route: validate submitted data on the server, return actionable errors and retained values, and report success only after the write succeeds.
+
+**Checks to perform:** Submit the empty form and activate each summary link. Try spaces for the display name and `sam` for email; confirm the controls retain those entries and expose text errors. Submit ` Sam ` and `sam@example.com` to show `Sam` and the entered email, then reset and check focus and cleared output. Mount two instances and submit or reset one without affecting the other; verify both sets of label and error links after hydration. With JavaScript disabled, verify that the preview cannot be submitted and that the reason is visible.
+
 ## Managed interactions and native alternatives
 
 Use Bits UI `Dialog` for a managed modal and `AlertDialog` for a consequential prompt that needs an explicit response. Provide a visible title, concise description where helpful, and a working close or cancel action. Prefer the least destructive initial action for destructive confirmations. A live `role="alert"` announces an important update; it is not an `alertdialog` and must not capture focus. See [overlays](../examples/Overlays.svelte).

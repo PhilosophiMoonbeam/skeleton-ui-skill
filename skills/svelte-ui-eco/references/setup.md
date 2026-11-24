@@ -2,6 +2,8 @@
 
 Bits UI provides headless interaction primitives. Use native HTML when it meets the requirement. Bits UI does not require SvelteKit, Tailwind, Skeleton CSS, icons, a global provider, or a stylesheet. Choose styling separately.
 
+In an existing app, retain compatible Skeleton Svelte widgets. Add Bits UI only when you choose it for a new or explicitly migrated widget. See [Skeleton UI](skeleton.md) for its separate component installation and CSS.
+
 ## Version contract
 
 | Package or tool | Baseline |
@@ -15,15 +17,22 @@ Bits UI provides headless interaction primitives. Use native HTML when it meets 
 | TypeScript / `svelte-check` (optional Kit tooling) | `6.0.3` / `4.7.8` |
 | Tailwind CSS / `@tailwindcss/vite` (optional styling) | `4.3.5` each |
 | `@skeletonlabs/skeleton` (optional themes and CSS utilities) | `5.0.6` |
+| `@skeletonlabs/skeleton-svelte` (optional styled components) | `5.0.6` |
 | `@lucide/svelte` (optional icons) | `1.77.0` |
 
 The [Bits UI 2.22.0 manifest](https://unpkg.com/bits-ui@2.22.0/package.json) declares peers `svelte@^5.33.0` and `@internationalized/date@^3.8.1`. The package manager may resolve the date peer automatically; explicitly declare `@internationalized/date` in any app or workspace package that imports date or time values/types. Do not depend on a hoisted peer.
 
 The Kit instructions target **Kit 3.1+**; the exact baseline is [Kit 3.4.0](https://registry.npmjs.org/@sveltejs/kit/3.4.0) with Svelte `^5.57.1`, Vite `^8.0.12`, Svelte Vite plugin `^7.0.0`, and optional TypeScript `^6.0.0`. Use TypeScript `6.0.3` with `svelte-check@4.7.8`, not TypeScript 7. This Kit boundary does not apply to standalone Svelte. Use Bun for baseline project commands. For an explicitly Node-targeted production adapter, also verify its runtime requirements and upstream engines: the pinned Kit and Svelte Vite plugin permit Node 22.17+ within 22.x, or 24+ in their intersection.
 
+Pins and a committed lockfile define a reproducible dependency set, not a guarantee that the application works. For an existing app on another supported release, compare that release's framework, plugin, and adapter contracts rather than assuming the baseline certifies it. Use ordinary `svelte-check` for the TypeScript baseline, not its experimental `--tsgo` mode.
+
 ## Existing project
 
-Inspect the application's manifest, lockfile, installed versions, scripts, Vite settings, entry point or root layout, and global style conventions before changing anything. Keep the existing compatible Svelte toolchain, adapter and package manager. Do not add a second lockfile. In a Bun-managed application workspace:
+Inspect the app's manifest, lockfile, installed versions, scripts, Vite settings, entry point or root layout, and global styles. Keep the existing compatible toolchain, adapter, and package manager. Do not add a second lockfile.
+
+In a Bun workspace, `bun pm ls` inspects installed versions and `bun info @sveltejs/kit@3.4.0 peerDependencies` reads exact published metadata without updating dependencies. Compare that metadata with the consuming app's manifest and lockfile; do not force conflicting peers. If an install hook needs changes outside scope, report the prerequisite instead of proceeding or masking the failure.
+
+If the app needs Bits UI, install it in the consuming workspace:
 
 ```sh
 bun add --exact bits-ui@2.22.0
@@ -93,6 +102,8 @@ bunx --bun vite
 
 Commit `bun.lock`. See [Vite's project entry documentation](https://vite.dev/guide/) and [Bits UI getting started](https://www.bits-ui.com/docs/getting-started/llms.txt).
 
+For a standalone app that already owns an SSR entry, use `hydrate` on server-rendered markup rather than calling `mount` on it. [Svelte 5.59.1](https://github.com/sveltejs/svelte/releases/tag/svelte@5.59.1) aligns the `mount` and `hydrate` type parameters so a union of the two is callable in a shared entry point. This does not change Kit's ownership of hydration.
+
 ## Greenfield SvelteKit
 
 Use Kit only when the app needs Kit features. Generate a minimal TypeScript app without installing scaffold versions:
@@ -155,7 +166,7 @@ Tab to the first trigger and press Enter or Space. Its content and expanded stat
 bun add --exact @lucide/svelte@1.77.0
 ```
 
-Lucide supplies inline SVG, not interaction, and needs no CSS import or browser initializer. See [Lucide](lucide.md) for imports and accessible use.
+Lucide supplies inline SVG, not interaction, and needs no CSS import or browser initializer. See [Lucide](lucide.md) for imports, accessible use, and the separately optional [Lab pattern](lucide-patterns.md#custom-icon-data-and-lab). For route lists and layout context, see [SvelteKit integration](sveltekit.md#lucide-rendering-and-subtree-scope).
 
 ## Kit configuration
 
@@ -223,7 +234,7 @@ import { browser, building, dev, version } from '$app/env';
 
 ## Global CSS and dependency scanning
 
-Skip this section if using plain CSS. For optional Tailwind on Vite:
+Using plain CSS? Skip the optional Tailwind configuration and [load your stylesheet](#load-the-stylesheet-and-activate-an-optional-theme) directly. To use Tailwind on Vite:
 
 ```sh
 bun add --dev --exact tailwindcss@4.3.5 @tailwindcss/vite@4.3.5
@@ -245,9 +256,17 @@ Then use:
 @import '@skeletonlabs/skeleton/themes/cerberus';
 ```
 
-Core includes presets. Only when using Skeleton's styled native form utilities, install `@tailwindcss/forms@0.5.11` as a dev dependency and add `@plugin '@tailwindcss/forms';` after all imports. Neither Bits UI nor Skeleton core needs a dependency source scan.
+Core includes presets; the old `@skeletonlabs/skeleton/optional/presets` subpath is not exported by [5.0.6](https://unpkg.com/@skeletonlabs/skeleton@5.0.6/package.json). Do not add a historical Skeleton Tailwind plugin. If using Skeleton Svelte widgets, add their [framework CSS import](skeleton.md#add-styled-skeleton-components) between core and the theme; it replaces the historical manual Skeleton `dist` scan. Neither Bits UI nor Skeleton CSS requires a manual dependency scan.
 
-Use complete literal classes; Tailwind scans source text, not evaluated expressions. For a monorepo with `apps/web/src/app.css` and shared components in `packages/ui/src`, set the app scan base explicitly and register the shared files:
+When using Skeleton's styled native form utilities, install their form reset:
+
+```sh
+bun add --dev --exact @tailwindcss/forms@0.5.11
+```
+
+Add `@plugin '@tailwindcss/forms';` after **all** imports, including custom themes, and before any application `@source`, variants, or style rules. Native forms and Kit enhancement do not otherwise require this plugin.
+
+Tailwind's default scan starts from the working directory and skips ignored files, `node_modules`, and CSS. Use complete literal classes; Tailwind scans source text, not evaluated expressions. For a monorepo with `apps/web/src/app.css` and shared components in `packages/ui/src`, set the app scan base explicitly and register the shared files:
 
 ```css
 @import 'tailwindcss' source('../');
@@ -257,7 +276,9 @@ Use complete literal classes; Tailwind scans source text, not evaluated expressi
 @source '../../../packages/ui/src';
 ```
 
-`source('../')` starts at `apps/web`, and both paths are relative to the stylesheet. Adjust them to the actual layout. Just Tailwind? Omit the Skeleton imports. See [Tailwind Vite installation](https://tailwindcss.com/docs/installation/using-vite), [source detection](https://tailwindcss.com/docs/detecting-classes-in-source-files), and [styling and themes](styling.md).
+`source('../')` scans all of `apps/web`, not just `apps/web/src`. Both paths are relative to the stylesheet, not `vite.config.*`. Register each additional shared UI source outside the app scan. Just Tailwind? Omit the Skeleton imports. See [Tailwind Vite installation](https://tailwindcss.com/docs/installation/using-vite), [source detection](https://tailwindcss.com/docs/detecting-classes-in-source-files), and [styling and themes](styling.md).
+
+If the first build picks up shared classes but edits do not, check that a new literal class in the registered path generates CSS during development. [Tailwind 4.3.4](https://github.com/tailwindlabs/tailwindcss/releases/tag/v4.3.4) fixed watching explicitly registered symlinks whose real paths are not scanned and automatic detection of `.gitignore` negations; the 4.3.5 baseline includes those fixes. Do not register the real path a second time to work around the fixed watch bug. [Tailwind 4.3.5](https://github.com/tailwindlabs/tailwindcss/releases/tag/v4.3.5) also fixes changed and new file detection on the Oxide WASM fallback; do not install that internal fallback package directly.
 
 ### Load the stylesheet and activate an optional theme
 
@@ -273,7 +294,7 @@ In standalone Vite, add `import './app.css';` to `src/main.js`. In Kit, add the 
 {@render children()}
 ```
 
-If using the Cerberus theme, set `data-theme="cerberus"` on the existing `<html>` in `index.html` (standalone Vite) or `src/app.html` (Kit). The attribute and imported theme name must match. Preserve existing attributes and Kit's `%sveltekit.head%`, `%sveltekit.body%` and body wrapper. See [styling](styling.md) for light/dark mode, contrast and SSR.
+If using the Cerberus theme, set `data-theme="cerberus"` on the existing `<html>` in `index.html` (standalone Vite) or `src/app.html` (Kit), not only on `<body>`. Match the attribute to the imported theme. Preserve the rest of [Kit's template](https://svelte.dev/docs/kit/project-structure#Project-files-src), including placeholders, the body wrapper, `lang`, preload attributes, metadata, asset paths, and CSP. See [styling](styling.md) for light/dark mode, contrast and SSR.
 
 ## Targeted diagnosis
 
@@ -282,6 +303,9 @@ If using the Cerberus theme, set `data-theme="cerberus"` on the existing `<html>
 | Trigger renders but does not respond | Confirm client JS has started, the Bits parts share their required root, and any `child` snippet spreads its supplied props onto the interactive element. Check focus, disabled state, and bound state separately. |
 | Trigger works but looks plain | Bits UI is headless. Check the app stylesheet and class selectors; if using Tailwind, check Vite processing, complete literal class strings, and shared `@source` paths. |
 | Utilities work but theme colors do not | Check Skeleton core/theme imports, the matching root `data-theme`, and computed `color-scheme`. |
+| A compatible Skeleton widget works but its internal styles are missing | Check the [framework CSS import](skeleton.md#add-styled-skeleton-components) and root stylesheet loading, not a manual Skeleton dependency scan. |
 | SSR and client disagree or controls never hydrate | Check the first render's open/selected values, IDs, browser-only APIs, and invalid HTML nesting. In Kit also check the template placeholders. Do not disable SSR to cover a mismatch. |
 | Package or prop error | Check the workspace lockfile, peer resolution, and installed public declarations. See [sources](sources.md). |
 | Kit reports obsolete config, aliases or missing `.svelte-kit/tsconfig.json` | Migrate the Kit configuration and imports above; this is not a Bits or CSS problem. |
+
+For a Bun-managed setup, run its existing check and build scripts with `bun run --bun check` (if defined) and `bun run --bun build`; `--bun` also runs executables with Node shebangs under Bun. A successful build does not establish keyboard, focus, form, or hydration behavior. Use the [example mounting guide](../examples/README.md) to exercise the relevant controls and the [SvelteKit form recipe](sveltekit.md#native-form-actions-with-progressive-enhancement) for a native/enhanced submission comparison.

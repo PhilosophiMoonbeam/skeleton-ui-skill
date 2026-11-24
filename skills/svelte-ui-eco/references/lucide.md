@@ -20,7 +20,7 @@ Static icon imports render inline SVG during SSR. No CSS import, Tailwind plugin
 
 The workflow is **catalog label → confirmed export/file mapping → public import slug**, not a guessed PascalCase-to-kebab-case conversion. Digits, acronyms, and historical aliases make mechanical conversion unreliable: `ArrowDownAZ` maps to `arrow-down-a-z`, while deprecated `ArrowDownAz` has a different alias entry. Do not build import paths from external strings.
 
-For a warning icon, use the canonical `CircleExclamationPoint` export or `@lucide/svelte/icons/circle-exclamation-point`, not the deprecated `CircleAlert` alias.
+For a warning icon, use the canonical `CircleExclamationPoint` export or `@lucide/svelte/icons/circle-exclamation-point`. The [1.68.0 rename](https://github.com/lucide-icons/lucide/releases/tag/1.68.0) introduced the `*-exclamation-point` names. `CircleAlert` and `@lucide/svelte/icons/circle-alert` still point to the same icon in 1.77.0, but are deprecated compatibility aliases, not new-code imports.
 
 ## Offline package inspection
 
@@ -79,11 +79,43 @@ With optional Skeleton CSS, its `.btn`/`.btn-icon` direct-child SVG rules may af
 - Lucide skips generating its default `aria-hidden="true"` when the icon receives a child snippet (even if the snippet renders nothing) or when its forwarded props contain an own `aria-*`, `role`, or `title` property with a value other than `null` or `undefined`. For example, `aria-label={undefined}` neither disables automatic hiding nor names the icon. A non-nullish value can disable hiding without naming the icon: `aria-describedby` is a description, and a `title` attribute is not a nested SVG `<title>`. Set `aria-hidden="true"` explicitly on decorative icons.
 - `focusable="false"` keeps the SVG itself out of legacy SVG focus behavior; the surrounding control remains keyboard accessible.
 
+**File: `IconControls.svelte`**
+```svelte
+<script lang="ts">
+  import { onMount } from 'svelte';
+  import Plus from '@lucide/svelte/icons/plus';
+  import RotateCcw from '@lucide/svelte/icons/rotate-ccw';
+  import CircleExclamationPoint from '@lucide/svelte/icons/circle-exclamation-point';
+
+  let count = $state(0);
+  let ready = $state(false);
+  onMount(() => { ready = true; });
+</script>
+
+<section>
+  <h2>Local counter</h2>
+  <button type="button" disabled={!ready} onclick={() => count += 1}>
+    <Plus aria-hidden="true" focusable="false" />
+    Add one
+  </button>
+  <button type="button" aria-label="Reset counter" disabled={!ready} onclick={() => count = 0}>
+    <RotateCcw aria-hidden="true" focusable="false" />
+  </button>
+  <p role="status">Count: {count}</p>
+  <p>
+    <CircleExclamationPoint role="img" aria-label="Warning" size={20} focusable="false" />
+    This counter is local and resets when the component is recreated.
+  </p>
+</section>
+```
+
+The SVGs render during SSR; only the client-only controls wait for mount.
+
 ### Bits UI tooltip trigger
 
 Follow [the overlay example](../examples/Overlays.svelte) for `Tooltip.Provider`, `Tooltip.Root`, and `Tooltip.Content`. Keep an icon decorative and name the actual button. If the default trigger button is adequate, put the icon inside it. If replacing it, pass names, handlers, and other attributes to `Tooltip.Trigger` and spread the resulting props onto the real button. Do not nest a button or overwrite generated handlers and ARIA relationships after spreading. See [composition](../examples/Composition.svelte) and the official [child snippet contract](https://www.bits-ui.com/docs/child-snippet/llms.txt).
 
-Inside the tooltip root, with `Copy` imported from `@lucide/svelte/icons/copy`:
+**Markup fragment:** place inside the Bits tooltip root, with `Copy` imported from `@lucide/svelte/icons/copy`:
 
 ```svelte
 <Tooltip.Trigger type="button" aria-label="Copy link">
@@ -95,23 +127,154 @@ Inside the tooltip root, with `Copy` imported from `@lucide/svelte/icons/copy`:
 
 Wire the real copy action through `onclick` on `Tooltip.Trigger`. The name “Copy link” is present whether the tooltip is closed or open; use the tooltip for supplementary information, such as what kind of link is copied. Check hover, keyboard focus, Escape, and the description while open.
 
+### Optional: existing Skeleton compound tooltip
+
+For an existing [`@skeletonlabs/skeleton-svelte` 5.0.6 Tooltip](https://www.skeleton.dev/docs/svelte/framework-components/tooltip), the equivalent composition uses `element(attributes)`, not Bits' `child({ props })`, with a separate `Portal` and `Tooltip.Positioner`. Keep this as its own widget root; for new compound tooltip integrations, use the Bits pattern above. The example uses the application's existing Skeleton CSS/theme and Tailwind setup.
+
+**File: `SkeletonIconTooltip.svelte`**
+```svelte
+<script lang="ts">
+  import { onMount } from 'svelte';
+  import { Portal, Tooltip } from '@skeletonlabs/skeleton-svelte';
+  import RotateCcw from '@lucide/svelte/icons/rotate-ccw';
+
+  let count = $state(0);
+  let ready = $state(false);
+  onMount(() => { ready = true; });
+</script>
+
+<button type="button" class="btn preset-filled" disabled={!ready} onclick={() => count += 1}>
+  Add one
+</button>
+<Tooltip positioning={{ placement: 'top' }} openDelay={200}>
+  <Tooltip.Trigger
+    type="button" class="btn-icon preset-tonal-primary" aria-label="Reset counter"
+    disabled={!ready} onclick={() => count = 0}
+  >
+    {#snippet element(attributes)}
+      <button {...attributes}>
+        <RotateCcw aria-hidden="true" focusable="false" />
+      </button>
+    {/snippet}
+  </Tooltip.Trigger>
+  <Portal>
+    <Tooltip.Positioner class="z-50">
+      <Tooltip.Content class="card max-w-[min(var(--available-width,100vw),calc(100vw_-_2rem))] preset-filled-surface-100-900 p-3 shadow-xl">
+        Only this local counter is affected.
+      </Tooltip.Content>
+    </Tooltip.Positioner>
+  </Portal>
+</Tooltip>
+<p role="status">Count: {count}</p>
+```
+
+Pass button attributes and the action to `Tooltip.Trigger` before it merges them with the generated props. Spread those attributes on one real button and keep the icon its direct child. Add one, then focus or hover Reset counter, dismiss the supplementary tooltip with Escape, and activate Reset counter by keyboard. Verify the button stays named when closed and the panel fits a narrow viewport.
+
 ## Finite runtime selection
 
 Use a finite typed whitelist of statically imported **component values**. Svelte 5 renders `<SelectedIcon />` directly; do not use legacy `svelte:component`, `SvelteComponentTyped`, a namespace/all-icon registry, or arbitrary user-derived `import()` paths. All runtime-reachable whitelist entries can remain in the bundle; tree-shaking cannot remove an entry merely because it is not selected initially.
 
 For data-driven navigation, map validated keys to statically imported icons with `satisfies Record<string, LucideIcon>`. Narrow unknown keys with `Object.hasOwn` before indexing; an unknown key should leave a working text link. Generate reusable fragment targets with `$props.id()`, and validate external destinations separately.
 
+**File: `RuntimeIconLinks.svelte`**
+```svelte
+<script lang="ts">
+  import type { LucideIcon } from '@lucide/svelte';
+  import House from '@lucide/svelte/icons/house';
+  import Settings from '@lucide/svelte/icons/settings';
+
+  const id = $props.id();
+  const icons = { home: House, settings: Settings } satisfies Record<string, LucideIcon>;
+  function isIconKey(key: string): key is keyof typeof icons {
+    return Object.hasOwn(icons, key);
+  }
+  const items = [
+    { icon: 'home', label: 'Overview', target: 'overview', text: 'Local overview content.' },
+    { icon: 'settings', label: 'Preferences', target: 'preferences', text: 'No preferences are saved here.' },
+    { icon: 'unknown', label: 'Additional information', target: 'info', text: 'Unknown keys retain usable text links.' }
+  ];
+</script>
+
+<nav aria-label="On this page">
+  <ul>
+    {#each items as item (item.target)}
+      <li>
+        <a href={`#${id}-${item.target}`}>
+          {#if isIconKey(item.icon)}
+            {@const SelectedIcon = icons[item.icon]}
+            <SelectedIcon aria-hidden="true" focusable="false" />
+          {/if}
+          {item.label}
+        </a>
+      </li>
+    {/each}
+  </ul>
+</nav>
+{#each items as item (item.target)}
+  <section id={`${id}-${item.target}`}>
+    <h2>{item.label}</h2>
+    <p>{item.text}</p>
+  </section>
+{/each}
+```
+
+The raw strings model external data, but the destinations are local, real targets and work without client JavaScript. Mount two copies and confirm links target only their own instance.
+
 See [advanced patterns](lucide-patterns.md) for a reactive typed consumer. Keep component values in Svelte modules; serialized SvelteKit load data carries validated keys and other serializable values, not component functions.
 
 ## Subtree defaults
 
-`setLucideProps` from the public `@lucide/svelte/context` entry sets context during **component instance initialization**. Pass an object, not a getter/factory. Do not call it in a module script, load function, mutable global singleton, event callback, or `onMount`. Descendants capture that context reference. This example promises initial static defaults only, not reactive context updates; pass explicit reactive props when runtime changes are needed.
+`setLucideProps` from the public `@lucide/svelte/context` entry sets context during **component instance initialization**. Pass an object, not a getter/factory. Do not call it in a module script, load function, mutable global singleton, event callback, or `onMount`. Descendants look up the object from their nearest Lucide context; a later reassignment of a variable holding that object does not update the captured reference, and a plain object is not reactive. Use it for static defaults. Use [explicit reactive props](lucide-patterns.md#reactive-consumer) for runtime changes rather than depending on context object mutation. `currentColor` can still follow CSS theme changes.
 
-For example, call `setLucideProps({ size: 32, color: 'currentColor', strokeWidth: 1 })` in the ancestor. A descendant `<Camera size={20} strokeWidth={2} aria-hidden="true" />` overrides size and stroke width. Inspect the SVG outside a styled button to isolate this precedence from button sizing rules.
+Save these two files together and mount `IconDefaults.svelte`. Neither needs a Skeleton stylesheet:
+
+**File: `IconDefaults.svelte`**
+```svelte
+<script lang="ts">
+  import { setLucideProps } from '@lucide/svelte/context';
+  import IconDefaultsChild from './IconDefaultsChild.svelte';
+
+  setLucideProps({ size: 32, color: 'currentColor', strokeWidth: 1, class: 'local-defaults' });
+</script>
+
+<IconDefaultsChild />
+```
+
+**File: `IconDefaultsChild.svelte`**
+```svelte
+<script lang="ts">
+  import Camera from '@lucide/svelte/icons/camera';
+</script>
+
+<p>
+  <Camera aria-hidden="true" focusable="false" />
+  Inherited: size 32 and stroke width 1.
+</p>
+<p>
+  <Camera size={20} strokeWidth={2} aria-hidden="true" focusable="false" />
+  Explicit: size 20 and stroke width 2; the context class still applies.
+</p>
+```
+
+Inspect the dimensions, stroke, and classes outside styled buttons. Mount the child alone as a sibling of the provider, with no other Lucide context: its first camera uses Lucide's defaults of 24 and 2 without `local-defaults`.
 
 ## Custom icons and Lab boundary
 
 The generic public `Icon` accepts **exactly one** of `icon: LucideIconData` or `iconNode: LucideIconNode[]`. Use `LucideIcon` for ordinary icon-component maps; the generic custom `Icon` has additional required data props. Avoid deprecated `IconNode` aliases. Keep custom geometry static and trusted, not arbitrary SVG/HTML from external input.
+
+**File: `CustomIcon.svelte`**
+```svelte
+<script lang="ts">
+  import { Icon, type LucideIconNode } from '@lucide/svelte';
+
+  const iconNode: LucideIconNode[] = [
+    ['circle', { cx: 12, cy: 12, r: 9 }],
+    ['path', { d: 'M8 12h8M12 8v8' }]
+  ];
+</script>
+
+<Icon {iconNode} size={32} role="img" aria-label="Addition symbol in a circle" focusable="false" />
+```
 
 See [advanced patterns](lucide-patterns.md) for composition, RTL, and custom data, including optional Lab data. Lab is a separate dependency, not needed for core icons.
 

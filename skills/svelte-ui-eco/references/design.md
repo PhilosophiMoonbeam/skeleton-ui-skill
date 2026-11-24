@@ -115,21 +115,40 @@ limits. Local traces diagnose regressions; they do not establish field results.
 
 ## Responsive page shell
 
+[ResponsiveShell.svelte](../examples/ResponsiveShell.svelte) is a complete Fieldnotes page with four sample community project briefs, real fragment links, and working filters. Copy it into an existing Svelte 5.59.1 app and render `<ResponsiveShell />` from `App.svelte` or `+page.svelte`. It supplies the page's `main` landmark, so do not mount it inside another `main`. No Bits UI, Skeleton, Tailwind, icon package, server route, or asset is needed.
+
 Use one `main` landmark and a skip link to the main content. On narrow screens, put a native `details` disclosure labeled **Page navigation** before the main area. On wider screens, show a navigation rail and hide the narrow disclosure with `display: none` so its links leave the tab order. Both presentations should point to the same real sections. Tab panels are not a replacement for these links; use Bits UI Tabs only when switching panels in place.
 
 Start with a single-column grid. Add a bounded rail and flexible `minmax(0, 1fr)` content column when long labels and enlarged text fit without clipping. Let content determine the number of card columns; keep card heights flexible. Use logical alignment and spacing so the rail and skip link move with direction. Keep a visible focus indicator on the skip link when revealed.
 
 For content filtering, use a named form, labeled search and status controls, and explicit Apply and Reset actions if filtering on submission. Keep draft fields separate from applied filters, expose a persistent result count with `role="status"`, and show an empty-state message with a working recovery action. When local filtering requires JavaScript, keep unenhanced navigation and initial content usable and explain when filtering is unavailable.
 
+The example renders the same four briefs on the server and on the first client render. `onMount` enables the native filter fieldset; it does not select data or derive layout. Section links and the narrow disclosure work without JavaScript. The apply action combines a trimmed, case-insensitive search with the status, while either reset returns all four briefs and focuses **Search briefs**. The reset next to the empty message disappears when results return, so focus is moved before it is removed.
+
+### Optional theming
+
+The scoped CSS provides its own light and dark palettes through `color-scheme` and `light-dark()`, with system-color fallbacks. The shell and the [native form](../examples/NativeForm.svelte) use the same application-owned `--example-*` color hooks. Override them on a containing element only if you need the examples to match the host; leave out the overrides for a standalone copy.
+
+For example, if your app already loads a [Skeleton theme](styling.md#theme-registration-and-activation), a wrapper can map its accent and matching foreground without adding any classes or imports inside the components:
+
+```css
+.themed-example {
+  --example-accent: var(--color-primary-500);
+  --example-on-accent: var(--color-primary-contrast-500);
+}
+```
+
+If the app offers an explicit scheme, set `--example-color-scheme: light` or `dark` on that wrapper in the app's corresponding mode rule. Otherwise the examples follow the system preference. The other hooks are `--example-canvas`, `--example-panel`, `--example-text`, `--example-muted`, `--example-border`, `--example-focus`, and (for the form) `--example-error`. Change surface and foreground colors together; test rendered contrast and forced colors after overriding them. No decorative motion is needed.
+
 ## Acceptance and smoke expectations
 
 These are **checks to perform**, not a claim of tested screenshots or accessible certification:
 
-1. **Wide layout:** Verify the rail and intended content columns fit at wide widths. Wrap titles and next steps; avoid page-level horizontal scrolling.
-2. **Narrow layout:** At 375px and 320px, confirm the rail is replaced by an in-flow Page navigation disclosure and filter controls stack.
-3. **Keyboard navigation:** Activate the skip link and check focus reaches `main`. Open the disclosure with Space or Enter, then follow a real section link. It has no modal focus trap or Escape contract. Check focus in both schemes and reading directions.
-4. **Local interaction:** Apply filters that return one, many, and no results; verify the result count and that Reset restores the full list without losing keyboard access. Editing drafts alone should not announce results in a submit-to-apply flow.
-5. **Initial state:** Reload with slow and disabled JavaScript. Confirm the initial content and navigation remain usable; local controls must not imply an available operation or saved data before they can work.
+1. **Wide layout:** At 1280px, the rail is visible and the disclosure is absent from the tab order; the introduction and cards have two columns. Wrap titles and next steps without page-level horizontal scrolling.
+2. **Narrow layout:** At 375px and 320px, the rail is hidden, cards and filters stack, and **Page navigation** starts closed. Opening it expands the document in flow instead of covering or disabling content.
+3. **Keyboard navigation:** Tab to **Skip to content**, press Enter, and check focus reaches `main`. On narrow screens, use Space or Enter on **Page navigation**, then Tab through the section links to **Studio notes** and activate it. The disclosure stays open until toggled; it has no modal focus trap or Escape contract. Check focus in both schemes and reading directions.
+4. **Local interaction:** Type `harbor` without submitting; four briefs should still be shown. Choose **Apply filters** and expect one. Reset, select **Draft**, and apply for two. Apply `zzzz` for zero; **Clear filters and show all briefs** should restore four and focus **Search briefs**. Check the persistent count, visible empty message, and the regular **Reset filters** button too.
+5. **Initial state:** Reload with slow and disabled JavaScript. Verify the four initial briefs, usable disclosure and fragment links, disabled filter controls, and an explanation that they require JavaScript. Once mounted the same content remains and filtering becomes available; no data is sent or saved.
 6. **Visual review:** Inspect 320/375/768/1280px widths, 200% zoom, enlarged text, long replacement titles, both color schemes, reduced motion, and forced colors. Measure contrast of body/metadata, buttons, borders needed to identify controls, and focus indicators. Check the actual theme, not only token names. Screen-reader review should identify landmarks, headings, filter labels, status changes, and the empty state.
 7. **Design review:** Identify the primary task at a glance. Confirm that one accent and one distinguishing device lead the composition, repeated elements share type/spacing/radius rules, and the narrow layout retains the same hierarchy. Remove decorative panels that displace useful content. Check replacement content and reachable states, not just the polished default dataset.
 

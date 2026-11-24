@@ -2,9 +2,9 @@
 
 # svelte-ui-eco
 
-An unofficial [Agent Skill](https://agentskills.io) for building accessible Svelte 5 interfaces with native HTML and Bits UI, with optional Skeleton CSS, Tailwind CSS, and Lucide.
+An unofficial [Agent Skill](https://agentskills.io) for accessible Svelte 5 interfaces. It covers native HTML, Bits UI, and optional Skeleton UI, Tailwind CSS, and Lucide.
 
-Use native HTML when it provides the interaction you need. Use Bits UI for managed behavior such as focus, keyboard navigation, selection, or layered overlays. Keep styling and icons separate from interaction. This project ships guidance and runnable examples, not a component library or an application template.
+Use native HTML where it fits. Keep compatible components already in use. Prefer Bits UI for new custom interactions; use Skeleton's styled Svelte components when they fit the design system or cover features Bits UI lacks. Neither library depends on the other. This project ships guidance and runnable examples, not a component library or application template.
 
 ## Install the skill
 
@@ -26,10 +26,11 @@ Standalone modern Svelte 5 is supported. SvelteKit 3.1+ applies only to Kit-spec
 | --- | --- | --- |
 | Bun | 1.4.5 | Repository tooling and installation examples |
 | Svelte | 5.59.1 | Framework |
-| Bits UI | 2.22.0 | Sole recommended headless interaction layer |
+| Bits UI | 2.22.0 | Default headless library for new custom widgets |
 | `@internationalized/date` | 3.12.4 | Date and time examples only |
 | `@sveltejs/kit` | 3.4.0 | Kit-specific guidance only |
 | `@skeletonlabs/skeleton` | 5.0.6 | Optional CSS and themes |
+| `@skeletonlabs/skeleton-svelte` | 5.0.6 | Optional styled Svelte components |
 | `tailwindcss` | 4.3.5 | Optional CSS utilities |
 | `@lucide/svelte` | 1.77.0 | Optional icons |
 
@@ -37,7 +38,9 @@ Standalone modern Svelte 5 is supported. SvelteKit 3.1+ applies only to Kit-spec
 
 Start with the [skill entrypoint](skills/svelte-ui-eco/SKILL.md) and follow its task router. Open [setup](skills/svelte-ui-eco/references/setup.md) for dependency and integration decisions, and [migration](skills/svelte-ui-eco/references/migration.md) when replacing old wrappers.
 
-The [component catalog](skills/svelte-ui-eco/references/components.md) maps native alternatives and Bits UI anatomy across forms and selection, navigation, overlays and feedback, display, and date/time controls. The [recipes](skills/svelte-ui-eco/references/recipes.md) and [example mounting guide](skills/svelte-ui-eco/examples/README.md) connect those contracts to standalone components. Examples do not require Skeleton, Tailwind, or Lucide. The entrypoint also routes design, styling, icons, accessibility, SSR, and server form tasks directly to their references.
+The [Bits UI catalog](skills/svelte-ui-eco/references/components.md) routes native alternatives and Bits primitives. The [Skeleton UI guide](skills/svelte-ui-eco/references/skeleton.md) covers retaining existing widgets, optional setup, and capabilities such as Toast, Carousel, and FileUpload. The [recipes](skills/svelte-ui-eco/references/recipes.md) and [example mounting guide](skills/svelte-ui-eco/examples/README.md) link standalone examples that do not require Skeleton, Tailwind, or Lucide.
+
+Use the [Skeleton recipes](skills/svelte-ui-eco/references/skeleton-recipes.md) and [version-specific upgrade guide](skills/svelte-ui-eco/references/skeleton-migration.md) when maintaining a Skeleton app. The examples index includes a responsive shell and a native form. Historical runtime observations are kept separately from current API guidance.
 
 Check installed declarations before applying a rolling documentation example. See [sources](skills/svelte-ui-eco/references/sources.md) for upstream links and evidence limits.
 
@@ -53,22 +56,3 @@ skills-ref validate skills/svelte-ui-eco
 ```
 
 Use the Agent Skills [`skills-ref`](https://github.com/agentskills/agentskills/tree/main/skills-ref) validator for package structure. Repository checks do not replace browser verification: exercise the affected keyboard, focus, layout, and form behavior and report only what you observed.
-
-## Serve the archive privately
-
-From the repository root on a host with Docker Compose and [Tailscale Serve](https://tailscale.com/docs/reference/tailscale-cli/serve) HTTPS enabled:
-
-```sh
-docker compose up --build -d --wait
-tailscale serve --bg --https=11454 http://127.0.0.1:38110
-tailscale serve status
-```
-
-From an authorized tailnet device, use the HTTPS origin shown by `tailscale serve status` and append `/svelte-ui-eco.tar.gz`. Use Serve, not Funnel, to keep the archive off the public internet. Rebuild with the same Compose command when the package changes.
-
-Remove only this Serve endpoint and stop the Compose project:
-
-```sh
-tailscale serve --bg --https=11454 off
-docker compose down
-```

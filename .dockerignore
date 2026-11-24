@@ -1,8 +1,0 @@
-**
-!Dockerfile
-!deploy/index.html
-!skills/svelte-ui-eco/SKILL.md
-!skills/svelte-ui-eco/references/*.md
-!skills/svelte-ui-eco/examples/README.md
-!skills/svelte-ui-eco/examples/*.svelte
-**/.*

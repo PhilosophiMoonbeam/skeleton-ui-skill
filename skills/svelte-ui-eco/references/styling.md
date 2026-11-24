@@ -1,6 +1,6 @@
 # Style native controls and Bits UI
 
-Bits UI owns the interaction; application CSS owns presentation. Start with plain CSS. Add Tailwind CSS only if useful, and add `@skeletonlabs/skeleton@5.0.6` only for optional themes and CSS utilities. Skeleton CSS does not implement Bits interaction or skin its parts automatically. See [setup](setup.md) to install and load the optional styles.
+Style Bits UI and native markup independently from their interaction behavior. Start with plain CSS or the app's existing design system. Optional Skeleton core CSS supplies themes and utilities; it does not automatically skin Bits UI parts. For Skeleton's own styled widgets and their CSS import, see [Skeleton UI](skeleton.md). See [setup](setup.md) for core styling and Tailwind integration.
 
 ## Target rendered parts and states
 
@@ -27,7 +27,7 @@ An overlay may render through a portal outside the local DOM subtree. Theme toke
 
 ## Theme registration and activation
 
-A Skeleton theme is a set of CSS custom properties scoped by `[data-theme='name']`. Import its stylesheet **and** activate the exact name on `<html>`. Register only themes the application uses.
+A Skeleton theme is a set of CSS custom properties scoped by `[data-theme='name']`. Import its stylesheet **and** activate the exact name on `<html>`. Each imported theme adds CSS to the bundle; register only themes the application uses.
 
 Optional Skeleton setup in the global stylesheet (`src/app.css`):
 
@@ -44,7 +44,7 @@ For a custom theme:
 1. Open the [Theme Generator](https://themes.skeleton.dev/), linked from [Themes](https://www.skeleton.dev/docs/svelte/design/themes).
 2. Give the theme a unique name; customize palette, independently assigned contrast colors, brand, typography, spacing, and radii. Export its CSS.
 3. Compare output with the [5.0.6 theme shape](https://unpkg.com/@skeletonlabs/skeleton@5.0.6/src/themes/cerberus.css). For an existing custom theme, use the [import workflow](https://themes.skeleton.dev/themes/import) recommended by the [migration guide](https://www.skeleton.dev/docs/svelte/get-started/migrate-from-v4). Import accepts CSS/TS/JS, but strips custom fonts: restore them through Typography controls and load their assets. Do not assume lossless legacy conversion.
-4. Save the exported stylesheet, for example `src/acme.css`. Add `@import './acme.css';` after the imported Skeleton theme and before directives or style rules. Set `data-theme="acme"` on `<html>` to match the exported selector, not necessarily the file name. Inspect current tokens, font loading, and both modes.
+4. Save the exported stylesheet, for example `src/acme.css`. Add `@import './acme.css';` after Skeleton core (and after the framework CSS if using Skeleton Svelte widgets) but before directives or style rules. Keep Cerberus or any other built-in theme import only if it is also used. Set `data-theme="acme"` on `<html>` to match the exported selector, not necessarily the file name. Inspect current tokens, font loading, and both modes.
 5. If switching at runtime, change `document.documentElement.dataset.theme` in browser-only code to one of your imported theme names. Ensure the initial server theme and any theme-dependent rendered text agree.
 
 Core v5 tokens include (double hyphens inside typography names are significant):
@@ -186,7 +186,9 @@ Tailwind 4 supports linear, radial, and conic gradients with semantic palette st
 
 Gradients are static until classes, variables, or styles change. Tailwind defaults gradient interpolation to OKLab; use a documented interpolation modifier when a different path is intentional. OKLCH separates lightness, chroma, and hue, but neither equal lightness nor a vivid palette guarantees contrast; high chroma can exceed a display's gamut. Check intermediate gradient colors and keep essential text on a verified surface.
 
-Tailwind scans text, not evaluated Svelte expressions. Map finite choices to complete literal classes instead of constructing `bg-${palette}-500`. Register excluded shared application files with stylesheet-relative `@source` paths as shown in [setup](setup.md). A scanned invalid candidate still generates no rule: use separate `stroke-2` and `stroke-current/50` classes when setting both properties. An explicit source path does not make interpolated names discoverable.
+Tailwind scans text, not evaluated Svelte expressions. Map finite choices to complete literal classes instead of constructing `bg-${palette}-500`. An explicit source path does not make interpolated names discoverable. See [setup](setup.md#global-css-and-dependency-scanning) for stylesheet-relative shared paths and watch-mode troubleshooting.
+
+A scanned candidate can still be invalid. Since [Tailwind 4.3.4](https://github.com/tailwindlabs/tailwindcss/releases/tag/v4.3.4), unsupported or empty extra slash modifiers emit no CSS: use `stroke-2` and `stroke-current/50`, not `stroke-2/50`, and remove the trailing slash from `bg-primary-500/20/`. Decimal breakpoint and container variants sort numerically (for example, `min-[40.25rem]` before `min-[40.5rem]`); use comparable units and inspect the cascade, not class order in the markup. Custom variants using `@scope` now wrap their generated utilities in the scope; verify that the target browser supports it.
 
 For continuous runtime values, keep one detectable utility and update a custom property instead of generating unbounded class names. Standalone decorative preview:
 
@@ -305,6 +307,8 @@ Sources: [pinned root/body CSS](https://unpkg.com/@skeletonlabs/skeleton@5.0.6/s
 ## Browser support is cumulative
 
 Tailwind 4 documents Safari 16.4+, Chrome 111+, and Firefox 128+ as its baseline, not the application's complete browser matrix. Skeleton 5.0.6 uses `light-dark()` for essential root, text, and paired colors; some Tailwind-baseline browsers do not support it. Provide deliberate fallback styles where required. Optional corner shapes, disclosure animation, or route transitions must not hide content or prevent interaction where unsupported.
+
+[Tailwind 4.3](https://tailwindcss.com/blog/tailwindcss-v4-3) includes scrollbar utilities, `@container-size` (not `size-container`) for block-size-dependent units like `cqb`, `zoom-*`, and `tab-*`. These are optional and have their own browser support. Keep scroll affordances; CSS `zoom` is not a substitute for responsive layout or testing browser zoom. [Tailwind 4.3.5's `color-mix()` optimizer fixes](https://github.com/tailwindlabs/tailwindcss/releases/tag/v4.3.5) are build-tool fixes, not a browser-support guarantee. Native form controls also vary across browsers and operating systems despite the forms reset.
 
 Sources: [Tailwind browser baseline](https://tailwindcss.com/docs/upgrade-guide#browser-requirements), [Skeleton root CSS](https://unpkg.com/@skeletonlabs/skeleton@5.0.6/src/base/globals.css), [`light-dark()` support](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Values/color_value/light-dark#browser_compatibility).
 
