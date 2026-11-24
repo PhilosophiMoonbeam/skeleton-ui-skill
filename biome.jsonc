@@ -14,7 +14,9 @@
       "biome.jsonc",
       "tsconfig.examples.json",
       ".github/workflows/**",
-      "skills/svelte-ui-eco/**/*.md"
+      "skills/svelte-ui-eco/**/*.md",
+      // Local agent links target ignored files that are absent in CI.
+      "!!.hermes"
     ]
   },
   "formatter": {
