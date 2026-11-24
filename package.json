@@ -1,13 +1,19 @@
 {
-  "name": "skeleton-ui-skill",
+  "name": "svelte-ui-eco",
   "private": true,
   "packageManager": "bun@1.4.5",
   "scripts": {
     "check": "bun --bun biome ci --error-on-warnings .",
+    "check:examples": "bun --bun svelte-check --tsconfig ./tsconfig.examples.json --fail-on-warnings",
     "lint": "bun --bun biome lint --error-on-warnings .",
     "format": "bun --bun biome format --write ."
   },
   "devDependencies": {
-    "@biomejs/biome": "2.6.8"
+    "@biomejs/biome": "2.6.8",
+    "@internationalized/date": "3.12.4",
+    "bits-ui": "2.22.0",
+    "svelte": "5.59.1",
+    "svelte-check": "4.7.8",
+    "typescript": "6.0.3"
   }
 }

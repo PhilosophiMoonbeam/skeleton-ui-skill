@@ -1,22 +1,16 @@
 # Agent Instructions
 
-This project always uses the latest `Bun` instead of `Node` wherever applicable to do so, with `Biomejs` features for linting and so on.
+Use the latest Bun instead of Node wherever applicable. Use Biome for repository linting and formatting.
 
-## Unofficial Svelte UI SKILLs
+## Unofficial Svelte UI Agent Skill
 
-We'll focus on implementing the Svelete version for now.
-See: /skills/skeleton-svelte
-SKILL.md Specification: /skills/SKILLS_SPEC.md
+Start with [svelte-ui-eco](skills/svelte-ui-eco/SKILL.md) and the [Agent Skills specification](skills/SKILLS_SPEC.md).
 
-Bits UI Documentation | https://www.bits-ui.com/docs/introduction
-Official LLMs.txt info | https://www.bits-ui.com/docs/llms
+Use native HTML when sufficient and Bits UI as the sole headless interaction layer. The exact reference baseline is Bun 1.4.5, Svelte 5.59.1, Bits UI 2.22.0, and `@internationalized/date` 3.12.4 for date/time examples. Standalone Svelte 5 is supported; Kit-specific guidance starts at SvelteKit 3.1 and uses 3.4.0 as its exact reference version. Optional styling uses Skeleton core CSS 5.0.6 and Tailwind CSS 4.3.5; optional icons use `@lucide/svelte` 1.77.0.
 
-Skeleton UI Documentation | https://www.skeleton.dev/docs/svelte/get-started/introduction
-Official LLMs.txt info | https://www.skeleton.dev/docs/svelte/resources/llms
-
-More Available on Context7/ctx7 -- see your 'find-docs' skill.
-
-Comprehensive list of LLMs txt files. | https://www.skeleton.dev/llms.txt & https://bits-ui.com/llms.txt
+- Bits UI: [documentation](https://www.bits-ui.com/docs/introduction), [LLM access guide](https://www.bits-ui.com/docs/llms), and [index](https://www.bits-ui.com/llms.txt). Follow the relevant component page's `/llms.txt` link instead of loading the whole corpus.
+- Skeleton CSS: [documentation](https://www.skeleton.dev/docs/svelte/get-started/introduction) and [index](https://www.skeleton.dev/llms.txt). Use these for CSS and themes only.
+- For further discovery, see your `find-docs` skill. Prefer the resolved installed declarations and source when they differ from rolling documentation.
 
 <!-- beads-integration:start -->
 ## Planning Work - Beads bootstrap

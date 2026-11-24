@@ -1,0 +1,20 @@
+name: svelte-ui-eco
+
+services:
+  skill:
+    build: .
+    image: "${SVELTE_UI_ECO_IMAGE:-svelte-ui-eco:local}"
+    pull_policy: never
+    ports:
+      - "127.0.0.1:${SVELTE_UI_ECO_HTTP_PORT:-38110}:8080"
+    restart: unless-stopped
+    cap_drop:
+      - ALL
+    read_only: true
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:8080/skills/svelte-ui-eco/SKILL.md"]
+      interval: 5s
+      timeout: 3s
+      retries: 5

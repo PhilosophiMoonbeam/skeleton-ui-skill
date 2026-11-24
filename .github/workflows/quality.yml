@@ -11,7 +11,7 @@ permissions:
 
 jobs:
   check:
-    name: Biome check
+    name: Biome and Svelte example checks
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
@@ -26,3 +26,5 @@ jobs:
         run: bun install --frozen-lockfile
       - name: Run Biome check
         run: bun run check --reporter=github
+      - name: Check Svelte examples
+        run: bun run check:examples

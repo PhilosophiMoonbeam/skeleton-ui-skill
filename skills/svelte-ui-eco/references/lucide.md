@@ -1,6 +1,6 @@
 # Lucide for Svelte
 
-Use Lucide when icons improve recognition or communication; do not add decorative clutter. This guide targets SvelteKit **3.1+**, Svelte **5**, Skeleton **5**, and Tailwind **4** only. The exact optional icon package is **@lucide/svelte 1.77.0**, with peer dependency **Svelte ^5**. Recipes without icons need no icon dependency.
+Use optional Lucide when icons improve recognition. The [baseline](setup.md) pins `@lucide/svelte` 1.77.0; its peer dependency is Svelte 5. No SvelteKit, Tailwind, or Skeleton dependency is required for icons.
 
 ## Imports and package boundary
 
@@ -10,9 +10,7 @@ bun add --exact @lucide/svelte@1.77.0
 
 Prefer canonical public per-icon default imports, such as `import Camera from '@lucide/svelte/icons/camera'`. Public root named imports, such as `import { Camera } from '@lucide/svelte'`, are also valid and can be tree-shaken. Per-icon imports keep the traversed module graph focused; they do not establish a measured bundle-size or build-speed advantage. Never import internal `dist` files. Root type-only imports are appropriate.
 
-Static icon imports render inline SVG during SSR. No CSS import, Tailwind plugin, `@source`, icon font, DOM scanner, `createIcons`, `onMount`, or `ssr: false` workaround is needed for the icons. Client-only local controls below wait for mount; the SVG does not.
-
-Use the scoped package, not deprecated `lucide-svelte`. Prefer canonical names, not deprecated aliases (some aliases still resolve). Brand icons were removed in v1; obtain an appropriate authorized brand SVG separately rather than inventing a Lucide replacement.
+Static icon imports render inline SVG during SSR. No CSS import, Tailwind plugin, `@source`, icon font, DOM scanner, `createIcons`, `onMount`, or SSR workaround is needed. Use the scoped package and canonical icon names. For brand marks, use an authorized brand asset.
 
 ## Discover and verify an icon
 
@@ -22,7 +20,7 @@ Use the scoped package, not deprecated `lucide-svelte`. Prefer canonical names, 
 
 The workflow is **catalog label → confirmed export/file mapping → public import slug**, not a guessed PascalCase-to-kebab-case conversion. Digits, acronyms, and historical aliases make mechanical conversion unreliable: `ArrowDownAZ` maps to `arrow-down-a-z`, while deprecated `ArrowDownAz` has a different alias entry. Do not build import paths from external strings.
 
-For warning icons, [Lucide 1.68.0](https://github.com/lucide-icons/lucide/releases/tag/1.68.0) introduced `*-exclamation-point` names. In 1.77.0, use the named `CircleExclamationPoint` export or the default import from `@lucide/svelte/icons/circle-exclamation-point`. The [deprecated `CircleAlert` declaration](https://unpkg.com/@lucide/svelte@1.77.0/dist/aliases/aliases.d.ts) and [old `circle-alert` entry](https://unpkg.com/@lucide/svelte@1.77.0/dist/icons/circle-alert.js) point to that same icon; use the canonical name in new code.
+For a warning icon, use the canonical `CircleExclamationPoint` export or `@lucide/svelte/icons/circle-exclamation-point`, not the deprecated `CircleAlert` alias.
 
 ## Offline package inspection
 
@@ -72,7 +70,7 @@ These `dist` paths are **inspection sources**, not application import paths. Con
 
 Explicit component props override subtree defaults. CSS can override SVG presentation attributes: `class="size-5"` can determine dimensions despite `size={32}`; a global `.lucide` stroke/color rule can defeat explicit/context styling. Choose deliberate local utilities or context ownership, not blanket overrides. Conflicting utility classes do not have guaranteed last-token precedence.
 
-Keep the SVG a **direct child** of Skeleton `.btn`/`.btn-icon` for its zero-specificity direct-child sizing rules. A wrapper changes that relationship. Tailwind size utilities can override those defaults. Check actual computed size, stroke, foreground contrast, and focus indicators in light and dark themes. `absoluteStrokeWidth` remains present but deprecated: use `nonScalingStroke` for non-scaling strokes, not as a claim that both mechanisms produce identical results.
+With optional Skeleton CSS, its `.btn`/`.btn-icon` direct-child SVG rules may affect size. A wrapper changes that relationship. Check computed size, stroke, foreground contrast, and focus indicators in both schemes. Use `nonScalingStroke` for non-scaling strokes; deprecated `absoluteStrokeWidth` is not identical.
 
 ## Accessible icons and controls
 
@@ -81,175 +79,41 @@ Keep the SVG a **direct child** of Skeleton `.btn`/`.btn-icon` for its zero-spec
 - Lucide skips generating its default `aria-hidden="true"` when the icon receives a child snippet (even if the snippet renders nothing) or when its forwarded props contain an own `aria-*`, `role`, or `title` property with a value other than `null` or `undefined`. For example, `aria-label={undefined}` neither disables automatic hiding nor names the icon. A non-nullish value can disable hiding without naming the icon: `aria-describedby` is a description, and a `title` attribute is not a nested SVG `<title>`. Set `aria-hidden="true"` explicitly on decorative icons.
 - `focusable="false"` keeps the SVG itself out of legacy SVG focus behavior; the surrounding control remains keyboard accessible.
 
-**File: `IconControls.svelte`**
+### Bits UI tooltip trigger
+
+Follow [the overlay example](../examples/Overlays.svelte) for `Tooltip.Provider`, `Tooltip.Root`, and `Tooltip.Content`. Keep an icon decorative and name the actual button. If the default trigger button is adequate, put the icon inside it. If replacing it, pass names, handlers, and other attributes to `Tooltip.Trigger` and spread the resulting props onto the real button. Do not nest a button or overwrite generated handlers and ARIA relationships after spreading. See [composition](../examples/Composition.svelte) and the official [child snippet contract](https://www.bits-ui.com/docs/child-snippet/llms.txt).
+
+Inside the tooltip root, with `Copy` imported from `@lucide/svelte/icons/copy`:
+
 ```svelte
-<script lang="ts">
-  import { onMount } from 'svelte';
-  import Plus from '@lucide/svelte/icons/plus';
-  import RotateCcw from '@lucide/svelte/icons/rotate-ccw';
-  import CircleExclamationPoint from '@lucide/svelte/icons/circle-exclamation-point';
-
-  let count = $state(0);
-  let ready = $state(false);
-  onMount(() => { ready = true; });
-</script>
-
-<section class="space-y-4">
-  <h2 class="h2">Local counter</h2>
-  <div class="flex gap-3">
-    <button type="button" class="btn preset-filled" disabled={!ready} onclick={() => count += 1}>
-      <Plus aria-hidden="true" focusable="false" />
-      Add one
-    </button>
-    <button type="button" class="btn-icon preset-tonal-primary" aria-label="Reset counter" disabled={!ready} onclick={() => count = 0}>
-      <RotateCcw aria-hidden="true" focusable="false" />
-    </button>
-  </div>
-  <p role="status">Count: {count}</p>
-  <p class="flex items-center gap-2">
-    <CircleExclamationPoint role="img" aria-label="Warning" class="size-5 shrink-0" focusable="false" />
-    This counter is local and resets when this component is recreated.
-  </p>
-</section>
+<Tooltip.Trigger type="button" aria-label="Copy link">
+  {#snippet child({ props })}
+    <button {...props}><Copy aria-hidden="true" focusable="false" /></button>
+  {/snippet}
+</Tooltip.Trigger>
 ```
 
-### Skeleton element-snippet trigger
-
-Spread all trigger attributes onto the replacement button; do not nest buttons. The icon remains its direct SVG child. This is the only icon-trigger implementation location; the [dependency-free recipes](recipes.md#floating-help-tooltip) remain available.
-
-**File: `IconTooltip.svelte`**
-```svelte
-<script lang="ts">
-  import { onMount } from 'svelte';
-  import { Portal, Tooltip } from '@skeletonlabs/skeleton-svelte';
-  import CircleQuestionMark from '@lucide/svelte/icons/circle-question-mark';
-
-  let ready = $state(false);
-  onMount(() => { ready = true; });
-</script>
-
-<p>Use Tab to move between controls.</p>
-<Tooltip positioning={{ placement: 'top' }} openDelay={200}>
-  <Tooltip.Trigger>
-    {#snippet element(attributes)}
-      <button {...attributes} type="button" class="btn-icon preset-tonal-primary" aria-label="Keyboard navigation help" disabled={!ready}>
-        <CircleQuestionMark aria-hidden="true" focusable="false" />
-      </button>
-    {/snippet}
-  </Tooltip.Trigger>
-  <Portal>
-    <Tooltip.Positioner class="z-50">
-      <Tooltip.Content class="card max-w-[var(--available-width)] preset-filled-surface-100-900 p-3 shadow-xl">
-        Shift+Tab moves to the previous control.
-      </Tooltip.Content>
-    </Tooltip.Positioner>
-  </Portal>
-</Tooltip>
-```
-
-After mount, focus/hover opens help and Escape dismisses it. The name is present even when the tooltip is closed. Essential instructions stay visible.
+Wire the real copy action through `onclick` on `Tooltip.Trigger`. The name “Copy link” is present whether the tooltip is closed or open; use the tooltip for supplementary information, such as what kind of link is copied. Check hover, keyboard focus, Escape, and the description while open.
 
 ## Finite runtime selection
 
 Use a finite typed whitelist of statically imported **component values**. Svelte 5 renders `<SelectedIcon />` directly; do not use legacy `svelte:component`, `SvelteComponentTyped`, a namespace/all-icon registry, or arbitrary user-derived `import()` paths. All runtime-reachable whitelist entries can remain in the bundle; tree-shaking cannot remove an entry merely because it is not selected initially.
 
-**File: `RuntimeIconLinks.svelte`**
-```svelte
-<script lang="ts">
-  import type { LucideIcon } from '@lucide/svelte';
-  import House from '@lucide/svelte/icons/house';
-  import Settings from '@lucide/svelte/icons/settings';
+For data-driven navigation, map validated keys to statically imported icons with `satisfies Record<string, LucideIcon>`. Narrow unknown keys with `Object.hasOwn` before indexing; an unknown key should leave a working text link. Generate reusable fragment targets with `$props.id()`, and validate external destinations separately.
 
-  const id = $props.id();
-  const icons = { home: House, settings: Settings } satisfies Record<string, LucideIcon>;
-  type IconKey = keyof typeof icons;
-  function isIconKey(key: string): key is IconKey {
-    return Object.hasOwn(icons, key);
-  }
-  const items: { icon: string; label: string; target: string }[] = [
-    { icon: 'home', label: 'Overview', target: 'overview' },
-    { icon: 'settings', label: 'Preferences', target: 'preferences' },
-    { icon: 'unrecognized', label: 'Additional information', target: 'information' }
-  ];
-</script>
-
-<nav aria-label="On this page" class="flex flex-wrap gap-3">
-  {#each items as item}
-    <a class="btn preset-tonal-primary" href={`#${id}-${item.target}`}>
-      {#if isIconKey(item.icon)}
-        {@const SelectedIcon = icons[item.icon]}
-        <SelectedIcon aria-hidden="true" focusable="false" />
-      {/if}
-      {item.label}
-    </a>
-  {/each}
-</nav>
-<section id={`${id}-overview`}><h2 class="h2">Overview</h2><p>Local overview content.</p></section>
-<section id={`${id}-preferences`}><h2 class="h2">Preferences</h2><p>No preferences are saved here.</p></section>
-<section id={`${id}-information`}><h2 class="h2">Additional information</h2><p>Unknown icon keys retain a usable text link.</p></section>
-```
-
-The string keys model external data without pretending to fetch it. Validate external destinations separately; this example owns every fragment target. Duplicate instances have separate IDs. No JavaScript action is required for these links.
-
-For a reusable, explicitly reactive **typed consumer boundary**, see [reactive consumer](lucide-patterns.md#reactive-consumer). It is optional local composition, not a required global icon wrapper or registry. Keep component values in `.svelte`/client modules; serialized SvelteKit load data carries validated string keys and other serializable values, not component functions.
+See [advanced patterns](lucide-patterns.md) for a reactive typed consumer. Keep component values in Svelte modules; serialized SvelteKit load data carries validated keys and other serializable values, not component functions.
 
 ## Subtree defaults
 
 `setLucideProps` from the public `@lucide/svelte/context` entry sets context during **component instance initialization**. Pass an object, not a getter/factory. Do not call it in a module script, load function, mutable global singleton, event callback, or `onMount`. Descendants capture that context reference. This example promises initial static defaults only, not reactive context updates; pass explicit reactive props when runtime changes are needed.
 
-Place these two complete files together; mount the parent.
-
-**File: `IconDefaults.svelte`**
-```svelte
-<script lang="ts">
-  import { setLucideProps } from '@lucide/svelte/context';
-  import IconDefaultsChild from './IconDefaultsChild.svelte';
-
-  setLucideProps({ size: 32, color: 'currentColor', strokeWidth: 1, class: 'shrink-0' });
-</script>
-
-<div class="space-y-3">
-  <IconDefaultsChild />
-</div>
-```
-
-**File: `IconDefaultsChild.svelte`**
-```svelte
-<script lang="ts">
-  import Camera from '@lucide/svelte/icons/camera';
-</script>
-
-<p class="flex items-center gap-2">
-  <Camera aria-hidden="true" focusable="false" />
-  Inherited: size 32 and stroke width 1.
-</p>
-<p class="flex items-center gap-2">
-  <Camera size={20} strokeWidth={2} aria-hidden="true" focusable="false" />
-  Explicit override: size 20 and stroke width 2; context class still applies.
-</p>
-```
-
-These SVGs are outside Skeleton buttons so button auto-sizing does not mask the size comparison. For runtime size/stroke changes, use [explicit reactive consumer props](lucide-patterns.md#reactive-consumer), not an assumed reactive context provider.
+For example, call `setLucideProps({ size: 32, color: 'currentColor', strokeWidth: 1 })` in the ancestor. A descendant `<Camera size={20} strokeWidth={2} aria-hidden="true" />` overrides size and stroke width. Inspect the SVG outside a styled button to isolate this precedence from button sizing rules.
 
 ## Custom icons and Lab boundary
 
 The generic public `Icon` accepts **exactly one** of `icon: LucideIconData` or `iconNode: LucideIconNode[]`. Use `LucideIcon` for ordinary icon-component maps; the generic custom `Icon` has additional required data props. Avoid deprecated `IconNode` aliases. Keep custom geometry static and trusted, not arbitrary SVG/HTML from external input.
 
-**File: `CustomIcon.svelte`**
-```svelte
-<script lang="ts">
-  import { Icon, type LucideIconNode } from '@lucide/svelte';
-
-  const iconNode: LucideIconNode[] = [
-    ['path', { d: 'M4 12h16M12 4v16' }],
-    ['circle', { cx: 12, cy: 12, r: 9 }]
-  ];
-</script>
-
-<Icon {iconNode} role="img" aria-label="Addition symbol in a circle" size={32} />
-```
-
-For [fill and composition](lucide-patterns.md#fill-and-composition), [directional/RTL decisions](lucide-patterns.md#directional-icons), and [custom data plus optional `@lucide/lab@0.17.0`](lucide-patterns.md#custom-icon-data-and-lab), continue to the advanced patterns reference. Lab is a separate opt-in dependency; check its exact exports before assuming an icon is still there or needs Lab.
+See [advanced patterns](lucide-patterns.md) for composition, RTL, and custom data, including optional Lab data. Lab is a separate dependency, not needed for core icons.
 
 ## Troubleshooting
 
@@ -260,21 +124,17 @@ For [fill and composition](lucide-patterns.md#fill-and-composition), [directiona
 | `size` seems ignored, or a button icon changes size | Inspect computed `width`/`height`: Tailwind `size-*` and Skeleton direct-child button CSS can override SVG attributes. Keep the SVG a direct child where intended; remove conflicting utilities instead of assuming prop or class-token order wins. |
 | Stroke or color differs from props/context | Inspect computed `stroke`, `stroke-width`, inherited `color`, raw SVG attributes, and global `.lucide` rules. CSS overrides presentation attributes; raw `stroke-width` overrides generated attributes. `currentColor` needs a suitable foreground. Use `nonScalingStroke` for CSS-resized non-scaling strokes; `absoluteStrokeWidth` is deprecated, not removed. |
 | An icon is unexpectedly exposed, unnamed, or announced twice | A child snippet or an own non-nullish `aria-*`, `role`, or `title` prop stops Lucide from generating automatic hiding, but does not necessarily name the icon. Explicitly hide decorative SVGs and name the control; give meaningful SVGs `role="img"` plus a name. Check the accessibility tree, not only visual tooltips. |
-| Defaults are missing or do not update | Call `setLucideProps` from `@lucide/svelte/context` during an ancestor instance's initialization, with an object. Confirm subtree scope and explicit prop overrides. These examples promise static defaults; use [reactive props](lucide-patterns.md#reactive-consumer) for runtime changes. |
+| Defaults are missing or do not update | Set `setLucideProps` from `@lucide/svelte/context` during ancestor instance initialization with an object. Check subtree scope and explicit overrides. Pass reactive props for runtime changes. |
 | Development traverses many modules, or a bundle is unexpectedly large | Check for namespace imports, an all-icon registry, or an oversized runtime map; use finite static imports. Root named imports are tree-shakeable, so distinguish traversed module graph from retained production output and inspect the actual bundle before claiming savings. |
 | Props/types disagree with an example, or resolution differs by workspace | Read the resolved package metadata and lockfile in the consuming app; confirm the intended 1.77.0 package, Svelte 5 peer, and public export conditions. Match source/docs to that version before changing code; do not switch to deprecated `lucide-svelte` or add SSR workarounds. |
 
 ## Verification
 
-For copied examples, use the exact baseline and the application's existing global Skeleton/Tailwind/theme setup:
-
-1. Run the project's type/Svelte check and production build; include both context files. Check public import resolution and all component props.
-2. Inspect SSR HTML: inline SVG is present; local JS-only buttons start disabled; links target real, instance-safe fragments. Mount duplicate instances and check associations and hydration warnings.
-3. Click Add one and Reset counter; confirm the local count changes without persistence claims. Test the tooltip by keyboard and pointer, including Escape and focus visibility.
-4. Inspect the accessibility tree: named controls, hidden decorative SVGs, and the meaningful warning/custom symbol exposed as named images. Unknown runtime keys retain text links.
-5. Inspect computed dimensions, stroke widths, `currentColor`, and contrast in light/dark themes. Open the tooltip at 320px and verify its available-width constraint prevents page overflow. Context icons should show 32/1 versus 20/2 outside button sizing rules.
-6. Inspect actual production bundle/module analysis before asserting size or speed savings. Compare equivalent imports in the same build; do not infer that root named imports ship every icon.
-7. For [advanced patterns](lucide-patterns.md), exercise reactive props, unknown-key fallback, composed-image associations, selective RTL, and the chosen custom/Lab geometry. Inspect native input/select text in both schemes; a select's CSS caret image can require manual contrast review.
+1. Inspect SSR HTML for inline SVG; mount duplicate instances to check label and title associations and hydration warnings.
+2. Inspect the accessibility tree: controls keep their names, decorative SVGs stay hidden, and meaningful SVGs appear as named images. Unknown icon keys leave working text controls.
+3. On the tooltip trigger, check keyboard focus, hover, Escape, visible focus, and the trigger name when closed. Check the supplementary description when open and verify the tooltip fits a 320 CSS-pixel viewport.
+4. Inspect computed dimensions, stroke width, `currentColor`, contrast, and focus in light, dark, and forced-color settings. Check selective mirroring in RTL.
+5. Inspect the actual bundle before claiming size or speed improvements from import choices.
 
 These are verification requirements, not a claim that every downstream project has passed them. See [sources and verification](sources.md) for recorded evidence.
 

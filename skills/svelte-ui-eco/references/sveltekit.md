@@ -1,11 +1,11 @@
-# Svelte 5.59.1 and SvelteKit 3.1+ integration
+# Bits UI in SvelteKit 3.1+
 
-Use this reference for application behavior around Skeleton 5.0.6 on SvelteKit 3.1+ exclusively. Kit 2 is historical migration context, not a supported target or alternative implementation. Kit 3.4.0 is the exact baseline; Kit 3.1.0, the previous tested baseline, remains the support floor. Before applying a version-sensitive configuration, navigation or action contract on another release, check its matching package metadata, declarations and source.
+This reference covers Kit routing, SSR and actions. Standalone Svelte 5 does not need Kit. Kit `3.1.0` is the floor for this guidance; `3.4.0` is the exact baseline. Kit 2 conventions below are migration context. Check the installed release's declarations and source before applying a version-sensitive contract.
 
 - [Verify the project before changing it](#verify-the-project-before-changing-it)
 - [Runes, props, snippets and events](#runes-props-snippets-and-events)
 - [Page state and request isolation](#page-state-and-request-isolation)
-- [Lucide rendering and subtree scope](#lucide-rendering-and-subtree-scope)
+- [Bits state across routes](#bits-state-across-routes)
 - [Browser-only work and cleanup](#browser-only-work-and-cleanup)
 - [Purposeful motion](#purposeful-motion)
 - [Load, secrets and serialization](#load-secrets-and-serialization)
@@ -14,37 +14,18 @@ Use this reference for application behavior around Skeleton 5.0.6 on SvelteKit 3
 
 ## Verify the project before changing it
 
-Inspect the package manifest, lockfile, installed package versions, route and layout structure, Vite configuration, global CSS, theme ownership, and existing form and state conventions. Use Bun `1.4.5` for project commands; follow the [existing-project setup](setup.md#existing-project) before changing dependencies. Preserve compatible application behavior while adopting the Kit 3.1+ configuration and imports below. Use runes for new components; do not mix legacy `export let` or `$:` declarations into a runes component.
-
-The reproducible baseline is `@skeletonlabs/skeleton@5.0.6`, `@skeletonlabs/skeleton-svelte@5.0.6`, `svelte@5.59.1`, `@sveltejs/kit@3.4.0`, `tailwindcss@4.3.5`, `@tailwindcss/vite@4.3.5`, `vite@8.3.8`, and `@sveltejs/vite-plugin-svelte@7.3.1`. Skeleton core requires Tailwind `^4.0.0`; its Svelte package requires Svelte `^5.40.0`. Kit 3.4.0 requires Svelte `^5.57.1`, Vite `^8.0.12`, and the Svelte Vite plugin `^7.0.0`. Its TypeScript peer is optional (`^6.0.0`): use `typescript@6.0.3` with `svelte-check@4.7.8` when TypeScript tooling is present. TypeScript 7 is outside both peer ranges; JavaScript-only projects may omit that tooling. Pin direct dependencies and retain the lockfile; satisfying peers alone is not proof of a working application.
-
-Kit 3.4.0 publishes `engines.node: >=22.17`. That is upstream Node metadata, not a Bun requirement or a reason to run local project commands under Node. If the production adapter or host requires Node, check the deployment runtime against its requirements and the applicable upstream Node engine ranges; see [setup](setup.md#version-contract) for the combined ranges. Inspect the matching dependencies and source contracts when using another Kit release.
-
-In a Bun-owned project, inspect installed versions with `bun pm ls` and published metadata for exact releases with `bun info`. These commands do not upgrade dependencies:
-
-```sh
-bun pm ls
-bun info @sveltejs/kit@3.4.0 engines peerDependencies peerDependenciesMeta
-bun info @sveltejs/adapter-auto@9.0.0 peerDependencies
-bun info @sveltejs/vite-plugin-svelte@7.3.1 engines peerDependencies
-bun info vite@8.3.8 engines
-bun info svelte-check@4.7.8 peerDependencies
-bun info @skeletonlabs/skeleton@5.0.6 peerDependencies exports
-bun info @skeletonlabs/skeleton-svelte@5.0.6 peerDependencies exports
-```
-
-Preserve an explicit compatible deployment adapter. The baseline auto-adapter, `@sveltejs/adapter-auto@9.0.0`, automatically builds for Cloudflare **Workers**, not Pages; do not treat this upgrade as a Pages migration. Starting in Kit 3.4.0, an adapter that supplies a Vite plugin with a `configurePreviewServer` hook can set its own `vite.customPreview: true` to replace Kit's default Node preview server. This is an adapter contract, not an app option or a Bun requirement. Local `vite preview` does not verify production hosting. See the [Kit 3.4.0 release](https://github.com/sveltejs/kit/releases/tag/@sveltejs%2Fkit@3.4.0) and [adapter-auto 9.0.0 release](https://github.com/sveltejs/kit/releases/tag/@sveltejs%2Fadapter-auto@9.0.0).
+Inspect the manifest, lockfile, installed versions, route and layout structure, Vite configuration, and existing form and state conventions. Follow [setup](setup.md) for the Bun toolchain and exact dependency pins; CSS and icons are optional. Retain compatible configuration and deployment adapters. Do not treat an adapter update or `vite preview` as proof of production hosting compatibility.
 
 For the Kit 3.1+ target, migrate these historical Kit 2 conventions:
 
-- Configuration belongs in `sveltekit({ ... })` from `@sveltejs/kit/vite`, inside `vite.config.*`; `svelte.config.js` is no longer supported. Move supported options into this plugin, preserving the adapter, required preprocessors and compiler options. Keep the Tailwind Vite plugin before `sveltekit()` and retain unrelated PostCSS transforms.
+- Move supported settings to `sveltekit({ ... })` from `@sveltejs/kit/vite` in `vite.config.*`. Preserve the adapter, required preprocessors and compiler options, then remove obsolete `svelte.config.*`. If using Tailwind, put its Vite plugin before `sveltekit()`.
 - Kit 3 no longer generates `.svelte-kit/tsconfig.json`. Change the root `tsconfig.json`/`jsconfig.json` to extend `$app/tsconfig`, explicitly set `include: ["src", "test", "*"]` and `exclude: ["src/service-worker"]`, and merge custom source/test paths and compiler options. Do not disable `isolatedModules` or `verbatimModuleSyntax`. A TypeScript service worker uses its own config extending `$app/tsconfig/service-worker`. See [setup](setup.md) for complete configuration and the [Kit 3 `$app/tsconfig` migration](https://svelte.dev/docs/kit/migrating-to-sveltekit-3#$app-tsconfig).
 - Kit no longer generates `$lib`. Declare `"#lib/*": "./src/lib/*"` in `package.json` `imports`, then migrate every `$lib` import/re-export to `#lib` with explicit file extensions. Add a bare `#lib` mapping only if a real barrel exists and callers need it. Relative imports remain valid. [Vite 8.3.6](https://github.com/vitejs/vite/releases/tag/v8.3.6) fixed resolution of `#` subpath imports in the dependency optimizer; the 8.3.8 baseline includes that fix. Keep the explicit mapping, not an alias workaround.
 - Use `$app/env`, including `import { browser } from '$app/env'` for runtime guards. Exact Kit 3.4.0 still ships [`$app/environment`](https://unpkg.com/@sveltejs/kit@3.4.0/src/runtime/app/environment/index.js) as a deprecated compatibility re-export; do not use it in new code.
 - `$app/stores` was **removed**, not merely deprecated. `$env/...` modules are **deprecated** in favor of `$app/env/private` and `$app/env/public`.
-- Do not enable experimental remote functions or async compiler features to implement ordinary Skeleton interactions or form actions. Svelte's experimental async compiler option concerns top-level component `await`, async derived expressions and awaited markup; ordinary async event handlers and navigation callbacks do not require it.
+- Ordinary Bits interactions and page actions do not require experimental remote functions or Svelte's experimental async compiler option.
 
-Sources: [Kit 3 migration](https://svelte.dev/docs/kit/migrating-to-sveltekit-3), [Kit 3.4.0 metadata](https://registry.npmjs.org/@sveltejs%2Fkit/3.4.0), [Svelte 5.59.1 metadata](https://registry.npmjs.org/svelte/5.59.1), [Vite 8.3.8 metadata](https://registry.npmjs.org/vite/8.3.8), [svelte-check 4.7.8 metadata](https://registry.npmjs.org/svelte-check/4.7.8), [Skeleton core 5.0.6 metadata](https://registry.npmjs.org/@skeletonlabs%2Fskeleton/5.0.6), [Skeleton Svelte 5.0.6 metadata](https://registry.npmjs.org/@skeletonlabs%2Fskeleton-svelte/5.0.6), [current installation](https://www.skeleton.dev/docs/svelte/get-started/installation/sveltekit).
+Sources: [Kit 3 migration](https://svelte.dev/docs/kit/migrating-to-sveltekit-3), [Kit 3.4.0 metadata](https://registry.npmjs.org/@sveltejs%2Fkit/3.4.0) and [exact declarations](https://unpkg.com/@sveltejs/kit@3.4.0/types/index.d.ts).
 
 ## Runes, props, snippets and events
 
@@ -61,9 +42,9 @@ Runes are compiler syntax, not functions to import. Use them in `.svelte` files 
 
 `let draft = $state(data.value)` takes an initial value; it does not track future `data` changes. For a live display, use `$derived(data.value)`. For an editable draft, choose an explicit reset or reinitialization policy instead of silently overwriting the user's edits in an effect.
 
-DOM events use properties such as `onclick`, `oninput`, and `onsubmit`. Use the event argument (`event.currentTarget`) rather than a global `event`. Event modifiers are not attached to these properties: call `event.preventDefault()` only when the behavior actually requires it. Skeleton 5 compound roots use prop-in/callback-out state: Tabs uses `value`/`onValueChange` with `event.value`, Accordion uses `value: string[]`/`onValueChange` with `event.value`, and Switch uses `checked`/`onCheckedChange` with `event.checked`. Keep the owning value in component-instance `$state`; do not assume these state props support `bind:`.
+Use DOM event properties such as `onclick` and callbacks declared by the component. Read `event.currentTarget` from the event argument. Event modifiers are not attached to event properties: call `event.preventDefault()` only when the behavior requires it. For Bits bindings and callbacks, use the installed primitive's prop types rather than assuming every prop is bindable.
 
-New components receive snippets through props and render them with `{@render children()}`; named `{#snippet ...}` blocks can be passed as named props. Type them as `Snippet` or `Snippet<[ArgumentType]>` from `svelte`. Skeleton 5 uses callable roots such as `<Tabs>` with `<Tabs.List>`, `<Tabs.Trigger>` and `<Tabs.Content>`, not `<Tabs.Root>` or the old control/panel anatomy. An `element(attributes)` snippet replaces internal markup: spread all supplied attributes onto the custom element to preserve behavior, IDs, roles and hidden state. Slots and `let:` belong to legacy APIs; do not mechanically convert them without checking the destination contract.
+New components receive snippets as props and render them with `{@render children()}`. Type them as `Snippet` or `Snippet<[ArgumentType]>` from `svelte`. When delegating a Bits part with `child`, forward the supplied props to the actual element, including the handlers and attributes that implement the interaction. See [Bits fundamentals](bits-ui.md) for composition.
 
 A standalone native wrapper demonstrates typed props, `$bindable`, a snippet, derived state and a hydration-safe ID. A parent can use `<NameField bind:value={name}>Help text</NameField>` with `let name = $state('')`.
 
@@ -90,15 +71,15 @@ A standalone native wrapper demonstrates typed props, `$bindable`, a snippet, de
 {/if}
 ```
 
-Native input bindings remain valid, as the wrapper demonstrates. For Skeleton components, inspect installed `.svelte.d.ts` props and bindings before choosing an API; a prop named `value` is not proof that it is bindable. Keep native input `name`, label association, keyboard behavior and form participation; a visual component value is not automatically present in `FormData`. Use the component's documented hidden input where applicable, such as `Switch.HiddenInput`. See [components](components.md) and [recipes](recipes.md) for complete v5 anatomy.
+Keep a native control's `name`, label and form participation. A Bits value in `$state` does not automatically appear in `FormData`; use the primitive's documented form props where available, or one named input that represents the value. Inspect actual submissions for selected, empty, disabled, and reset cases. Use native controls when the form must be editable without JavaScript.
 
-Sources: [state](https://svelte.dev/docs/svelte/$state), [derived](https://svelte.dev/docs/svelte/$derived), [effect](https://svelte.dev/docs/svelte/$effect), [props and IDs](https://svelte.dev/docs/svelte/$props), [bindable](https://svelte.dev/docs/svelte/$bindable), [snippets](https://svelte.dev/docs/svelte/snippet), [Svelte 5 migration](https://svelte.dev/docs/svelte/v5-migration-guide), [exact Svelte 5.59.1 types](https://unpkg.com/svelte@5.59.1/types/index.d.ts), [Skeleton fundamentals](https://www.skeleton.dev/docs/svelte/get-started/fundamentals), [exact Skeleton Svelte 5.0.6 declarations](https://unpkg.com/@skeletonlabs/skeleton-svelte@5.0.6/dist/index.d.ts).
+Sources: [runes and snippets migration](https://svelte.dev/docs/svelte/v5-migration-guide), [props and IDs](https://svelte.dev/docs/svelte/$props), [Bits state management](https://www.bits-ui.com/docs/state-management/llms.txt), [Bits child snippets](https://www.bits-ui.com/docs/child-snippet/llms.txt).
 
 ## Page state and request isolation
 
 Import `page`, `navigating`, or `updated` from `$app/state` as needed. These are read-only reactive objects, not stores: read `page`, not `$page`, and do not call `.subscribe()` or `.set()`. Derive reactive values with runes, not legacy `$:` or a one-time destructuring assignment. `page.url` is read-only in Kit 3; use a new `URL`/`URLSearchParams` and supported navigation APIs to change the location.
 
-Standalone route-state display:
+Reactive route-state display:
 
 `src/lib/RouteLocation.svelte`:
 ```svelte
@@ -113,7 +94,7 @@ Standalone route-state display:
 Kit 3.1+ navigation contracts (partial TypeScript fragment; call in browser event handlers):
 
 ```ts
-import { goto, refreshAll } from '$app/navigation';
+import { goto } from '$app/navigation';
 import { page } from '$app/state';
 
 const target = new URL(page.shallow?.url.href ?? page.url.href);
@@ -125,7 +106,6 @@ await goto(target, {
 	state: { ...page.state },
 	persistState: true
 });
-await refreshAll();
 ```
 
 `goto(url, options)` performs shallow navigation only with `shallow: true`; `state` or `persistState` alone does not. `replace: true` replaces the history entry. `reset` defaults to true for normal navigation and false for shallow navigation; false preserves focus and scroll. `state` must satisfy the application's `App.PageState`; `persistState: true` restores it after a full reload. `goto` also accepts `refreshAll: boolean` and `invalidate: Array<string | URL | ((url: URL) => boolean)>`. The separate `refreshAll()` function takes **no arguments** and refreshes active remote functions and current-page loads while preserving `page.state`.
@@ -144,46 +124,15 @@ During SSR, read `$app/state` in component rendering, not a server utility or `l
 
 Sources: [request isolation and context](https://svelte.dev/docs/kit/state-management), [application state](https://svelte.dev/docs/kit/$app-state), [navigation](https://svelte.dev/docs/kit/$app-navigation), [shallow routing](https://svelte.dev/docs/kit/shallow-routing), [exact Kit 3.4.0 declarations](https://unpkg.com/@sveltejs/kit@3.4.0/types/index.d.ts), [removed stores](https://svelte.dev/docs/kit/migrating-to-sveltekit-3#$app-stores-(removed)).
 
-## Lucide rendering and subtree scope
+## Bits state across routes
 
-Static public imports from `@lucide/svelte/icons/<slug>` render inline SVG
-during SSR and hydrate as ordinary Svelte 5 components. Root named imports are
-also valid. Do **not** add a browser guard, move these imports into `onMount`,
-disable SSR with `ssr: false`, scan `data-lucide`, or initialize `createIcons`.
-Lucide needs no CSS import, Tailwind plugin or icon-specific `@source`.
-Browser-only lifecycle remains appropriate for actual browser APIs and local
-JavaScript-only controls, not for displaying an imported icon. See
-[imports and package boundary](lucide.md#imports-and-package-boundary).
+- **Local interaction:** keep hover, floating-menu state and transient dialog state in the owning component. For a dialog that must be available on every route, keep its Bits root and parts inside one persistent layout instance. A portal moves DOM; it does not move ownership or let triggers outside the root share its context. If several features need to open it, expose an instance-owned command through layout context and deliberately choose a valid focus-return target.
+- **Navigation:** use ordinary links for route changes, including in a shell or a delegated menu link. Keep link semantics and Bits props when composing a part that supports `child`; do not nest an anchor inside a button. Derive `aria-current` from the active route. Use Tabs for in-page panels, not as a substitute for route links.
+- **Shareable state:** keep filters or a selected panel in URL search parameters when they must survive reload or be shareable. Derive the model from the current URL; write a copy on user actions rather than synchronizing two independent models in effects. Use normal navigation or a native GET form when server loads need the parameters. Use shallow navigation only for a client-side view of the already-rendered route.
+- **History-only state:** use typed `page.state` for state scoped to the browser history entry. It is not an SSR source. Avoid reopening a modal during hydration from persisted client-only state unless the UX explicitly calls for that behavior.
+- **Route lifecycle:** persistent layouts do not remount on each navigation. Decide whether an overlay stays open or closes on route replacement. If using `afterNavigate` registered during initialization, account for initial entry and shallow updates; don't focus an opener that the old route removed. Test that destination focus and announcements still work. Keep an ordinary same-route close restoring focus to its trigger.
 
-For navigation/status data, store **component values** in a finite statically
-imported list or whitelist typed with `LucideIcon` from `@lucide/svelte`.
-In a Svelte 5 each block, use `{@const SelectedIcon = item.icon}` and render
-`<SelectedIcon aria-hidden="true" />` beside the real text. This is a component
-reference, not an icon-name string or DOM lookup. Do not recommend legacy
-`<svelte:component>`, an all-icon namespace catalog or arbitrary runtime import
-paths. Validate external keys against the finite map and provide explicit text
-or a deliberate fallback for unknown keys. Component functions belong in
-component code; do not return them through serialized server `load` data.
-See the complete [finite runtime selection](lucide.md#finite-runtime-selection)
-example rather than duplicating an icon catalog in each route.
-
-For initial subtree defaults, import `setLucideProps` from
-`@lucide/svelte/context` and call it with a **props object** during the parent
-component's instance initialization, before rendering descendants. This is
-Svelte context, not a Skeleton provider factory: there is no getter/factory
-argument contract. Do not call it in `load`, a module script, a global mutable
-singleton, `onMount`, or an event handler. Keep user/request-specific values
-instance-owned. Icons capture the context object during initialization; do not
-promise live propagation from replacing or mutating defaults. Use explicit
-per-icon props for runtime changes and overrides. See
-[subtree defaults](lucide.md#subtree-defaults) for the parent/child pattern.
-
-Sources: [official Lucide Svelte guide](https://lucide.dev/guide/svelte/),
-[1.77.0 exports](https://unpkg.com/@lucide/svelte@1.77.0/package.json),
-[component types](https://unpkg.com/@lucide/svelte@1.77.0/dist/types.d.ts),
-[Icon implementation](https://unpkg.com/@lucide/svelte@1.77.0/dist/Icon.svelte),
-[context implementation](https://unpkg.com/@lucide/svelte@1.77.0/dist/context.js),
-[Svelte context](https://svelte.dev/docs/svelte/context).
+Sources: [Kit state management](https://svelte.dev/docs/kit/state-management), [Kit navigation](https://svelte.dev/docs/kit/$app-navigation), [Bits child snippets](https://www.bits-ui.com/docs/child-snippet/llms.txt).
 
 ## Browser-only work and cleanup
 
@@ -228,7 +177,7 @@ Keep business state authoritative. Update selection, progress, text and ARIA val
 | Optional continuity between routes | `onNavigate` and the browser View Transitions API |
 | Element-bound browser integration | `{@attach ...}` with synchronous cleanup |
 
-Transitions can retain outgoing elements until the outro completes; do not assume state changes immediately remove them from the DOM. `animate:` handles reordering, not insertion/removal. Avoid two systems changing the same transform; animate a wrapper rather than a Skeleton control's internal element. Prefer existing Skeleton disclosure behavior or native `<details>` over rebuilding a control merely to animate it.
+Transitions can retain outgoing elements until the outro completes; do not assume state changes immediately remove them from the DOM. `animate:` handles reordering, not insertion/removal. Avoid two systems changing the same transform: animate a separate wrapper rather than overwriting floating placement. Prefer native `<details>` where its behavior meets the need.
 
 Use the current `Spring`/`Tween` classes, not the deprecated `spring`/`tweened` stores. Set `.target` and read `.current`; use `.set(value, options)` when options are needed. `Spring.set` accepts `{ instant: true }`; `Tween.set` accepts `{ duration: 0 }` for an immediate update. Read `prefersReducedMotion.current`, not the media-query object as a boolean. Pass zero duration to Svelte transitions and list animations when motion is reduced: global CSS duration overrides do not disable their Web Animations API effects.
 
@@ -261,7 +210,6 @@ Standalone optional feedback for a local JavaScript-only selection, not a persis
 	<button
 		type="button"
 		disabled={!ready}
-		class="btn preset-tonal-primary"
 		aria-pressed={selected}
 		onclick={() => { selected = !selected; }}
 	>
@@ -373,20 +321,7 @@ Sources: [load](https://svelte.dev/docs/kit/load), [server-only modules](https:/
 
 ## Global CSS, layout children and hydration
 
-Import existing global CSS once in the root layout; do not scatter imports across route components. Skeleton 5 uses the framework CSS import, not the old optional-presets subpath or a Skeleton `node_modules` source scan.
-
-`src/app.css`:
-```css
-@import 'tailwindcss';
-@import '@skeletonlabs/skeleton';
-@import '@skeletonlabs/skeleton-svelte';
-@import '@skeletonlabs/skeleton/themes/cerberus';
-
-/* Required when using Skeleton's styled native form utilities. */
-@plugin '@tailwindcss/forms';
-```
-
-Install `@tailwindcss/forms@0.5.11` for those form utilities; it is not required for otherwise unstyled native forms. Presets are included in core; `@skeletonlabs/skeleton/optional/presets` is not exported. Remove only the obsolete Skeleton framework `@source` scan. Tailwind `@source` remains valid for shared application packages outside automatic detection; its paths are stylesheet-relative. Preserve existing custom themes and unrelated CSS.
+Bits UI needs no global stylesheet. Import an existing application stylesheet once in the root layout. If adopting Tailwind or optional Skeleton CSS, use the imports and shared-source paths in [setup](setup.md); keep route hydration independent of styling.
 
 Minimal root layout; merge into the existing layout, retaining its providers and shell:
 
@@ -401,7 +336,7 @@ Minimal root layout; merge into the existing layout, retaining its providers and
 {@render children()}
 ```
 
-Set a deterministic initial `data-theme` on `<html>` in `src/app.html`, matching an imported Skeleton theme. Keep the initial component tree and values identical between server render and hydration:
+If theming, use a deterministic initial theme that matches an imported stylesheet. Keep the initial component tree, including selected values and open states, identical between server render and hydration:
 
 - Use `$props.id()` for component-instance IDs, with suffixes for related elements; never `Math.random()`, timestamps or a server-global incrementing counter for label/dialog IDs.
 - Start preferences with the same SSR-safe default on both sides, then read browser storage or media queries after mount. Browser storage may be unavailable; treat it as optional, not an authentication or persistence authority.
@@ -409,9 +344,9 @@ Set a deterministic initial `data-theme` on `<html>` in `src/app.html`, matching
 - A pre-hydration theme bootstrap must respect CSP and must not alter Svelte-owned markup into a different tree. Do not add an unreviewed inline script or generic client theme singleton just to hide a flash.
 - CSS media queries can apply system preferences before hydration without reading browser globals in component initialization.
 
-[Svelte 5.59.1](https://github.com/sveltejs/svelte/releases/tag/svelte@5.59.1) aligns the `mount` and `hydrate` type parameters so a union of those functions is callable. That matters for code that owns its own entry point. Kit handles hydration for its routes; do not call either function manually in a Kit layout.
+Kit handles hydration for its routes; do not call `mount` or `hydrate` manually in a Kit layout. If the server rendered a Bits trigger but none of its interactions work, inspect client startup and hydration errors before changing CSS. If it responds without decoration, inspect the [styling](styling.md).
 
-Sources: [Skeleton 5 installation](https://www.skeleton.dev/docs/svelte/get-started/installation/sveltekit), [Skeleton native forms](https://www.skeleton.dev/docs/svelte/tailwind-components/forms), [layout routing](https://svelte.dev/docs/kit/routing#layout), [props IDs](https://svelte.dev/docs/svelte/$props#props-id), [state management](https://svelte.dev/docs/kit/state-management), [server hooks and HTML transforms](https://svelte.dev/docs/kit/hooks#Server-hooks-handle).
+Sources: [layout routing](https://svelte.dev/docs/kit/routing#layout), [props IDs](https://svelte.dev/docs/svelte/$props#props-id), [server hooks and HTML transforms](https://svelte.dev/docs/kit/hooks#Server-hooks-handle).
 
 ## Native form actions with progressive enhancement
 
@@ -500,6 +435,6 @@ Named actions use `action="?/save"`; do not combine named and default actions on
 
 For a native file input using `bind:files`, [Svelte 5.58.1](https://github.com/sveltejs/svelte/releases/tag/svelte@5.58.1) fixed the binding so it also updates when the form resets. This includes the default enhanced reset after a successful action; failure still does not reset the form.
 
-Remote forms are an optional, separately verified API, not a reason to replace ordinary server actions or enable experimental switches for Skeleton. Exact Kit 3.4.0 declarations expose remote `form` from `$app/server`, typed `fields`/`fields.name.as(...)`, validation issues, schema preflight and a form-specific `.enhance(...)` method. If explicitly requested, verify their configuration, schema, native fallback and enhancement contract against the installed release; do not confuse that method with `use:enhance` from `$app/forms`.
+Remote forms are a separate API, not a prerequisite for Bits or ordinary server actions. If explicitly requested, verify the installed remote `form` API, schema, native fallback and its own `.enhance(...)` contract. Do not confuse it with `use:enhance` from `$app/forms`.
 
 Sources: [form actions](https://svelte.dev/docs/kit/form-actions), [exact Kit 3.4.0 forms/fail/redirect/error and remote-form types](https://unpkg.com/@sveltejs/kit@3.4.0/types/index.d.ts), [exact enhancement implementation](https://unpkg.com/@sveltejs/kit@3.4.0/src/runtime/app/forms/client.js), [Kit 3 enhancement changes](https://svelte.dev/docs/kit/migrating-to-sveltekit-3#$app-forms), [optional remote forms](https://svelte.dev/docs/kit/remote-functions#form).

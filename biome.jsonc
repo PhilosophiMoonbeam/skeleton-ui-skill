@@ -12,8 +12,9 @@
       "AGENTS.md",
       "package.json",
       "biome.jsonc",
+      "tsconfig.examples.json",
       ".github/workflows/**",
-      "skills/skeleton-svelte/**/*.md"
+      "skills/svelte-ui-eco/**/*.md"
     ]
   },
   "formatter": {
@@ -52,7 +53,7 @@
   "overrides": [
     {
       // Lint the skill's YAML frontmatter without linting contextual fences in other docs.
-      "includes": ["skills/skeleton-svelte/SKILL.md"],
+      "includes": ["skills/svelte-ui-eco/SKILL.md"],
       "markdown": {
         "analyzeEmbeds": true
       }
