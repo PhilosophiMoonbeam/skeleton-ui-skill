@@ -1,6 +1,6 @@
-# Style native controls and Bits UI
+# Style native controls, Skeleton, and Bits UI
 
-Style Bits UI and native markup independently from their interaction behavior. Start with plain CSS or the app's existing design system. Optional Skeleton core CSS supplies themes and utilities; it does not automatically skin Bits UI parts. For Skeleton's own styled widgets and their CSS import, see [Skeleton UI](skeleton.md). See [setup](setup.md) for core styling and Tailwind integration.
+Start from the [visual brief](design.md) and keep an existing design system that works. For a new product with no system and Tailwind acceptable, use Skeleton core as a theme and utility foundation; add [Skeleton's styled widgets](skeleton.md) only where they fit. For bespoke Bits UI markup, author the visuals with application CSS, Tailwind, or the optional Skeleton core hybrid below. A component library does not choose the look.
 
 ## Target rendered parts and states
 
@@ -25,11 +25,21 @@ Put such selectors in global application CSS, or use a delegated `child` snippet
 
 An overlay may render through a portal outside the local DOM subtree. Theme tokens set on `<html>` still inherit through `body`; tokens and selectors scoped only to an app shell do not. If a local theme is intentional, use a portal target inside that theme where the primitive supports it, and check that the new target does not clip or cover the overlay. Give dialog layers explicit placement, a legible surface, usable viewport bounds, and a sensible stacking order. Do not use styling in place of focus, dismissal, or model state. See [Bits styling](https://www.bits-ui.com/docs/styling/llms.txt), [child snippets](https://www.bits-ui.com/docs/child-snippet/llms.txt), and [accessibility](accessibility.md).
 
+## Style Bits UI with Skeleton core
+
+[Skeleton's official Bits UI integration](https://www.skeleton.dev/docs/svelte/integrations/bits-ui) demonstrates the supported composition: import the headless `Calendar` from `bits-ui` and pass Tailwind and Skeleton classes to its rendered parts. Bits owns keyboard navigation, focus, selection mechanics, and generated ARIA/state attributes; the app owns the date value and its rules, layout, and paint. Skeleton core supplies CSS only. Do not wrap a Bits calendar in a Skeleton DatePicker root or install the Skeleton Svelte package just to style it.
+
+Follow the [Tailwind and core setup](setup.md#global-css-and-dependency-scanning): load `tailwindcss`, `@skeletonlabs/skeleton`, and your chosen theme in that order, then activate the imported theme. In the consuming workspace install `bun add --exact bits-ui@2.22.0 @internationalized/date@3.12.4` for the [ThemedCalendar example](../examples/ThemedCalendar.svelte), which imports its own date values. No `@skeletonlabs/skeleton-svelte` stylesheet or package is needed for this example. If the app already uses styled Skeleton widgets elsewhere, keep their stylesheet and separate component roots.
+
+Apply classes to rendered parts: for example, `card bg-surface-50-950 text-surface-950-50` on `Calendar.Root` and `btn-icon preset-filled-primary-500` on `Calendar.PrevButton`. Use the actual `Calendar.Day` attributes, such as `data-selected:preset-filled-primary-500` and `data-unavailable:line-through`, to style state without reimplementing it. Map the role first: a neutral reading surface, a paired selected fill and foreground, and a distinct visible keyboard focus indicator. Check selected, unavailable, and focused states together against their actual backing surface in both color schemes. `data-theme` selects the token set; the element's computed `color-scheme` selects the sides of a pairing. If this widget is later placed in a portal, inspect both at its rendered destination rather than its Svelte parent.
+
+The official example was written for Skeleton v3; take the class-and-state technique, not its scaffold, `$lib` import, utility names, or date initialization as a version contract. The local example follows the [pinned baseline](setup.md#version-contract); use [Bits Calendar's public part contracts](https://www.bits-ui.com/docs/components/calendar) and installed declarations when adapting it. For SSR, keep the initial visible date stable across server and client; do not derive it independently from each machine's time zone.
+
 ## Theme registration and activation
 
 A Skeleton theme is a set of CSS custom properties scoped by `[data-theme='name']`. Import its stylesheet **and** activate the exact name on `<html>`. Each imported theme adds CSS to the bundle; register only themes the application uses.
 
-Optional Skeleton setup in the global stylesheet (`src/app.css`):
+Skeleton core setup in the global stylesheet (`src/app.css`):
 
 ```css
 @import 'tailwindcss';

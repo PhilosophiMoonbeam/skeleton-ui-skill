@@ -1,16 +1,19 @@
-# Set up Bits UI in Svelte 5
+# Set up a Svelte 5 app and choose its UI layers
 
-Bits UI provides headless interaction primitives. Use native HTML when it meets the requirement. Bits UI does not require SvelteKit, Tailwind, Skeleton CSS, icons, a global provider, or a stylesheet. Choose styling separately.
+Start with the task and [visual brief](design.md). Reuse a working design system and components in an existing app. Use native HTML where it meets the interaction and form requirements.
 
-In an existing app, retain compatible Skeleton Svelte widgets. Add Bits UI only when you choose it for a new or explicitly migrated widget. See [Skeleton UI](skeleton.md) for its separate component installation and CSS.
+- **New product without a design system, with Tailwind acceptable:** add [Tailwind 4 and Skeleton core CSS](#global-css-and-dependency-scanning), then calibrate a theme for the brief. Add [Skeleton's styled Svelte package](skeleton.md#add-styled-skeleton-components) only if a managed widget fits. Do not install Bits UI by default.
+- **Bespoke markup or interaction:** use Bits UI when its headless behavior fits, then author the visuals in application CSS or Tailwind. [Skeleton core can supply tokens and utilities](styling.md#style-bits-ui-with-skeleton-core) without the styled Svelte package. Bits UI itself needs no Kit, Tailwind, Skeleton, icons, global provider, or stylesheet.
+
+Choose standalone Svelte or SvelteKit based on application requirements, not component-library choice.
 
 ## Version contract
 
 | Package or tool | Baseline |
 | --- | --- |
 | Svelte | `5.59.1` |
-| Bits UI | `2.22.0` |
-| `@internationalized/date` | `3.12.4` |
+| Bits UI (optional headless widgets) | `2.22.0` |
+| `@internationalized/date` (declare directly when imported) | `3.12.4` |
 | Bun | `1.4.5` |
 | Vite / `@sveltejs/vite-plugin-svelte` | `8.3.8` / `7.3.1` |
 | SvelteKit (only for Kit projects) / `@sveltejs/adapter-auto` (greenfield) | `3.4.0` / `9.0.0` |
@@ -48,14 +51,13 @@ Do not upgrade Svelte or Kit implicitly. A Kit version below the supported floor
 
 ## Greenfield standalone Svelte
 
-With Bun `1.4.5`, create a minimal Vite app without Kit or any styling stack:
+With Bun `1.4.5`, create a minimal Vite app without Kit, a widget library, or a styling stack:
 
 ```sh
 mkdir my-svelte-app
 cd my-svelte-app
 printf '%s\n' '{"private":true,"type":"module","packageManager":"bun@1.4.5"}' > package.json
 bun add --dev --exact svelte@5.59.1 vite@8.3.8 @sveltejs/vite-plugin-svelte@7.3.1
-bun add --exact bits-ui@2.22.0
 mkdir -p src
 ```
 
@@ -94,13 +96,13 @@ import App from './App.svelte';
 mount(App, { target: document.getElementById('app') });
 ```
 
-Use the component in [First interactive check](#first-interactive-check) as `src/App.svelte`, then start Vite:
+Use the native component in [First interactive check](#first-interactive-check) as `src/App.svelte`, then start Vite:
 
 ```sh
 bunx --bun vite
 ```
 
-Commit `bun.lock`. See [Vite's project entry documentation](https://vite.dev/guide/) and [Bits UI getting started](https://www.bits-ui.com/docs/getting-started/llms.txt).
+Commit `bun.lock`. See [Vite's project entry documentation](https://vite.dev/guide/).
 
 For a standalone app that already owns an SSR entry, use `hydrate` on server-rendered markup rather than calling `mount` on it. [Svelte 5.59.1](https://github.com/sveltejs/svelte/releases/tag/svelte@5.59.1) aligns the `mount` and `hydrate` type parameters so a union of the two is callable in a shared entry point. This does not change Kit's ownership of hydration.
 
@@ -113,7 +115,7 @@ bunx --bun sv@1.7.0 create --template minimal --types ts --no-add-ons --no-insta
 cd my-kit-app
 ```
 
-For JavaScript, use `--no-types` instead of `--types ts`. Before the first `bun add`, apply the TypeScript (or JavaScript) and Vite configuration below, remove any obsolete `svelte.config.*`, and merge these fields into the scaffold manifest. Keep the other scripts and `"type": "module"`. The install hook runs Kit sync, which reads the Vite config.
+For JavaScript, use `--no-types` instead of `--types ts`. Before the first `bun add`, apply the TypeScript (or JavaScript) and Vite configuration below (`vite.config.js` for JavaScript), remove any obsolete `svelte.config.*`, and merge these fields into the scaffold manifest. Keep the other scripts and `"type": "module"`. The install hook runs Kit sync, which reads the Vite config.
 
 ```json
 {
@@ -124,23 +126,75 @@ For JavaScript, use `--no-types` instead of `--types ts`. Before the first `bun 
 }
 ```
 
-Install the Kit baseline and Bits UI in the application workspace:
+Install only the Kit baseline in the application workspace:
 
 ```sh
 bun add --dev --exact svelte@5.59.1 @sveltejs/kit@3.4.0 vite@8.3.8 @sveltejs/vite-plugin-svelte@7.3.1 typescript@6.0.3 svelte-check@4.7.8 @sveltejs/adapter-auto@9.0.0
-bun add --exact bits-ui@2.22.0
 ```
 
 In an app without TypeScript tooling, omit `typescript` and `svelte-check`. Inspect remaining scaffold dependencies for incompatible peers and commit `bun.lock`. Keep an existing explicit deployment adapter rather than replacing it with adapter-auto; adapter-auto 9 detects Cloudflare Workers, not Pages.
 
-Use the component in [First interactive check](#first-interactive-check) as `src/routes/+page.svelte`, then run `bun run --bun dev`. Kit owns hydration; do not add a manual mount entry.
+Use the native component in [First interactive check](#first-interactive-check) as `src/routes/+page.svelte`, then run `bun run --bun dev`. Kit owns hydration; do not add a manual mount entry.
 
 ## First interactive check
+
+Use this component unchanged in either scaffold; it requires no extra package or CSS:
+
+```svelte
+<h1>Shipping help</h1>
+
+<details>
+  <summary>When will my order arrive?</summary>
+  <p>Standard delivery takes three to five business days.</p>
+</details>
+
+<details>
+  <summary>Where can I track my order?</summary>
+  <p>Use the tracking link in your shipping confirmation email.</p>
+</details>
+```
+
+Tab to a summary and press Enter or Space. The browser toggles its content without JavaScript. Keep native disclosure when independent toggling is all you need; the managed options below replace this page component only when their behavior fits.
+
+### Opt in to a Skeleton accordion
+
+Set up [Tailwind and Skeleton core](#global-css-and-dependency-scanning), activate the theme, and follow [Add styled Skeleton components](skeleton.md#add-styled-skeleton-components) for the exact package install and framework CSS import. Replace the native component with:
+
+```svelte
+<script>
+  import { Accordion } from '@skeletonlabs/skeleton-svelte';
+</script>
+
+<h1>Shipping help</h1>
+
+<Accordion collapsible>
+  <Accordion.Item value="delivery">
+    <h2><Accordion.ItemTrigger>When will my order arrive?</Accordion.ItemTrigger></h2>
+    <Accordion.ItemContent>Standard delivery takes three to five business days.</Accordion.ItemContent>
+  </Accordion.Item>
+  <Accordion.Item value="tracking">
+    <h2><Accordion.ItemTrigger>Where can I track my order?</Accordion.ItemTrigger></h2>
+    <Accordion.ItemContent>Use the tracking link in your shipping confirmation email.</Accordion.ItemContent>
+  </Accordion.Item>
+</Accordion>
+```
+
+### Opt in to a headless Bits UI accordion
+
+Choose this path for application-authored markup and styling. Install only the component package; this example does not directly import the date peer:
+
+```sh
+bun add --exact bits-ui@2.22.0
+```
+
+Replace the native component with:
 
 ```svelte
 <script>
   import { Accordion } from 'bits-ui';
 </script>
+
+<h1>Shipping help</h1>
 
 <Accordion.Root type="single">
   <Accordion.Item value="delivery">
@@ -158,7 +212,7 @@ Use the component in [First interactive check](#first-interactive-check) as `src
 </Accordion.Root>
 ```
 
-Tab to the first trigger and press Enter or Space. Its content and expanded state should change together. Use the Down Arrow to move focus to the second trigger, then open it; the first section should close. The unstyled appearance is expected. See the [example mounting guide](../examples/README.md) for additional controls.
+For either managed accordion, Tab to the first trigger and press Enter or Space. Its content and expanded state should change together. Use Down Arrow to move focus to the second trigger, then open it; the first section should close. An unstyled appearance is expected for Bits UI until you add styles. See [Bits UI getting started](https://www.bits-ui.com/docs/getting-started/llms.txt) and the [example mounting guide](../examples/README.md).
 
 ## Lucide when icons are useful
 
@@ -234,7 +288,7 @@ import { browser, building, dev, version } from '$app/env';
 
 ## Global CSS and dependency scanning
 
-Using plain CSS? Skip the optional Tailwind configuration and [load your stylesheet](#load-the-stylesheet-and-activate-an-optional-theme) directly. To use Tailwind on Vite:
+For a new design system on Tailwind, use this section to set up Tailwind and Skeleton core. If the visual system uses plain CSS, skip the packages and [load your stylesheet](#load-the-stylesheet-and-activate-an-optional-theme) directly. To use Tailwind on Vite:
 
 ```sh
 bun add --dev --exact tailwindcss@4.3.5 @tailwindcss/vite@4.3.5
@@ -242,7 +296,7 @@ bun add --dev --exact tailwindcss@4.3.5 @tailwindcss/vite@4.3.5
 
 Import `tailwindcss` from `@tailwindcss/vite` in `vite.config.*` and prepend `tailwindcss()` to the existing plugin list: `[tailwindcss(), svelte()]` for standalone Vite or `[tailwindcss(), sveltekit({ adapter: adapter() })]` for the greenfield Kit configuration above. Do not also process Tailwind through PostCSS; retain unrelated transforms.
 
-For Tailwind alone, `src/app.css` needs only `@import 'tailwindcss';`. For optional Skeleton themes and CSS utilities, also install the CSS core:
+For Tailwind alone, `src/app.css` needs only `@import 'tailwindcss';`. To use Skeleton themes, tokens, and utility classes, also install the CSS core:
 
 ```sh
 bun add --dev --exact @skeletonlabs/skeleton@5.0.6
@@ -257,6 +311,8 @@ Then use:
 ```
 
 Core includes presets; the old `@skeletonlabs/skeleton/optional/presets` subpath is not exported by [5.0.6](https://unpkg.com/@skeletonlabs/skeleton@5.0.6/package.json). Do not add a historical Skeleton Tailwind plugin. If using Skeleton Svelte widgets, add their [framework CSS import](skeleton.md#add-styled-skeleton-components) between core and the theme; it replaces the historical manual Skeleton `dist` scan. Neither Bits UI nor Skeleton CSS requires a manual dependency scan.
+
+Cerberus is a starting point, not the product's visual brief. [Calibrate the theme](styling.md#theme-registration-and-activation) against real content, states, and both color schemes before adopting it.
 
 When using Skeleton's styled native form utilities, install their form reset:
 

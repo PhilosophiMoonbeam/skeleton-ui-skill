@@ -1,6 +1,6 @@
 # Visual design and responsive composition
 
-Start with the existing visual system. Plain CSS, Tailwind, and optional Skeleton tokens establish appearance; native HTML and [Bits UI](bits-ui.md) establish interaction. Use [accessibility.md](accessibility.md) to verify both.
+Start with the task and visual brief, then reuse the app's working visual system and components. CSS, Tailwind, and Skeleton core tokens implement visual choices; native HTML, [Skeleton Svelte](skeleton.md), or [Bits UI](bits-ui.md) can own the interaction. A styled widget brings defaults, not an art direction. Keep one interaction owner per widget and use [accessibility.md](accessibility.md) to verify the result.
 
 - [Write a visual brief before markup](#write-a-visual-brief-before-markup)
 - [Establish a small visual system](#establish-a-small-visual-system)
@@ -13,17 +13,23 @@ Start with the existing visual system. Plain CSS, Tailwind, and optional Skeleto
 
 ## Write a visual brief before markup
 
-Capture the audience, their primary task, content type, and desired tone in two sentences. Choose one distinguishing device: an editorial heading, a disciplined dense list, a useful illustration, or a distinctive navigation rail. Use it consistently, not all at once.
+In two sentences, name the audience, the task they need to finish, the content they use, and the tone that fits. Note where the task happens and how often. Choose a composition that makes the task easier:
 
-Example brief: “A small community design studio needs to find and review project briefs. Use calm neutral surfaces, one blue accent, editorial headings, and generous space around compact, factual project cards.” This differs from a generic analytics dashboard without inventing metrics, charts, or a decorative hero unrelated to the task.
+| If users need to… | Art direction | One device that fits |
+| --- | --- | --- |
+| Scan, compare, and act repeatedly | **Dense operational:** put filters, counts, and row actions near an aligned list or table. Keep controls comfortable even when rows are compact. | A strong section index that makes queues easy to scan. |
+| Explore a collection or read | **Editorial:** use a deliberate type hierarchy, bounded reading width, and space between sections; keep introductions proportionate to the content. | A distinctive display heading. |
+| Complete a single decision or submission | **Focused form:** use a bounded column, group related inputs, and place instructions, feedback, and the next action where they're needed. | A contrasting panel that frames the decision. |
 
-Adapt the existing app before introducing a new look: retain its active theme, fonts, spacing rhythm, navigation conventions, and component shapes unless the brief requires a change. If using Skeleton CSS in a new app, start with one bundled theme and calibrate it. A visual refresh is not a dependency migration.
+Pick one device to lead the composition. It need not be colorful or decorative, and it must not compete with the task. For Fieldnotes, a small community design studio needs to find and review project briefs. An editorial heading and generous space around compact, factual cards suit that work better than an invented analytics dashboard.
+
+Retain the existing theme, fonts, spacing rhythm, navigation, and component shapes unless the brief calls for a change. If a new app uses Skeleton core, use a bundled or custom theme as a starting point and calibrate it to the brief. A visual refresh is not a dependency migration.
 
 ## Establish a small visual system
 
 | Decision | Recommended starting point | Avoid |
 | --- | --- | --- |
-| Palette | Neutral canvas and containers with one accent. Reserve status colors for labeled status. With Skeleton, start with `surface` pairings and an intentional `primary` or brand preset. | Every card in a different brand color; gradients behind body text; translucent surfaces with unmeasured contrast. |
+| Palette | Give canvas, content, action, emphasis, and status distinct roles and pair backgrounds with readable foregrounds. Use however many brand colors the brief can support without competing signals. With Skeleton, map these roles to `surface`, brand or `primary`, and status palettes. | Arbitrary color changes per card; using the same treatment for error and ordinary emphasis; encoding status by hue alone. |
 | Type | One loaded or system font family; clear page title, section heading, body, and metadata roles. Use weight and spacing as well as size. Keep prose around 45–75 characters per line. | A wall of equally bold labels; tiny low-contrast metadata; all-uppercase paragraphs; fonts that were named but not loaded. |
 | Spacing | Use a repeated vocabulary, for example `gap-2`, `gap-4`, `gap-6`, `p-4`, `p-6`. Section gaps should exceed the gaps within their content. | A different offset for every element; changing global `--spacing` to fix one crowded control. |
 | Surfaces | Canvas, content surface, and one highlighted surface. A subtle border and consistent radius can distinguish cards without shadows. | Nested cards around every sentence; many competing shadow strengths; every surface floating equally high. |
@@ -33,9 +39,11 @@ Adapt the existing app before introducing a new look: retain its active theme, f
 
 These are starting points, not fixed ratios or a prescribed brand. Modify theme tokens intentionally rather than hardcoding competing palettes. Match backgrounds with appropriate foregrounds; the existence of a contrast token does not prove the final rendered contrast passes. Skeleton's `card` supplies radius, not padding or paint; `btn` defaults to nonwrapping text, so explicitly permit wrapping for long labels.
 
-Calibrate one representative screen with real-length content before repeating components. Choose a canvas, a content surface, one accent treatment, four type roles, and comfortable or compact density; use the token override pattern in [styling.md](styling.md). If everything competes, remove accents, borders, and bold weights before adding decoration. If hierarchy is weak, increase section spacing and distinguish the title before enlarging every card. If content feels sparse, improve grouping and column widths rather than inventing metrics.
+Calibrate one representative screen before repeating components. Use real-length content and compare the states users can reach, such as focus, selected, empty, or invalid. Adjust canvas and foreground together, then tune hierarchy, spacing, and density; use the [token override pattern](styling.md#theme-registration-and-activation) if theming with Skeleton. If everything competes, remove excess emphasis; if hierarchy is weak, distinguish the title and related groups before enlarging every card. Do not invent content to fill space.
 
-Adapt the recipe to the task: keep the editorial introduction for a collection or reading experience; shorten it to a title and explanation for frequent operational work. Use a list or table when users compare the same fields across many records; retain cards when descriptions and next steps need reading space. Change grid breakpoints when the actual labels and controls stop fitting, not to reach a preferred column count.
+Try the task with a keyboard, at narrow and wide widths and enlarged text, and with reduced motion and forced colors. Check that focus stays visible, the task is still complete without animation, and the rendered foregrounds, controls, and state indicators have adequate contrast in the schemes the design supports. Let actual content and controls set the breakpoints, not a preferred column count.
+
+Compare [Fieldnotes](#responsive-page-shell) with the [Northlight appointment calendar](../examples/ThemedCalendar.svelte). One is an editorial project browser in scoped CSS; the other frames a focused decision with Tailwind and Skeleton core, while Bits owns the date grid interaction. Neither is a framework look to copy by default.
 
 Optional effects belong to the brief, not to a mandatory redesign:
 
@@ -150,7 +158,7 @@ These are **checks to perform**, not a claim of tested screenshots or accessible
 4. **Local interaction:** Type `harbor` without submitting; four briefs should still be shown. Choose **Apply filters** and expect one. Reset, select **Draft**, and apply for two. Apply `zzzz` for zero; **Clear filters and show all briefs** should restore four and focus **Search briefs**. Check the persistent count, visible empty message, and the regular **Reset filters** button too.
 5. **Initial state:** Reload with slow and disabled JavaScript. Verify the four initial briefs, usable disclosure and fragment links, disabled filter controls, and an explanation that they require JavaScript. Once mounted the same content remains and filtering becomes available; no data is sent or saved.
 6. **Visual review:** Inspect 320/375/768/1280px widths, 200% zoom, enlarged text, long replacement titles, both color schemes, reduced motion, and forced colors. Measure contrast of body/metadata, buttons, borders needed to identify controls, and focus indicators. Check the actual theme, not only token names. Screen-reader review should identify landmarks, headings, filter labels, status changes, and the empty state.
-7. **Design review:** Identify the primary task at a glance. Confirm that one accent and one distinguishing device lead the composition, repeated elements share type/spacing/radius rules, and the narrow layout retains the same hierarchy. Remove decorative panels that displace useful content. Check replacement content and reachable states, not just the polished default dataset.
+7. **Design review:** Can users find and review the briefs at a glance? Check that the editorial heading leads without crowding out filters or cards, repeated elements share type/spacing/radius rules, and the narrow layout retains the same hierarchy. Remove decorative panels that displace useful content. Check replacement content and reachable states, not just the polished default dataset.
 
 For real data, use the application's supported route or request flow and implement genuine pending, error, and retry states.
 

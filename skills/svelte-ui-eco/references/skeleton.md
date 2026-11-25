@@ -1,22 +1,25 @@
-# Use Skeleton UI selectively
+# Build with Skeleton core and styled Svelte components
 
-Bits UI is an independent headless Svelte library. Skeleton provides a Tailwind-based design system (`@skeletonlabs/skeleton`) and a separate package of styled, Zag-backed Svelte components (`@skeletonlabs/skeleton-svelte`). Neither component library depends on the other. Skeleton core CSS can style native or Bits UI markup through themes, tokens, and utility classes; it does not apply Skeleton's widget styles to Bits UI automatically.
+Skeleton provides a Tailwind-based design system (`@skeletonlabs/skeleton`) and a separate package of styled Svelte components (`@skeletonlabs/skeleton-svelte`) backed by Zag (1.48.0 in 5.0.6). Bits UI is an independent headless Svelte library. Neither component library depends on the other. Skeleton core CSS can paint native or Bits UI markup through tokens and utility classes; it does not automatically skin Bits UI parts.
 
-## Choose the smallest change
+## Choose a foundation and widget owner
 
-- **Existing Skeleton app:** keep compatible widgets, theme CSS, and providers. Use the same widget family for adjacent work unless a requirement warrants a change. No migration is required to use this skill.
-- **New custom widget:** use native HTML if sufficient, then prefer Bits UI when it covers the behavior. Choose a Skeleton component instead when the app already follows its design system or when its built-in behavior avoids a custom implementation.
-- **Both packages in one app:** use separate widget roots. Do not interchange trigger/content parts, context providers, controlled callbacks, or generated ARIA props. Share app state and theme tokens, not internal widget state. Verify focus, Escape, stacking, and theme inheritance when overlay systems meet.
+- **New product without a design system:** if Tailwind is acceptable, start with Tailwind 4 and Skeleton core; calibrate the theme to the [visual brief](design.md). Use native markup where sufficient, then use Skeleton's styled components for managed widgets whose anatomy and behavior fit. Do not add Bits UI alongside them by default.
+- **Existing app:** keep its working visual system and compatible widgets. In a Skeleton app, retain themes, providers, and the existing component family unless a requirement warrants a change.
+- **Bespoke widget:** if native HTML is insufficient and the styled anatomy or behavior is a poor fit, use a fitting Bits UI primitive and author its visuals. [Skeleton core can supply shared paint](styling.md#style-bits-ui-with-skeleton-core) without owning interaction.
+- **Both widget libraries in one app:** give each widget exactly one root or provider and one owner for keyboard, focus, dismissal, and widget state. Do not interchange anatomy, callbacks, or generated ARIA props. Share app-owned values and theme tokens, not internal widget state. Avoid maintaining both libraries for equivalent features. Check focus, Escape, stacking, and theme inheritance when overlay systems meet.
 
 Open the [runtime inventory](#runtime-inventory) to find a Skeleton export, the [composition contracts](#composition-contracts) to customize one, or the [optional recipes](skeleton-recipes.md) for complete components.
 
 ## Add styled Skeleton components
 
-For a Bun-managed app using the reference versions, install both packages if they are not present. Check the [component manifest](https://registry.npmjs.org/@skeletonlabs%2Fskeleton-svelte/5.0.6) for the resolved Svelte peer (`^5.40.0` at 5.0.6). Bits UI is not part of this installation.
+For a Bun-managed app already using [Tailwind and Skeleton core](setup.md#global-css-and-dependency-scanning), add only the styled component package when the first widget needs it:
 
 ```sh
-bun add --dev --exact @skeletonlabs/skeleton@5.0.6 @skeletonlabs/skeleton-svelte@5.0.6
+bun add --exact @skeletonlabs/skeleton-svelte@5.0.6
 ```
+
+If core is absent, follow the linked setup first. Check the [component manifest](https://registry.npmjs.org/@skeletonlabs%2Fskeleton-svelte/5.0.6) for the Svelte peer (`^5.40.0` at 5.0.6). Bits UI is not part of this installation.
 
 Use the existing [Tailwind/Vite configuration](setup.md#global-css-and-dependency-scanning). In that global stylesheet, load the component CSS after core and before the chosen theme. Keep a single import per stylesheet; set `data-theme` to the imported theme on the relevant ancestor, including the portal destination if needed. Importing the framework stylesheet replaces the old manual Skeleton `dist` scan; continue registering any shared app source outside Tailwind's automatic scan.
 
@@ -93,7 +96,7 @@ This is the 31-component root inventory of [`@skeletonlabs/skeleton-svelte@5.0.6
 | [`Portal`](https://www.skeleton.dev/docs/svelte/framework-components/portal.md) | Places floating anatomy outside clipping ancestors. Supports `target` and `disabled`; see the portal contract below. |
 | [`LocaleProvider`](https://www.skeleton.dev/docs/svelte/framework-components/locale-provider.md) **beta** | `<LocaleProvider locale="en-US">` and `.Context` provide locale and derived direction without a DOM wrapper. The app still owns translation and document `lang`/`dir`. |
 
-There is no `Drawer`, `Stepper`, `Select`, `Checkbox`, `Radio`, `Alert`, `Clipboard`, or `PinInput` root in 5.0.6. Do not import a name inferred from another major or from Zag. Use the root names above, native controls, or the [default Bits UI decision](components.md) for a new widget.
+There is no `Drawer`, `Stepper`, `Select`, `Checkbox`, `Radio`, `Alert`, `Clipboard`, or `PinInput` root in 5.0.6. Do not import a name inferred from another major or from Zag. Use the roots above, a native control, or a fitting headless primitive from the [component decision guide](components.md).
 
 ## Composition contracts
 

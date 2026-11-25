@@ -1,6 +1,6 @@
 # Optional Skeleton 5 recipes
 
-Use these when keeping an existing Skeleton widget or when [Skeleton fits the requirement](skeleton.md#choose-the-smallest-change). They do not replace the native-first/Bits UI defaults for new widgets.
+Use these recipes when [Skeleton is the right fit](skeleton.md#choose-a-foundation-and-widget-owner), whether adopting its styled components in a new product or maintaining an existing one. Use native HTML when sufficient; adopt a headless primitive when you need to own its design or when its behavior fits better.
 
 **Setup:** The eight standalone TypeScript components target Svelte **5.59.1**, Tailwind **4.3.5**, and `@skeletonlabs/skeleton` / `@skeletonlabs/skeleton-svelte` **5.0.6** (inherited Zag **1.48.0**). Use the [Skeleton installation and CSS order](skeleton.md#add-styled-skeleton-components) and [activate the imported theme](setup.md#load-the-stylesheet-and-activate-an-optional-theme); put the theme on `<html>` so the default body portals inherit it. The form, Combobox, and Pagination examples use Skeleton native form styles: `bun add --dev --exact @tailwindcss/forms@0.5.11`, then add `@plugin '@tailwindcss/forms';` after the global CSS imports. No icons or Bits UI imports are needed. Save a fence as its stated filename inside the app's Tailwind scan and import and render it in a Svelte page or route. The demos use local state, reset on recreation, and make no server mutations.
 
